@@ -63,15 +63,24 @@ impl Motor {
             match port.write(&cmd) {
                 core::result::Result::Ok(_) => {
                     // read msg
-                    let mut serial_buf: Vec<u8> = vec![0; 16];
+                    let mut buf: Vec<u8> = vec![0; 16];
 
-                    match port.read(serial_buf.as_mut_slice()) {
+                    match port.read(buf.as_mut_slice()) {
                         core::result::Result::Ok(t) => {
-                            // TODO: 校验数据帧
-                            let value: u32 = ((serial_buf[3] as i32) << 24
-                                | (serial_buf[4] as i32) << 16
-                                | (serial_buf[5] as i32) << 8
-                                | (serial_buf[6] as i32))
+                            // TODO: 增强数据帧校验
+                            if t < 9
+                                || buf[0] != 0x5a
+                                || buf[1] != 0x5a
+                                || buf[t - 1] != 0xa5
+                                || buf[t - 2] != 0xa5
+                            {
+                                return None;
+                            }
+
+                            let value: u32 = ((buf[3] as i32) << 24
+                                | (buf[4] as i32) << 16
+                                | (buf[5] as i32) << 8
+                                | (buf[6] as i32))
                                 as u32;
                             return Some(value);
                         }

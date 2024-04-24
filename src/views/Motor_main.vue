@@ -58,7 +58,6 @@ async function connect_motor() {
 async function get_motor_params() {
   await cmds.cmd_get_motor_params()
     .then((data) => {
-      console.log(data)
       Rs_Ohm.value = data.rs;
       Rs_Ohm_Online.value = data.rs_online;
       Ls_d.value = data.ls_d;
@@ -70,7 +69,6 @@ async function get_motor_params() {
 async function get_avaliable_ports() {
   await cmds.cmd_get_avaliable_ports()
     .then((data) => {
-      console.log(data);
       serialPorts.value = data;
     })
 }
