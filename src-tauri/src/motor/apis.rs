@@ -47,11 +47,11 @@ impl Motor {
         })
     }
 
-    fn request(&mut self, msgType: u8, msg: u32) -> Option<u32> {
+    fn request(&mut self, msg_type: u8, msg: u32) -> Option<u32> {
         let mut cmd: Vec<u8> = vec![];
         cmd.push(0x5a);
         cmd.push(0x5a);
-        cmd.push(msgType);
+        cmd.push(msg_type);
         cmd.push(((msg >> 24) & 0xff) as u8);
         cmd.push(((msg >> 16) & 0xff) as u8);
         cmd.push(((msg >> 8) & 0xff) as u8);
