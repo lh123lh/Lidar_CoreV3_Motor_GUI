@@ -70,6 +70,9 @@ async function get_avaliable_ports() {
   await cmds.cmd_get_avaliable_ports()
     .then((data) => {
       serialPorts.value = data;
+
+      // 在setInterval中定时查询可用端口时需要去掉下面的代码
+      serialPort.value = serialPorts.value[0];
     })
 }
 
@@ -136,7 +139,7 @@ async function get_avaliable_ports() {
 
         <cardBase title="电机状态" class="mt-2">
           <template #content>
-            <VueSpeedometer :height="180" :value="currentRps" :minValue="0" maxValue="200" :segments="10" />
+            <VueSpeedometer :height="180" :value="currentRps" :minValue="0" :maxValue="200" :segments="10" />
           </template>
 
         </cardBase>
