@@ -14,7 +14,7 @@ const flux = ref(100);
 const connectBtn = ref("连接");
 const startBtn = ref("启动");
 const targetRps = ref(0);
-const currentRps = ref(0);
+const currentRps = ref(15.5);
 const baudRates = [
   {
     value: 9600,
@@ -79,67 +79,75 @@ async function get_avaliable_ports() {
 
 <template>
   <div>
-    <el-row :gutter="20">
-      <el-col :span="16">
+    <el-row :gutter="5">
+      <el-col :span="12">
         <cardBase title="电机配置">
           <template #content>
-
             <el-row :gutter="5">
-              <el-col :span="10">
+              <el-col>
                 <el-row>
-                  <el-col :span="9">
+                  <el-col :span="5">
                     <label>串口</label>
                   </el-col>
-                  <el-col :span="14">
+                  <el-col :span="10">
                     <el-select v-model="serialPort" placeholder="Serial Port">
                       <el-option v-for="item in serialPorts" :value="item" />
                     </el-select>
                   </el-col>
                 </el-row>
               </el-col>
-              <el-col :span="10">
-                <el-row>
-                  <el-col :span="6">
+            </el-row>
+
+            <el-row :gutter="5" class="mt-2">
+              <el-col>
+                <el-row :gutter="5">
+                  <el-col :span="5">
                     <label>波特率</label>
                   </el-col>
-                  <el-col :span="14">
+                  <el-col :span="10">
                     <el-select v-model="baudRate" placeholder="Baud Rate">
                       <el-option v-for="item in baudRates" :key="item.value" :label="item.label" :value="item.value" />
                     </el-select>
                   </el-col>
+                  <el-col :span="4">
+                    <el-button @click="connect_motor">{{ connectBtn }}</el-button>
+                  </el-col>
                 </el-row>
-              </el-col>
-              <el-col :span="4">
-                <el-button @click="connect_motor">{{ connectBtn }}</el-button>
               </el-col>
             </el-row>
 
             <el-row :gutter="5" class="mt-2">
-              <el-col :span="10">
-                <el-row>
-                  <el-col :span="9">
+              <el-col>
+                <el-row :gutter="5">
+                  <el-col :span="5">
                     <label>目标转速</label>
                   </el-col>
-                  <el-col :span="15">
-                    <el-input v-model="targetRps" style="width: 115px; font-size: 0.8rem" :disabled=!isConnect>
+                  <el-col :span="10">
+                    <el-input v-model="targetRps" style="font-size: 0.8rem" :disabled=!isConnect>
                       <template #append>rps</template>
                     </el-input>
                   </el-col>
+                  <el-col :span="4">
+                    <el-button :disabled=!isConnect>{{ startBtn }}</el-button>
+                  </el-col>
                 </el-row>
-              </el-col>
-              <el-col :span="10">
-              </el-col>
-              <el-col :span="4">
-                <el-button :disabled=!isConnect>{{ startBtn }}</el-button>
               </el-col>
             </el-row>
           </template>
         </cardBase>
 
-        <cardBase title="电机参数" class="mt-2">
+        <cardBase title="电机状态" class="mt-2">
+          <template #content>
+            <VueSpeedometer :height="180" :value="currentRps" :minValue="0" maxValue="200" :segments="10" />
+          </template>
+
+        </cardBase>
+      </el-col>
+      <el-col :span="12">
+        <cardBase title="电机参数">
           <template #content>
             <el-row :gutter="20">
-              <el-col :span="12">
+              <el-col>
                 <el-row :gutter="1">
                   <el-col :span="10">
                     <label>Rs (Ohm)</label>
@@ -149,8 +157,9 @@ async function get_avaliable_ports() {
                   </el-col>
                 </el-row>
               </el-col>
-
-              <el-col :span="12">
+            </el-row>
+            <el-row class="mt-2">
+              <el-col>
                 <el-row :gutter="1">
                   <el-col :span="10">
                     <label style="font-size: 1rem;">Rs Online</label>
@@ -163,7 +172,7 @@ async function get_avaliable_ports() {
             </el-row>
 
             <el-row :gutter="20" class="mt-2">
-              <el-col :span="12">
+              <el-col>
                 <el-row :gutter="1">
                   <el-col :span="10">
                     <label>Ls-d (mH)</label>
@@ -173,8 +182,9 @@ async function get_avaliable_ports() {
                   </el-col>
                 </el-row>
               </el-col>
-
-              <el-col :span="12">
+            </el-row>
+            <el-row class="mt-2">
+              <el-col>
                 <el-row :gutter="1">
                   <el-col :span="10">
                     <label style="font-size: 1rem;">Ls-q (mH)</label>
@@ -187,7 +197,7 @@ async function get_avaliable_ports() {
             </el-row>
 
             <el-row :gutter="20" class="mt-2">
-              <el-col :span="12">
+              <el-col>
                 <el-row :gutter="1">
                   <el-col :span="10">
                     <label>Flux (V/Hz)</label>
@@ -197,14 +207,10 @@ async function get_avaliable_ports() {
                   </el-col>
                 </el-row>
               </el-col>
-
             </el-row>
 
           </template>
         </cardBase>
-      </el-col>
-      <el-col :span="8">
-        <VueSpeedometer :value="currentRps" :minValue="0" maxValue="200" :segments="10" />
       </el-col>
     </el-row>
   </div>
