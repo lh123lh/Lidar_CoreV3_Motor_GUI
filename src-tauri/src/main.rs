@@ -13,7 +13,15 @@ async fn main() {
             cmds::init_serial_port,
             cmds::deinit_serial_port,
             cmds::get_motor_params,
+            cmds::get_motor_status,
             cmds::list_avaliable_ports,
+            cmds::update_motor_rps,
+            cmds::enable_motor_identify,
+            cmds::enable_motor_rs_online,
+            cmds::enable_motor_rs_recalc,
+            cmds::clear_motor_faults,
+            cmds::start_motor,
+            cmds::stop_motor,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
