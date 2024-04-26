@@ -20,6 +20,8 @@ async fn main() {
             cmds::enable_motor_rs_online,
             cmds::enable_motor_rs_recalc,
             cmds::clear_motor_faults,
+            cmds::update_motor_acc_max,
+            cmds::update_motor_acc_start,
             cmds::start_motor,
             cmds::stop_motor,
         ])

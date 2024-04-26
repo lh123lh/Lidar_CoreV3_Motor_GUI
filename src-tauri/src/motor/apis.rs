@@ -1,4 +1,4 @@
-use anyhow::{bail, Context, Ok, Result};
+use anyhow::{Ok, Result};
 use once_cell::sync::Lazy;
 use serde::{Deserialize, Serialize};
 use serialport::{self, SerialPort};
@@ -13,6 +13,16 @@ pub struct MotorParams {
     pub flux: Option<f64>,
     pub poles: Option<u32>,
     pub target_rps: Option<f32>,
+    pub torque: Option<f64>,
+    pub vdc_bus: Option<f64>,
+    pub acc_max_hzps: Option<f64>,
+    pub acc_start_hzps: Option<f64>,
+}
+
+#[derive(Debug, PartialEq, Serialize, Deserialize, Clone)]
+pub struct MotorVariableParams {
+    pub acc_max_hzps: Option<f64>,
+    pub acc_start_hzps: Option<f64>,
 }
 
 #[derive(Debug, PartialEq, Serialize, Deserialize, Clone)]
@@ -36,26 +46,26 @@ impl Motor {
     }
 
     fn motor_state_to_string(&mut self, state: &u8) -> String {
-      match state {
-         0 => String::from("STOP_IDLE"),
-         1 => String::from("BRAKE_STOP"),
-         2 => String::from("SEEK_POS"),
-         3 => String::from("ALIGNMENT"),
-         4 => String::from("OL_START"),
-         5 => String::from("CL_RUNNING"),
-         _ => String::from("CTRL_RUN")
-      }
+        match state {
+            0 => String::from("STOP_IDLE"),
+            1 => String::from("BRAKE_STOP"),
+            2 => String::from("SEEK_POS"),
+            3 => String::from("ALIGNMENT"),
+            4 => String::from("OL_START"),
+            5 => String::from("CL_RUNNING"),
+            _ => String::from("CTRL_RUN"),
+        }
     }
 
     fn mctrl_state_to_string(&mut self, state: &u8) -> String {
-      match state {
-         0 => String::from("INIT_SET"),
-         1 => String::from("FAULT_STOP"),
-         2 => String::from("BRAKE_STOP"),
-         3 => String::from("FIRST_RUN"),
-         4 => String::from("NORM_STOP"),
-         _ => String::from("CONT_RUN")
-      }
+        match state {
+            0 => String::from("INIT_SET"),
+            1 => String::from("FAULT_STOP"),
+            2 => String::from("BRAKE_STOP"),
+            3 => String::from("FIRST_RUN"),
+            4 => String::from("NORM_STOP"),
+            _ => String::from("CONT_RUN"),
+        }
     }
 
     #[allow(unused_assignments)]
@@ -67,6 +77,10 @@ impl Motor {
         let mut flux = 0.0;
         let mut poles = 0;
         let mut target_rps = 0.0;
+        let mut torque = 0.0;
+        let mut vdc_bus = 0.0;
+        let mut acc_max_hzps = 0.0;
+        let mut acc_start_hzps = 0.0;
 
         if let Some(buf) = self.request(0x7F, 0) {
             rs = vec_to_int(&buf[0..4]) as f64 / 100000000.0;
@@ -76,6 +90,10 @@ impl Motor {
             flux = vec_to_int(&buf[16..20]) as f64 / 100000000.0;
             poles = vec_to_int(&buf[20..24]) as u32;
             target_rps = vec_to_int(&buf[24..28]) as f32 / 1000.0;
+            torque = vec_to_int(&buf[28..32]) as f64 / 1000.0;
+            vdc_bus = vec_to_int(&buf[32..36]) as f64 / 1000.0;
+            acc_max_hzps = vec_to_int(&buf[36..40]) as f64 / 1000.0;
+            acc_start_hzps = vec_to_int(&buf[40..44]) as f64 / 1000.0;
         }
 
         Ok(MotorParams {
@@ -86,6 +104,10 @@ impl Motor {
             flux: Some(flux),
             poles: Some(poles),
             target_rps: Some(target_rps),
+            torque: Some(torque),
+            vdc_bus: Some(vdc_bus),
+            acc_max_hzps: Some(acc_max_hzps),
+            acc_start_hzps: Some(acc_start_hzps),
         })
     }
 
@@ -154,6 +176,16 @@ impl Motor {
         Ok(())
     }
 
+    pub fn update_motor_acc_max(&mut self, hz: u32) -> Result<()> {
+        if let Some(_) = self.request(0x8A, hz) {}
+        Ok(())
+    }
+
+    pub fn update_motor_acc_start(&mut self, hz: u32) -> Result<()> {
+        if let Some(_) = self.request(0x8B, hz) {}
+        Ok(())
+    }
+
     fn request(&mut self, msg_type: u8, msg: u32) -> Option<Vec<u8>> {
         let mut cmd: Vec<u8> = vec![];
         cmd.push(0x5a);
@@ -210,5 +242,5 @@ pub fn vec_to_int(buf: &[u8]) -> u32 {
 }
 
 pub fn vec_to_short(buf: &[u8]) -> i16 {
-  ((buf[0] as i16) << 8 | (buf[1] as i16)) as i16
+    ((buf[0] as i16) << 8 | (buf[1] as i16)) as i16
 }

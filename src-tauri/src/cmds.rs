@@ -103,6 +103,28 @@ pub async fn clear_motor_faults() -> CmdResult {
 }
 
 #[tauri::command]
+pub async fn update_motor_acc_max(hz: f32) -> CmdResult {
+    MOTOR
+        .lock()
+        .unwrap()
+        .update_motor_acc_max((hz * 1000.0) as u32)
+        .unwrap();
+
+    Ok(())
+}
+
+#[tauri::command]
+pub async fn update_motor_acc_start(hz: f32) -> CmdResult {
+    MOTOR
+        .lock()
+        .unwrap()
+        .update_motor_acc_start((hz * 1000.0) as u32)
+        .unwrap();
+
+    Ok(())
+}
+
+#[tauri::command]
 pub async fn start_motor(rps: f32, poles: u32) -> CmdResult {
     MOTOR
         .lock()

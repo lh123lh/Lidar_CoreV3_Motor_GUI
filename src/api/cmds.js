@@ -2,6 +2,16 @@ import { ref, watch } from 'vue'
 import { ElNotification } from 'element-plus'
 import { invoke } from '@tauri-apps/api/tauri'
 
+function notify_failed(msg) {
+  ElNotification({
+    title: 'Error',
+    message: msg,
+    type: 'error',
+    showClose: false,
+    duration: 500,
+  })
+}
+
 function cmd_connect_motor(sp, baud) {
   return new Promise(function (resolve, reject) {
     invoke('init_serial_port', { sp: sp, baud: baud })
@@ -10,7 +20,7 @@ function cmd_connect_motor(sp, baud) {
       })
       .catch((error) => {
         console.log(error)
-        import_failed(error)
+        notify_failed(error)
       })
   })
 }
@@ -23,7 +33,7 @@ function cmd_disconnect_motor(sp, baud) {
       })
       .catch((error) => {
         console.log(error)
-        import_failed(error)
+        notify_failed(error)
       })
   })
 }
@@ -36,7 +46,7 @@ function cmd_get_motor_params() {
       })
       .catch((error) => {
         console.log(error)
-        import_failed(error)
+        notify_failed(error)
         resolve()
       })
   })
@@ -50,7 +60,7 @@ function cmd_get_motor_status() {
       })
       .catch((error) => {
         console.log(error)
-        import_failed(error)
+        notify_failed(error)
         resolve()
       })
   })
@@ -64,7 +74,7 @@ function cmd_get_avaliable_ports() {
       })
       .catch((error) => {
         console.log(error)
-        import_failed(error)
+        notify_failed(error)
         resolve()
       })
   })
@@ -78,7 +88,7 @@ function cmd_update_motor_rps(rps, poles) {
       })
       .catch((error) => {
         console.log(error)
-        import_failed(error)
+        notify_failed(error)
         resolve()
       })
   })
@@ -92,7 +102,7 @@ function cmd_enable_motor_identify(enable) {
       })
       .catch((error) => {
         console.log(error)
-        import_failed(error)
+        notify_failed(error)
         resolve()
       })
   })
@@ -106,7 +116,7 @@ function cmd_enable_motor_rs_online(enable) {
       })
       .catch((error) => {
         console.log(error)
-        import_failed(error)
+        notify_failed(error)
         resolve()
       })
   })
@@ -120,7 +130,7 @@ function cmd_enable_motor_rs_recalc(enable) {
       })
       .catch((error) => {
         console.log(error)
-        import_failed(error)
+        notify_failed(error)
         resolve()
       })
   })
@@ -134,7 +144,7 @@ function cmd_clear_motor_faults(enable) {
       })
       .catch((error) => {
         console.log(error)
-        import_failed(error)
+        notify_failed(error)
         resolve()
       })
   })
@@ -148,7 +158,7 @@ function cmd_start_motor(rps, poles) {
       })
       .catch((error) => {
         console.log(error)
-        import_failed(error)
+        notify_failed(error)
         resolve()
       })
   })
@@ -162,19 +172,37 @@ function cmd_stop_motor() {
       })
       .catch((error) => {
         console.log(error)
-        import_failed(error)
+        notify_failed(error)
         resolve()
       })
   })
 }
 
-function import_failed(msg) {
-  ElNotification({
-    title: 'Error',
-    message: msg,
-    type: 'error',
-    showClose: false,
-    duration: 500,
+function cmd_update_acc_max(hz) {
+  return new Promise(function (resolve, reject) {
+    invoke('update_motor_acc_max', {hz: hz})
+      .then((data) => {
+        resolve(data);
+      })
+      .catch((error) => {
+        console.log(error)
+        notify_failed(error)
+        resolve()
+      })
+  })
+}
+
+function cmd_update_acc_start(hz) {
+  return new Promise(function (resolve, reject) {
+    invoke('update_motor_acc_start', {hz: hz})
+      .then((data) => {
+        resolve(data);
+      })
+      .catch((error) => {
+        console.log(error)
+        notify_failed(error)
+        resolve()
+      })
   })
 }
 
@@ -191,4 +219,6 @@ export default {
   cmd_clear_motor_faults,
   cmd_start_motor,
   cmd_stop_motor,
+  cmd_update_acc_max,
+  cmd_update_acc_start,
 }

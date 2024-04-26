@@ -17,6 +17,8 @@ const startBtn = ref("启动");
 const targetRps = ref(0.00);
 const rps_ref = ref(0.0);
 const currentRps = ref(0);
+const torqueNm = ref(0.0);
+const vdcBus = ref(0.0);
 const enableIdentify = ref(false);
 const enableRsOnline = ref(false);
 const enableRsReCalc = ref(false);
@@ -25,6 +27,10 @@ const motorStarted = ref(false);
 const motorState = ref("STOP_IDLE");
 const mctrlState = ref("FIRST_RUN");
 const errorCode = ref(0);
+
+const accMaxHz = ref(0.0);
+const accStartHz = ref(0.0);
+
 const baudRates = [
   {
     value: 9600,
@@ -44,7 +50,7 @@ onMounted(() => { //组件挂载时的生命周期执行的方法
 
   window.setInterval(function timer() {
     if (isConnect.value) {
-      get_motor_params()
+      get_motor_runtime_params();
     }
   }, 1000);
 
@@ -82,10 +88,22 @@ async function connect_motor() {
     isConnect.value = true;
     connectBtn.value = "断开";
     await cmds.cmd_connect_motor(serialPort.value, baudRate.value);
+
+    get_motor_static_params();
   }
 }
 
-async function get_motor_params() {
+// 获取电机启动参数, 运行时不可变
+async function get_motor_static_params() {
+  await cmds.cmd_get_motor_params()
+    .then((data) => {
+      accMaxHz.value = data.acc_max_hzps;
+      accStartHz.value = data.acc_start_hzps;
+    })
+}
+
+// 获取电机运行时参数
+async function get_motor_runtime_params() {
   await cmds.cmd_get_motor_params()
     .then((data) => {
       Rs_Ohm.value = data.rs;
@@ -95,13 +113,14 @@ async function get_motor_params() {
       flux.value = data.flux;
       poles.value = data.poles;
       rps_ref.value = data.target_rps;
+      torqueNm.value = data.torque;
+      vdcBus.value = data.vdc_bus;
     })
 }
 
 async function get_motor_status() {
   await cmds.cmd_get_motor_status()
     .then((data) => {
-      console.log(data);
       currentRps.value = data.rps;
       motorIdentified.value = data.identified;
       errorCode.value = data.error_code;
@@ -163,6 +182,18 @@ async function clear_motor_faults() {
     })
 }
 
+async function update_acc_max() {
+  await cmds.cmd_update_acc_max(parseFloat(accMaxHz.value))
+    .then((data) => {
+    })
+}
+
+async function update_acc_start() {
+  await cmds.cmd_update_acc_start(parseFloat(accStartHz.value))
+    .then((data) => {
+    })
+}
+
 </script>
 
 <template>
@@ -198,7 +229,7 @@ async function clear_motor_faults() {
                     </el-select>
                   </el-col>
                   <el-col :span="4">
-                    <el-button @click="connect_motor">{{ connectBtn }}</el-button>
+                    <el-button @click="connect_motor" type="primary" plain>{{ connectBtn }}</el-button>
                   </el-col>
                 </el-row>
               </el-col>
@@ -255,11 +286,12 @@ async function clear_motor_faults() {
                     </el-input>
                   </el-col>
                   <el-col :span="4">
-                    <el-button @click="update_motor_rps" :disabled=!isConnect>{{ startBtn }}</el-button>
+                    <el-button @click="update_motor_rps" :disabled=!isConnect type="primary" plain>{{ startBtn
+                      }}</el-button>
                   </el-col>
 
                   <el-col :span="4" class="ms-1">
-                    <el-button @click="stop_motor" :disabled=!motorStarted>停止</el-button>
+                    <el-button @click="stop_motor" :disabled=!motorStarted type="warning" plain>停止</el-button>
                   </el-col>
                 </el-row>
               </el-col>
@@ -276,10 +308,25 @@ async function clear_motor_faults() {
       </el-col>
 
       <el-col :span="12">
-        <cardBase title="状态">
+        <cardBase title="状态及参数">
           <template #content>
-            <el-scrollbar height="453px">
+            <el-scrollbar height="470px" class="mt-n3">
               <el-row :gutter="20">
+                <el-col>
+                  <el-row :gutter="1">
+                    <el-col :span="10">
+                      <label>电机识别状态</label>
+                    </el-col>
+                    <el-col :span="14">
+                      <div
+                        :class="['status-indicator', { 'connected': motorIdentified, 'disconnected': !motorIdentified }]">
+                      </div>
+                    </el-col>
+                  </el-row>
+                </el-col>
+              </el-row>
+
+              <el-row :gutter="20" class="mt-1">
                 <el-col>
                   <el-row :gutter="1">
                     <el-col :span="10">
@@ -315,22 +362,7 @@ async function clear_motor_faults() {
                       <el-input v-model="errorCode" :readonly=true />
                     </el-col>
                     <el-col :span="6">
-                      <el-button @click="clear_motor_faults" :disabled=!isConnect>清除错误</el-button>
-                    </el-col>
-                  </el-row>
-                </el-col>
-              </el-row>
-
-              <el-row :gutter="20" class="mt-1">
-                <el-col>
-                  <el-row :gutter="1">
-                    <el-col :span="10">
-                      <label>电机识别状态</label>
-                    </el-col>
-                    <el-col :span="14">
-                      <div
-                        :class="['status-indicator', { 'connected': motorIdentified, 'disconnected': !motorIdentified }]">
-                      </div>
+                      <el-button @click="clear_motor_faults" :disabled=!isConnect type="danger" plain>清除错误</el-button>
                     </el-col>
                   </el-row>
                 </el-col>
@@ -424,6 +456,59 @@ async function clear_motor_faults() {
                   </el-row>
                 </el-col>
               </el-row>
+
+              <el-row :gutter="20" class="mt-1">
+                <el-col>
+                  <el-row :gutter="1">
+                    <el-col :span="10">
+                      <label>扭矩 (N-m)</label>
+                    </el-col>
+                    <el-col :span="14">
+                      <el-input v-model="torqueNm" :readonly=true />
+                    </el-col>
+                  </el-row>
+                </el-col>
+              </el-row>
+
+              <el-row :gutter="20" class="mt-1">
+                <el-col>
+                  <el-row :gutter="1">
+                    <el-col :span="10">
+                      <label>母线电压 (V)</label>
+                    </el-col>
+                    <el-col :span="14">
+                      <el-input v-model="vdcBus" :readonly=true />
+                    </el-col>
+                  </el-row>
+                </el-col>
+              </el-row>
+
+              <el-row :gutter="20" class="mt-1">
+                <el-col>
+                  <el-row :gutter="1">
+                    <el-col :span="10">
+                      <label>最大加速度 (Hz)</label>
+                    </el-col>
+                    <el-col :span="14">
+                      <el-input v-model="accMaxHz" @input="update_acc_max" :readonly=motorStarted />
+                    </el-col>
+                  </el-row>
+                </el-col>
+              </el-row>
+
+              <el-row :gutter="20" class="mt-1">
+                <el-col>
+                  <el-row :gutter="1">
+                    <el-col :span="10">
+                      <label>启动加速度 (Hz)</label>
+                    </el-col>
+                    <el-col :span="14">
+                      <el-input v-model="accStartHz" @input="update_acc_start" :readonly=motorStarted />
+                    </el-col>
+                  </el-row>
+                </el-col>
+              </el-row>
+
             </el-scrollbar>
           </template>
         </cardBase>
