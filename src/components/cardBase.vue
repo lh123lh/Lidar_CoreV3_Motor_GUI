@@ -5,7 +5,7 @@ defineProps(['title',])
 </script>
 
 <template>
-  <el-card style="min-width: 350px; ">
+  <el-card style="min-width: 280px; ">
     <div class="fw-bolder mt-n3 mb-n4">
       <el-row>
         <el-col :xs="18" :sm="18" :md="18" :lg="18" :xl="18">
