@@ -32,6 +32,7 @@ pub struct MotorStatus {
     pub error_code: Option<u16>,
     pub motor_state: Option<String>,
     pub mctrl_state: Option<String>,
+    pub identified_en: Option<bool>,
 }
 
 pub struct Motor {
@@ -118,6 +119,7 @@ impl Motor {
         let mut error_code = 0;
         let mut motor_state = String::from("IDEL");
         let mut mctrl_state = String::from("IDEL");
+        let mut identified_en = false;
 
         if let Some(buf) = self.request(0x06, 0) {
             rps = vec_to_int(&buf[0..4]) as f32 / 1000.0;
@@ -125,6 +127,7 @@ impl Motor {
             error_code = vec_to_short(&buf[5..7]) as u16;
             motor_state = self.motor_state_to_string(&buf[7]);
             mctrl_state = self.mctrl_state_to_string(&buf[8]);
+            identified_en = &buf[9].into() != 0;
         }
 
         Ok(MotorStatus {
@@ -133,6 +136,7 @@ impl Motor {
             error_code: Some(error_code),
             motor_state: Some(motor_state),
             mctrl_state: Some(mctrl_state),
+            identified_en: Some(identified_en),
         })
     }
 
@@ -235,6 +239,14 @@ impl Motor {
 
         None
     }
+
+    // fn start_rps_record(&mut self, file_name: &str) -> Result<()> {
+    //     Ok(())
+    // }
+
+    // fn stop_rps_record(&mut self) -> Result<()> {
+    //     Ok(())
+    // }
 }
 
 pub fn vec_to_int(buf: &[u8]) -> u32 {

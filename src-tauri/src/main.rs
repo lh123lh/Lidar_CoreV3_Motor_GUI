@@ -24,6 +24,7 @@ async fn main() {
             cmds::update_motor_acc_start,
             cmds::start_motor,
             cmds::stop_motor,
+            cmds::upload_file,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

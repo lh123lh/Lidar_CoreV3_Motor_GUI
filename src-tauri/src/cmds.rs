@@ -143,3 +143,10 @@ pub async fn stop_motor() -> CmdResult {
     MOTOR.lock().unwrap().reset_motor().unwrap();
     Ok(())
 }
+
+#[tauri::command]
+pub fn upload_file(file: std::path::PathBuf) -> Result<String, String> {
+    // 在这里处理文件，例如保存到磁盘或进一步处理
+    println!("{:?}", file);
+    Ok("File uploaded successfully".to_string())
+}

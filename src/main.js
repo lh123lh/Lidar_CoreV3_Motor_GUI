@@ -9,11 +9,13 @@ import './assets/iconfont/iconfont.js'
 import router from './router'
 import i18n from './locals'
 import VWave from 'v-wave'
+import VueApexCharts from 'vue3-apexcharts';
 
 const app = createApp(App)
 app.use(ElementPlus);
 app.use(router);
 app.use(i18n);
 app.use(VWave);
+app.use(VueApexCharts);
 app.component('SvgIcon', SvgIcon)
 app.mount("#app")

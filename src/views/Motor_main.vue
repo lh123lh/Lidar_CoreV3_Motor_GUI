@@ -3,7 +3,8 @@ import { ref, onMounted, nextTick, computed, watch } from "vue";
 import { invoke } from "@tauri-apps/api/tauri";
 import cmds from '../api/cmds';
 import cardBase from "../components/cardBase.vue";
-import VueSpeedometer from "vue-speedometer"
+import VueSpeedometer from "vue-speedometer";
+import UpdataFwDialog from "../components/UpdataFwDialog.vue";
 
 const isConnect = ref(false);
 const Rs_Ohm = ref(0.00);
@@ -24,6 +25,7 @@ const enableRsOnline = ref(false);
 const enableRsReCalc = ref(false);
 const motorIdentified = ref(false);
 const motorStarted = ref(false);
+const updateDialogVisible = ref(false);
 const motorState = ref("STOP_IDLE");
 const mctrlState = ref("FIRST_RUN");
 const errorCode = ref(0);
@@ -126,6 +128,7 @@ async function get_motor_status() {
       errorCode.value = data.error_code;
       motorState.value = data.motor_state;
       mctrlState.value = data.mctrl_state;
+      enableIdentify.value = data.identified_en;
     })
 }
 
@@ -197,7 +200,7 @@ async function update_acc_start() {
 </script>
 
 <template>
-  <div>
+  <div class="ms-1">
     <el-row :gutter="5">
       <el-col :span="12">
         <cardBase title="电机配置">
@@ -310,7 +313,7 @@ async function update_acc_start() {
       <el-col :span="12">
         <cardBase title="状态及参数">
           <template #content>
-            <el-scrollbar height="470px" class="mt-n3">
+            <el-scrollbar max-height="29.3rem" class="mt-n3">
               <el-row :gutter="20">
                 <el-col>
                   <el-row :gutter="1">
@@ -509,12 +512,31 @@ async function update_acc_start() {
                 </el-col>
               </el-row>
 
+              <el-row :gutter="20" class="mt-1">
+                <el-col>
+                  <el-row :gutter="1">
+                    <el-col :span="10">
+                      <label>固件版本</label>
+                    </el-col>
+                    <el-col :span="8">
+                      v0.0.1_20240401
+                    </el-col>
+                    <el-col :span="6">
+                      <el-button @click="updateDialogVisible = true" :disabled=!isConnect type="success" plain>升级固件</el-button>
+                    </el-col>
+                  </el-row>
+                </el-col>
+              </el-row>
+
             </el-scrollbar>
           </template>
         </cardBase>
       </el-col>
     </el-row>
   </div>
+
+  <UpdataFwDialog v-model="updateDialogVisible"/>
+
 </template>
 
 <style scoped>
@@ -535,13 +557,13 @@ async function update_acc_start() {
 </style>
 
 <style lang="scss" scoped>
-::v-deep .is-horizontal {
+::v-deep(.is-horizontal) {
   height: 0px;
   left: 0px;
   display: none;
 }
 
-::v-deep .el-scrollbar__wrap {
+::v-deep(.el-scrollbar__wrap) {
   overflow-x: hidden;
 }
 </style>
