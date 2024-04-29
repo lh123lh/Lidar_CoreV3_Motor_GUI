@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "@element-plus/icons-vue": "^2.3.1",
-    "@tauri-apps/api": "^1.0.0",
+    "@tauri-apps/api": "^1.5.4",
     "echarts": "^5.5.0",
     "element-plus": "^2.6.1",
     "v-wave": "^2.0.0",
@@ -22,7 +22,7 @@
     "vue-speedometer": "^3.0.1"
   },
   "devDependencies": {
-    "@tauri-apps/cli": "^1.5.10",
+    "@tauri-apps/cli": "^1.5.12",
     "@vitejs/plugin-vue": "^5.0.4",
     "@vueuse/core": "^10.9.0",
     "sass": "^1.75.0",

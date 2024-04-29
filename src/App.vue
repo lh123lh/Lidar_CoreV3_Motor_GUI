@@ -17,17 +17,17 @@ const navs = ref([
     <el-aside width="180px">
       <el-scrollbar>
         <el-menu default-active="1" router style="height: 98vh">
-          <img style="width: 30px" class="ms-3 mb-n1 mt-2" src="../src-tauri/icons/icon.ico" size="small" />
-          <span style="" class="ms-3 fs-3 fw-bolder">Motor Ctrl</span>
+          <img style="width: 30px" class="ms-1 mb-n1 mt-2" src="../src-tauri/icons/icon.ico" size="small" />
+          <span style="" class="ms-3 fs-3 fw-bolder">FAST FOC</span>
 
           <el-menu-item v-for="nav in navs" :index=nav.idx :route=nav.to v-wave>
             <el-row :gutter="20">
-              <el-col :span="6">
+              <el-col :span="8">
                 <el-icon>
                   <SvgIcon :iconName=nav.icon />
                 </el-icon>
               </el-col>
-              <el-col :span="6" :offset="2">
+              <el-col :span="16">
                 <span style="font-weight: 1000; font-size: 1rem;">{{ nav.title }}</span>
               </el-col>
             </el-row>
@@ -49,7 +49,7 @@ const navs = ref([
 </template>
 
 <style scoped>
-.el-menu-item.is-active {
+/* .el-menu-item.is-active {
   background-color: rgb(232, 231, 240) !important;
-}
+} */
 </style>
