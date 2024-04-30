@@ -94,7 +94,9 @@ const option = {
       showSymbol: false,
       data: [],
     }
-  ]
+  ],
+  //调整此处大小即可控制空白
+  grid: { x: 40, y: 10, x2: 60, y2: 20 },
 };
 
 onMounted(() => {
