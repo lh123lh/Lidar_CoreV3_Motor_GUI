@@ -150,3 +150,22 @@ pub fn upload_file(file: std::path::PathBuf) -> Result<String, String> {
     println!("{:?}", file);
     Ok("File uploaded successfully".to_string())
 }
+
+#[tauri::command]
+pub fn start_record_rps(path: String) -> CmdResult {
+    // 检查路径是否合法
+    if path.is_empty() {
+      return Err("path is invalid".to_string());
+    }
+
+    MOTOR.lock().unwrap().start_rps_record(&path).unwrap();
+
+    Ok(())
+}
+
+#[tauri::command]
+pub fn stop_record_rps() -> CmdResult {
+    MOTOR.lock().unwrap().stop_rps_record().unwrap();
+
+    Ok(())
+}

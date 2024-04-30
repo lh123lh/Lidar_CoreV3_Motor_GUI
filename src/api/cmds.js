@@ -180,7 +180,7 @@ function cmd_stop_motor() {
 
 function cmd_update_acc_max(hz) {
   return new Promise(function (resolve, reject) {
-    invoke('update_motor_acc_max', {hz: hz})
+    invoke('update_motor_acc_max', { hz: hz })
       .then((data) => {
         resolve(data);
       })
@@ -194,7 +194,41 @@ function cmd_update_acc_max(hz) {
 
 function cmd_update_acc_start(hz) {
   return new Promise(function (resolve, reject) {
-    invoke('update_motor_acc_start', {hz: hz})
+    invoke('update_motor_acc_start', { hz: hz })
+      .then((data) => {
+        resolve(data);
+      })
+      .catch((error) => {
+        console.log(error)
+        notify_failed(error)
+        resolve()
+      })
+  })
+}
+
+function cmd_start_record_rps(path) {
+  if (path === null || path === undefined || path.trim() === '') {
+    notify_failed("record path is empty!");
+
+    return;
+  }
+
+  return new Promise(function (resolve, reject) {
+    invoke('start_record_rps', { path: path })
+      .then((data) => {
+        resolve(data);
+      })
+      .catch((error) => {
+        console.log(error)
+        notify_failed(error)
+        resolve()
+      })
+  })
+}
+
+function cmd_stop_record_rps() {
+  return new Promise(function (resolve, reject) {
+    invoke('stop_record_rps', {})
       .then((data) => {
         resolve(data);
       })
@@ -221,4 +255,6 @@ export default {
   cmd_stop_motor,
   cmd_update_acc_max,
   cmd_update_acc_start,
+  cmd_start_record_rps,
+  cmd_stop_record_rps,
 }

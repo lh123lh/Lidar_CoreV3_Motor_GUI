@@ -62,9 +62,9 @@ onMounted(() => { //组件挂载时的生命周期执行的方法
     }
   }, 500);
 
-  // window.setInterval(function timer() {
-  //   get_avaliable_ports()
-  // }, 3000);
+  window.setInterval(function timer() {
+    get_avaliable_ports()
+  }, 3000);
 })
 
 watch(enableIdentify, (newVal, oldVal) => {

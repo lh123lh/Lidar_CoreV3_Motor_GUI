@@ -37,13 +37,22 @@ pub struct MotorStatus {
 
 pub struct Motor {
     pub port: Option<Box<dyn SerialPort>>,
+    pub recoder_handle: Option<Box<csv::Writer<std::fs::File>>>,
+}
+
+#[derive(Debug, Serialize)]
+struct RpsRecoder {
+    rps: Option<f32>,
 }
 
 pub static MOTOR: Lazy<Mutex<Motor>> = Lazy::new(|| Mutex::new(Motor::new()));
 
 impl Motor {
     pub fn new() -> Self {
-        Motor { port: None }
+        Motor {
+            port: None,
+            recoder_handle: None,
+        }
     }
 
     fn motor_state_to_string(&mut self, state: &u8) -> String {
@@ -95,6 +104,15 @@ impl Motor {
             vdc_bus = vec_to_int(&buf[32..36]) as f64 / 1000.0;
             acc_max_hzps = vec_to_int(&buf[36..40]) as f64 / 1000.0;
             acc_start_hzps = vec_to_int(&buf[40..44]) as f64 / 1000.0;
+        }
+
+        // 记录转速
+        if let Some(ref mut wtr) = self.recoder_handle {
+            wtr.serialize(RpsRecoder {
+                rps: Some(target_rps),
+            })?;
+
+            wtr.flush()?;
         }
 
         Ok(MotorParams {
@@ -240,13 +258,16 @@ impl Motor {
         None
     }
 
-    // fn start_rps_record(&mut self, file_name: &str) -> Result<()> {
-    //     Ok(())
-    // }
+    pub fn start_rps_record(&mut self, file_name: &str) -> Result<()> {
+        let wtr = csv::Writer::from_path(file_name)?;
+        self.recoder_handle = Some(Box::new(wtr));
+        Ok(())
+    }
 
-    // fn stop_rps_record(&mut self) -> Result<()> {
-    //     Ok(())
-    // }
+    pub fn stop_rps_record(&mut self) -> Result<()> {
+        self.recoder_handle = None;
+        Ok(())
+    }
 }
 
 pub fn vec_to_int(buf: &[u8]) -> u32 {
