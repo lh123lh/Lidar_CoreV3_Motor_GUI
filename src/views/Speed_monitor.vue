@@ -13,6 +13,7 @@ import {
 import { CanvasRenderer } from 'echarts/renderers';
 import { open, save } from "@tauri-apps/api/dialog"
 import cardBase from '../components/cardBase.vue';
+import PageBase from '../components/PageBase.vue';
 import cmds from '../api/cmds';
 
 // Register the required components
@@ -96,12 +97,15 @@ const option = {
     }
   ],
   //调整此处大小即可控制空白
-  grid: { x: 40, y: 10, x2: 60, y2: 20 },
+  grid: { x: 40, y: 10, x2: 30, y2: 20 },
 };
 
 onMounted(() => {
   chartInstance = echarts.init(chartContainer.value);
   chartInstance.setOption(option);
+  window.addEventListener("resize", () => {
+    chartInstance.resize();
+  });
 
   setInterval(() => {
     if (startObserv.value) {
@@ -175,15 +179,19 @@ function formatSeconds(sec) {
   return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
 }
 
+function onResize() {
+
+}
+
 </script>
 
 <template>
-  <div class="ms-1">
+  <PageBase title="转速监控">
     <el-row :gutter="5">
       <el-col :span="16">
         <cardBase title="转速趋势">
           <template #content>
-            <div ref="chartContainer" style="width: 600px; height: 460px;"></div>
+            <div ref="chartContainer" style="width: 100%; height: 460px;"></div>
           </template>
         </cardBase>
       </el-col>
@@ -240,7 +248,7 @@ function formatSeconds(sec) {
         </cardBase>
       </el-col>
     </el-row>
-  </div>
+  </PageBase>
 
   <el-dialog v-model="dialogVisable" title="提示" width="500">
     <span>

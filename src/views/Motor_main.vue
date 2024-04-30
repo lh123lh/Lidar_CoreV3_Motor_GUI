@@ -5,6 +5,7 @@ import cmds from '../api/cmds';
 import cardBase from "../components/cardBase.vue";
 import VueSpeedometer from "vue-speedometer";
 import UpdataFwDialog from "../components/UpdataFwDialog.vue";
+import PageBase from "../components/PageBase.vue";
 
 const isConnect = ref(false);
 const Rs_Ohm = ref(0.00);
@@ -200,7 +201,7 @@ async function update_acc_start() {
 </script>
 
 <template>
-  <div class="ms-1">
+  <PageBase title="电机控制">
     <el-row :gutter="5">
       <el-col :span="12">
         <cardBase title="电机配置">
@@ -522,7 +523,8 @@ async function update_acc_start() {
                       v0.0.1_20240401
                     </el-col>
                     <el-col :span="6">
-                      <el-button @click="updateDialogVisible = true" :disabled=!isConnect type="success" plain>升级固件</el-button>
+                      <el-button @click="updateDialogVisible = true" :disabled=!isConnect type="success"
+                        plain>升级固件</el-button>
                     </el-col>
                   </el-row>
                 </el-col>
@@ -533,9 +535,9 @@ async function update_acc_start() {
         </cardBase>
       </el-col>
     </el-row>
-  </div>
+  </PageBase>
 
-  <UpdataFwDialog v-model="updateDialogVisible"/>
+  <UpdataFwDialog v-model="updateDialogVisible" />
 
 </template>
 

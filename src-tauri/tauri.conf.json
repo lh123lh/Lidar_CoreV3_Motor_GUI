@@ -23,13 +23,29 @@
         "message": true,
         "open": true,
         "save": true
+      },
+      "window": {
+        "all": false,
+        "close": true,
+        "hide": true,
+        "show": true,
+        "maximize": true,
+        "minimize": true,
+        "unmaximize": true,
+        "unminimize": true,
+        "startDragging": true
       }
     },
     "windows": [
       {
         "title": "lidar_corev3_motor_gui",
         "width": 1076,
-        "height": 548
+        "height": 600,
+        "decorations": false,
+        "resizable": true,
+        "center": true,
+        "visible": true,
+        "skipTaskbar": false
       }
     ],
     "security": {
