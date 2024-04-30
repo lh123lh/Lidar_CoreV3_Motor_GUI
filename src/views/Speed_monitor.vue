@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, onUpdated } from 'vue';
 // Import only necessary parts of ECharts
 import * as echarts from 'echarts/core';
 import { LineChart } from 'echarts/charts';
@@ -15,6 +15,7 @@ import { open, save } from "@tauri-apps/api/dialog"
 import cardBase from '../components/cardBase.vue';
 import PageBase from '../components/PageBase.vue';
 import cmds from '../api/cmds';
+import { updater } from '@tauri-apps/api';
 
 // Register the required components
 echarts.use([
@@ -99,6 +100,10 @@ const option = {
   //调整此处大小即可控制空白
   grid: { x: 40, y: 10, x2: 30, y2: 20 },
 };
+
+onUpdated(() => {
+  chartInstance.resize();
+})
 
 onMounted(() => {
   chartInstance = echarts.init(chartContainer.value);
