@@ -93,17 +93,20 @@ impl Motor {
         let mut acc_start_hzps = 0.0;
 
         if let Some(buf) = self.request(0x7F, 0) {
-            rs = vec_to_int(&buf[0..4]) as f64 / 100000000.0;
-            rs_online = vec_to_int(&buf[4..8]) as f64 / 100000000.0;
-            ls_d = vec_to_int(&buf[8..12]) as f64 / 100000000.0;
-            ls_q = vec_to_int(&buf[12..16]) as f64 / 100000000.0;
-            flux = vec_to_int(&buf[16..20]) as f64 / 100000000.0;
-            poles = vec_to_int(&buf[20..24]) as u32;
-            target_rps = vec_to_int(&buf[24..28]) as f32 / 1000.0;
-            torque = vec_to_int(&buf[28..32]) as f64 / 1000.0;
-            vdc_bus = vec_to_int(&buf[32..36]) as f64 / 1000.0;
-            acc_max_hzps = vec_to_int(&buf[36..40]) as f64 / 1000.0;
-            acc_start_hzps = vec_to_int(&buf[40..44]) as f64 / 1000.0;
+            // TODO: 需要校验buf的长度及正确性
+            if buf.len() >= 44 {
+                rs = vec_to_int(&buf[0..4]) as f64 / 100000000.0;
+                rs_online = vec_to_int(&buf[4..8]) as f64 / 100000000.0;
+                ls_d = vec_to_int(&buf[8..12]) as f64 / 100000000.0;
+                ls_q = vec_to_int(&buf[12..16]) as f64 / 100000000.0;
+                flux = vec_to_int(&buf[16..20]) as f64 / 100000000.0;
+                poles = vec_to_int(&buf[20..24]) as u32;
+                target_rps = vec_to_int(&buf[24..28]) as f32 / 1000.0;
+                torque = vec_to_int(&buf[28..32]) as f64 / 1000.0;
+                vdc_bus = vec_to_int(&buf[32..36]) as f64 / 1000.0;
+                acc_max_hzps = vec_to_int(&buf[36..40]) as f64 / 1000.0;
+                acc_start_hzps = vec_to_int(&buf[40..44]) as f64 / 1000.0;
+            }
         }
 
         // 记录转速
