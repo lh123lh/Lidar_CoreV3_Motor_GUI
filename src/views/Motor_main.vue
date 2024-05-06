@@ -6,7 +6,9 @@ import cardBase from "../components/cardBase.vue";
 import VueSpeedometer from "vue-speedometer";
 import UpdataFwDialog from "../components/UpdataFwDialog.vue";
 import PageBase from "../components/PageBase.vue";
+import { useMotorStore } from '../stores/motorState'
 
+const store = useMotorStore()
 const isConnect = ref(false);
 const Rs_Ohm = ref(0.00);
 const Rs_Ohm_Online = ref(0.00);
@@ -18,7 +20,7 @@ const connectBtn = ref("连接");
 const startBtn = ref("启动");
 const targetRps = ref(0.00);
 const rps_ref = ref(0.0);
-const currentRps = ref(0);
+// const currentRps = ref(0);
 const torqueNm = ref(0.0);
 const vdcBus = ref(0.0);
 const enableIdentify = ref(false);
@@ -124,7 +126,8 @@ async function get_motor_runtime_params() {
 async function get_motor_status() {
   await cmds.cmd_get_motor_status()
     .then((data) => {
-      currentRps.value = data.rps;
+      store.currRps = parseFloat(data.rps.toFixed(3));
+      // currentRps.value = data.rps;
       motorIdentified.value = data.identified;
       errorCode.value = data.error_code;
       motorState.value = data.motor_state;
@@ -305,7 +308,7 @@ async function update_acc_start() {
 
         <cardBase title="实时转速" class="mt-2">
           <template #content>
-            <VueSpeedometer :height="180" :value="currentRps" :minValue="0" :maxValue="250" :segments="10" />
+            <VueSpeedometer :height="180" :value="store.currRps" :minValue="0" :maxValue="250" :segments="10" />
           </template>
         </cardBase>
 

@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, ref, onUpdated } from 'vue';
+import { onMounted, ref, onUpdated, computed } from 'vue';
 // Import only necessary parts of ECharts
 import * as echarts from 'echarts/core';
 import { LineChart } from 'echarts/charts';
@@ -16,6 +16,9 @@ import cardBase from '../components/cardBase.vue';
 import PageBase from '../components/PageBase.vue';
 import cmds from '../api/cmds';
 import { updater } from '@tauri-apps/api';
+import { useMotorStore } from '../stores/motorState'
+
+const store = useMotorStore()
 
 // Register the required components
 echarts.use([
@@ -115,10 +118,10 @@ onMounted(() => {
   setInterval(() => {
     if (startObserv.value) {
       count += 1;
-      const speed = 20.0 + (Math.random() * 0.4 - 0.5); // 模拟转速数据
+      // const speed = (20.0 + (Math.random() * 0.4 - 0.5)).toFixed(2); // 模拟转速数据
 
       option.xAxis.data.push(count);
-      option.series[0].data.push(speed);
+      option.series[0].data.push(store.currRps);
 
       if (trendPoints.value > 0) {
         if (option.xAxis.data.length > trendPoints.value) {
@@ -134,7 +137,7 @@ onMounted(() => {
     }
 
     chartInstance.setOption(option);
-  }, 1000);
+  }, 500);
 });
 
 async function handleRecodeRps() {
