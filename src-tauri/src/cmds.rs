@@ -9,13 +9,13 @@ type CmdResult<T = ()> = Result<T, String>;
 pub async fn init_serial_port(sp: &str, baud: u32) -> CmdResult {
     // 初始化 SerialPort 实例
     let result = serialport::new(sp, baud)
-        .timeout(Duration::from_millis(100))
+        .timeout(Duration::from_millis(50))
         .open();
 
     match result {
         Ok(port_new) => {
             MOTOR.lock().unwrap().port = Some(port_new);
-            MOTOR.lock().unwrap().reset_motor().unwrap();
+            // MOTOR.lock().unwrap().reset_motor().unwrap();
             return Ok(());
         }
         Err(_) => {
@@ -42,6 +42,13 @@ pub async fn list_avaliable_ports() -> CmdResult<Vec<String>> {
 }
 
 #[tauri::command]
+pub async fn get_motor_current_rps() -> CmdResult<f32> {
+    let params = MOTOR.lock().unwrap().get_current_rps().unwrap();
+
+    Ok(params)
+}
+
+#[tauri::command]
 pub async fn get_motor_params() -> CmdResult<MotorParams> {
     let params = MOTOR.lock().unwrap().get_motor_params().unwrap();
 
@@ -56,11 +63,11 @@ pub async fn get_motor_status() -> CmdResult<MotorStatus> {
 }
 
 #[tauri::command]
-pub async fn update_motor_rps(rps: f32, poles: u32) -> CmdResult {
+pub async fn update_motor_rps(rps: f32) -> CmdResult {
     MOTOR
         .lock()
         .unwrap()
-        .update_motor_speed_hz((rps * poles as f32 * 1000.0) as u32)
+        .update_motor_speed_rps((rps * 1000.0) as u32)
         .unwrap();
 
     Ok(())
@@ -125,12 +132,15 @@ pub async fn update_motor_acc_start(hz: f32) -> CmdResult {
 }
 
 #[tauri::command]
-pub async fn start_motor(rps: f32, poles: u32) -> CmdResult {
+pub async fn start_motor(rps: f32) -> CmdResult {
     MOTOR
         .lock()
         .unwrap()
-        .update_motor_speed_hz((rps * poles as f32 * 1000.0) as u32)
+        .update_motor_speed_rps((rps * 1000.0) as u32)
         .unwrap();
+
+    std::thread::sleep(std::time::Duration::from_micros(10));
+    
     MOTOR.lock().unwrap().start_motor().unwrap();
 
     Ok(())
@@ -140,7 +150,7 @@ pub async fn start_motor(rps: f32, poles: u32) -> CmdResult {
 pub async fn stop_motor() -> CmdResult {
     MOTOR.lock().unwrap().update_motor_speed_hz(0).unwrap();
     MOTOR.lock().unwrap().stop_motor().unwrap();
-    MOTOR.lock().unwrap().reset_motor().unwrap();
+    // MOTOR.lock().unwrap().reset_motor().unwrap();
     Ok(())
 }
 

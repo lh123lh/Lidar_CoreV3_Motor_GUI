@@ -9,6 +9,12 @@ export const useMotorStore = defineStore('motor', () => {
 
 // export const useMotorStore = defineStore('motor', {
 //   state: () => ({ currRps: 0.0 }),
-//   getters: {},
-//   actions: {},
+//   getters: {
+//     get: (state) => state.currRps,
+//   },
+//   actions: {
+//     update(rps) {
+//       this.$state.currRps = rps;
+//     }
+//   },
 // })

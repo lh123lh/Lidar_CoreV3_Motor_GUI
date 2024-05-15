@@ -12,6 +12,7 @@ async fn main() {
         .invoke_handler(tauri::generate_handler![
             cmds::init_serial_port,
             cmds::deinit_serial_port,
+            cmds::get_motor_current_rps,
             cmds::get_motor_params,
             cmds::get_motor_status,
             cmds::list_avaliable_ports,

@@ -12,9 +12,14 @@ pub struct MotorParams {
     pub ls_q: Option<f64>,
     pub flux: Option<f64>,
     pub poles: Option<u32>,
-    pub target_rps: Option<f32>,
     pub torque: Option<f64>,
     pub vdc_bus: Option<f64>,
+    pub ia: Option<f64>,
+    pub ib: Option<f64>,
+    pub ic: Option<f64>,
+    pub va: Option<f64>,
+    pub vb: Option<f64>,
+    pub vc: Option<f64>,
     pub acc_max_hzps: Option<f64>,
     pub acc_start_hzps: Option<f64>,
 }
@@ -27,12 +32,13 @@ pub struct MotorVariableParams {
 
 #[derive(Debug, PartialEq, Serialize, Deserialize, Clone)]
 pub struct MotorStatus {
-    pub rps: Option<f32>,
     pub identified: Option<bool>,
     pub error_code: Option<u16>,
     pub motor_state: Option<String>,
     pub mctrl_state: Option<String>,
     pub identified_en: Option<bool>,
+    pub rsonline_en: Option<bool>,
+    pub rsrecalc_en: Option<bool>,
 }
 
 pub struct Motor {
@@ -78,6 +84,27 @@ impl Motor {
         }
     }
 
+    pub fn get_current_rps(&mut self) -> Result<f32> {
+        let mut rps: f32 = 0.0;
+
+        if let Some(buf) = self.request(0x00, 0) {
+            if buf.len() >= 4 {
+                rps = vec_to_int(&buf[0..4]) as f32 / 1000.0;
+            }
+        }
+
+        // 记录转速
+        if let Some(ref mut wtr) = self.recoder_handle {
+            wtr.serialize(RpsRecoder {
+                rps: Some(rps),
+            })?;
+
+            wtr.flush()?;
+        }
+
+        Ok(rps)
+    }
+
     #[allow(unused_assignments)]
     pub fn get_motor_params(&mut self) -> Result<MotorParams> {
         let mut rs = 0.0;
@@ -86,36 +113,127 @@ impl Motor {
         let mut ls_q = 0.0;
         let mut flux = 0.0;
         let mut poles = 0;
-        let mut target_rps = 0.0;
         let mut torque = 0.0;
         let mut vdc_bus = 0.0;
+        let mut ia = 0.0;
+        let mut ib = 0.0;
+        let mut ic = 0.0;
+        let mut va = 0.0;
+        let mut vb = 0.0;
+        let mut vc = 0.0;
         let mut acc_max_hzps = 0.0;
         let mut acc_start_hzps = 0.0;
 
-        if let Some(buf) = self.request(0x7F, 0) {
+        // if let Some(buf) = self.request(0x01, 0) {
+        //     // TODO: 需要校验buf的长度及正确性
+        //     if buf.len() >= 4 {
+        //         rs = vec_to_int(&buf[0..4]) as f64 / 100000000.0;
+        //     }
+        // }
+
+        // if let Some(buf) = self.request(0x02, 0) {
+        //     // TODO: 需要校验buf的长度及正确性
+        //     if buf.len() >= 4 {
+        //         rs_online = vec_to_int(&buf[0..4]) as f64 / 100000000.0;
+        //     }
+        // }
+
+        // if let Some(buf) = self.request(0x03, 0) {
+        //     // TODO: 需要校验buf的长度及正确性
+        //     if buf.len() >= 4 {
+        //         ls_d = vec_to_int(&buf[0..4]) as f64 / 100000000.0;
+        //     }
+        // }
+
+        // if let Some(buf) = self.request(0x04, 0) {
+        //     // TODO: 需要校验buf的长度及正确性
+        //     if buf.len() >= 4 {
+        //         ls_q = vec_to_int(&buf[0..4]) as f64 / 100000000.0;
+        //     }
+        // }
+
+        // if let Some(buf) = self.request(0x05, 0) {
+        //     // TODO: 需要校验buf的长度及正确性
+        //     if buf.len() >= 4 {
+        //         flux = vec_to_int(&buf[0..4]) as f64 / 100000000.0;
+        //     }
+        // }
+
+        // if let Some(buf) = self.request(0x08, 0) {
+        //     // TODO: 需要校验buf的长度及正确性
+        //     if buf.len() >= 4 {
+        //         poles = vec_to_int(&buf[0..4]) as u32;
+        //     }
+        // }
+
+        // if let Some(buf) = self.request(0x09, 0) {
+        //     // TODO: 需要校验buf的长度及正确性
+        //     if buf.len() >= 4 {
+        //         torque = vec_to_int(&buf[0..4]) as f64 / 1000.0;
+        //     }
+        // }
+
+        if let Some(buf) = self.request(0x0A, 0) {
             // TODO: 需要校验buf的长度及正确性
-            if buf.len() >= 44 {
-                rs = vec_to_int(&buf[0..4]) as f64 / 100000000.0;
-                rs_online = vec_to_int(&buf[4..8]) as f64 / 100000000.0;
-                ls_d = vec_to_int(&buf[8..12]) as f64 / 100000000.0;
-                ls_q = vec_to_int(&buf[12..16]) as f64 / 100000000.0;
-                flux = vec_to_int(&buf[16..20]) as f64 / 100000000.0;
-                poles = vec_to_int(&buf[20..24]) as u32;
-                target_rps = vec_to_int(&buf[24..28]) as f32 / 1000.0;
-                torque = vec_to_int(&buf[28..32]) as f64 / 1000.0;
-                vdc_bus = vec_to_int(&buf[32..36]) as f64 / 1000.0;
-                acc_max_hzps = vec_to_int(&buf[36..40]) as f64 / 1000.0;
-                acc_start_hzps = vec_to_int(&buf[40..44]) as f64 / 1000.0;
+            if buf.len() >= 4 {
+                vdc_bus = vec_to_int(&buf[0..4]) as f64 / 1000.0;
             }
         }
 
-        // 记录转速
-        if let Some(ref mut wtr) = self.recoder_handle {
-            wtr.serialize(RpsRecoder {
-                rps: Some(target_rps),
-            })?;
+        // if let Some(buf) = self.request(0x0B, 0) {
+        //     // TODO: 需要校验buf的长度及正确性
+        //     if buf.len() >= 4 {
+        //         ia = vec_to_int(&buf[0..4]) as f64 / 1000.0;
+        //     }
+        // }
 
-            wtr.flush()?;
+        // if let Some(buf) = self.request(0x0C, 0) {
+        //     // TODO: 需要校验buf的长度及正确性
+        //     if buf.len() >= 4 {
+        //         ib = vec_to_int(&buf[0..4]) as f64 / 1000.0;
+        //     }
+        // }
+
+        // if let Some(buf) = self.request(0x0D, 0) {
+        //     // TODO: 需要校验buf的长度及正确性
+        //     if buf.len() >= 4 {
+        //         ic = vec_to_int(&buf[0..4]) as f64 / 1000.0;
+        //     }
+        // }
+
+        // if let Some(buf) = self.request(0x0E, 0) {
+        //     // TODO: 需要校验buf的长度及正确性
+        //     if buf.len() >= 4 {
+        //         va = vec_to_int(&buf[0..4]) as f64 / 1000.0;
+        //     }
+        // }
+
+        // if let Some(buf) = self.request(0x0F, 0) {
+        //     // TODO: 需要校验buf的长度及正确性
+        //     if buf.len() >= 4 {
+        //         vb = vec_to_int(&buf[0..4]) as f64 / 1000.0;
+        //     }
+        // }
+
+        // if let Some(buf) = self.request(0x10, 0) {
+        //     // TODO: 需要校验buf的长度及正确性
+        //     if buf.len() >= 4 {
+        //         vc = vec_to_int(&buf[0..4]) as f64 / 1000.0;
+        //     }
+        // }
+
+        if let Some(buf) = self.request(0x11, 0) {
+            // TODO: 需要校验buf的长度及正确性
+            if buf.len() >= 4 {
+                acc_start_hzps = vec_to_int(&buf[0..4]) as f64 / 1000.0;
+            }
+        }
+
+        if let Some(buf) = self.request(0x12, 0) {
+            // TODO: 需要校验buf的长度及正确性
+            if buf.len() >= 4 {
+                acc_max_hzps = vec_to_int(&buf[0..4]) as f64 / 1000.0;
+            }
         }
 
         Ok(MotorParams {
@@ -125,9 +243,14 @@ impl Motor {
             ls_q: Some(ls_q),
             flux: Some(flux),
             poles: Some(poles),
-            target_rps: Some(target_rps),
             torque: Some(torque),
             vdc_bus: Some(vdc_bus),
+            ia: Some(ia),
+            ib: Some(ib),
+            ic: Some(ic),
+            va: Some(va),
+            vb: Some(vb),
+            vc: Some(vc),
             acc_max_hzps: Some(acc_max_hzps),
             acc_start_hzps: Some(acc_start_hzps),
         })
@@ -135,30 +258,40 @@ impl Motor {
 
     #[allow(unused_assignments)]
     pub fn get_motor_status(&mut self) -> Result<MotorStatus> {
-        let mut rps: f32 = 0.0;
         let mut identified = false;
         let mut error_code = 0;
         let mut motor_state = String::from("IDEL");
         let mut mctrl_state = String::from("IDEL");
         let mut identified_en = false;
+        let mut rsonline_en = false;
+        let mut rsrecalc_en = false;
 
         if let Some(buf) = self.request(0x06, 0) {
-            rps = vec_to_int(&buf[0..4]) as f32 / 1000.0;
-            identified = buf[4] != 0;
-            error_code = vec_to_short(&buf[5..7]) as u16;
-            motor_state = self.motor_state_to_string(&buf[7]);
-            mctrl_state = self.mctrl_state_to_string(&buf[8]);
-            identified_en = &buf[9].into() != 0;
+            if buf.len() >= 4 {
+                identified = buf[0] != 0;
+                error_code = vec_to_short(&buf[1..3]) as u16;
+                motor_state = self.motor_state_to_string(&buf[3]);
+                mctrl_state = self.mctrl_state_to_string(&buf[4]);
+                identified_en = &buf[5].into() != 0;
+                rsonline_en = &buf[6].into() != 0;
+                rsrecalc_en = &buf[7].into() != 0;
+            }
         }
 
         Ok(MotorStatus {
-            rps: Some(rps),
             identified: Some(identified),
             error_code: Some(error_code),
             motor_state: Some(motor_state),
             mctrl_state: Some(mctrl_state),
             identified_en: Some(identified_en),
+            rsonline_en: Some(rsonline_en),
+            rsrecalc_en: Some(rsrecalc_en),
         })
+    }
+
+    pub fn update_motor_speed_rps(&mut self, rps: u32) -> Result<()> {
+        if let Some(_) = self.request(0x80, rps) {}
+        Ok(())
     }
 
     pub fn update_motor_speed_hz(&mut self, speed_hz: u32) -> Result<()> {
@@ -232,17 +365,20 @@ impl Motor {
 
                     match port.read(buf.as_mut_slice()) {
                         core::result::Result::Ok(t) => {
-                            // TODO: 增强数据帧校验
-                            if t < 9
-                                || buf[0] != 0x5a
-                                || buf[1] != 0x5a
-                                || buf[t - 1] != 0xa5
-                                || buf[t - 2] != 0xa5
-                            {
+                            if t != 16 {
                                 return None;
                             }
 
                             let len = buf[3] as usize;
+
+                            if buf[0] != 0x5a
+                                || buf[1] != 0x5a
+                                || buf[len + 6 - 1] != 0xa5
+                                || buf[len + 6 - 2] != 0xa5
+                            {
+                                return None;
+                            }
+
                             return Some(buf[4..len + 4].to_vec());
                         }
                         Err(e) => {
@@ -273,8 +409,8 @@ impl Motor {
     }
 }
 
-pub fn vec_to_int(buf: &[u8]) -> u32 {
-    ((buf[0] as u32) << 24 | (buf[1] as u32) << 16 | (buf[2] as u32) << 8 | (buf[3] as u32)) as u32
+pub fn vec_to_int(buf: &[u8]) -> i32 {
+    ((buf[0] as i32) << 24 | (buf[1] as i32) << 16 | (buf[2] as i32) << 8 | (buf[3] as i32)) as i32
 }
 
 pub fn vec_to_short(buf: &[u8]) -> i16 {

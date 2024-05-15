@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, nextTick, computed, watch } from "vue";
+import { ref, onMounted, nextTick, computed, watch, onActivated, onDeactivated } from "vue";
 import { invoke } from "@tauri-apps/api/tauri";
 import cmds from '../api/cmds';
 import cardBase from "../components/cardBase.vue";
@@ -19,10 +19,15 @@ const poles = ref(0); //  磁极对数
 const connectBtn = ref("连接");
 const startBtn = ref("启动");
 const targetRps = ref(0.00);
-const rps_ref = ref(0.0);
-// const currentRps = ref(0);
+const currentRps = ref(0.00);
 const torqueNm = ref(0.0);
 const vdcBus = ref(0.0);
+const I_A = ref(0.0);
+const I_B = ref(0.0);
+const I_C = ref(0.0);
+const V_A = ref(0.0);
+const V_B = ref(0.0);
+const V_C = ref(0.0);
 const enableIdentify = ref(false);
 const enableRsOnline = ref(false);
 const enableRsReCalc = ref(false);
@@ -32,6 +37,7 @@ const updateDialogVisible = ref(false);
 const motorState = ref("STOP_IDLE");
 const mctrlState = ref("FIRST_RUN");
 const errorCode = ref(0);
+const isActived = ref(false);
 
 const accMaxHz = ref(0.0);
 const accStartHz = ref(0.0);
@@ -42,11 +48,23 @@ const baudRates = [
     label: '9600',
   },
   {
+    value: 38400,
+    label: '38400',
+  },
+  {
     value: 115200,
     label: '115200',
   },
+  {
+    value: 230400,
+    label: '230400',
+  },
+  {
+    value: 460800,
+    label: '460800',
+  },
 ]
-const baudRate = ref(9600);
+const baudRate = ref(115200);
 const serialPorts = ref(["COM0"]);
 const serialPort = ref();
 
@@ -56,18 +74,27 @@ onMounted(() => { //组件挂载时的生命周期执行的方法
   window.setInterval(function timer() {
     if (isConnect.value) {
       get_motor_runtime_params();
+      get_motor_status();
     }
   }, 1000);
 
   window.setInterval(function timer() {
     if (isConnect.value) {
-      get_motor_status()
+      get_motor_current_rps()
     }
   }, 500);
 
   window.setInterval(function timer() {
     get_avaliable_ports()
   }, 3000);
+})
+
+onActivated(() => {
+  isActived.value = true;
+})
+
+onDeactivated(() => {
+  isActived.value = false;
 })
 
 watch(enableIdentify, (newVal, oldVal) => {
@@ -117,22 +144,41 @@ async function get_motor_runtime_params() {
       Ls_q.value = data.ls_q;
       flux.value = data.flux;
       poles.value = data.poles;
-      rps_ref.value = data.target_rps;
       torqueNm.value = data.torque;
       vdcBus.value = data.vdc_bus;
+      I_A.value = data.ia;
+      I_B.value = data.ib;
+      I_C.value = data.ic;
+      V_A.value = data.va;
+      V_B.value = data.vb;
+      V_C.value = data.vc;
     })
+}
+
+async function get_motor_current_rps() {
+  await cmds.cmd_get_motor_current_rps()
+    .then((data) => {
+      store.currRps = parseFloat(data.toFixed(3));
+      // store.update(parseFloat(data.toFixed(3)));
+      if (isActived.value) {
+        currentRps.value = store.currRps;
+      }
+    }).catch(err => {
+      this.$message.error(err.message);
+      console.log(err);
+    });
 }
 
 async function get_motor_status() {
   await cmds.cmd_get_motor_status()
     .then((data) => {
-      store.currRps = parseFloat(data.rps.toFixed(3));
-      // currentRps.value = data.rps;
       motorIdentified.value = data.identified;
       errorCode.value = data.error_code;
       motorState.value = data.motor_state;
       mctrlState.value = data.mctrl_state;
       enableIdentify.value = data.identified_en;
+      enableRsOnline.value = data.rsonline_en;
+      enableRsReCalc.value = data.rsrecalc_en;
     })
 }
 
@@ -148,11 +194,11 @@ async function get_avaliable_ports() {
 
 async function update_motor_rps() {
   if (motorStarted.value) {
-    await cmds.cmd_update_motor_rps(parseFloat(targetRps.value), poles.value)
+    await cmds.cmd_update_motor_rps(parseFloat(targetRps.value))
   } else {
     motorStarted.value = true;
     startBtn.value = "更新";
-    await cmds.cmd_start_motor(parseFloat(targetRps.value), poles.value)
+    await cmds.cmd_start_motor(parseFloat(targetRps.value))
   }
 
 }
@@ -306,9 +352,9 @@ async function update_acc_start() {
           </template>
         </cardBase>
 
-        <cardBase title="实时转速" class="mt-2">
+        <cardBase title="实时转速" class="mt-1">
           <template #content>
-            <VueSpeedometer :height="180" :value="store.currRps" :minValue="0" :maxValue="250" :segments="10" />
+            <VueSpeedometer :height="180" :value="currentRps" :minValue="0" :maxValue="250" :segments="10" />
           </template>
         </cardBase>
 
@@ -317,7 +363,7 @@ async function update_acc_start() {
       <el-col :span="12">
         <cardBase title="状态及参数">
           <template #content>
-            <el-scrollbar max-height="29.3rem" class="mt-n3">
+            <el-scrollbar max-height="29.0rem" class="mt-n3">
               <el-row :gutter="20">
                 <el-col>
                   <el-row :gutter="1">
@@ -455,19 +501,6 @@ async function update_acc_start() {
                 <el-col>
                   <el-row :gutter="1">
                     <el-col :span="10">
-                      <label>设定转速 (rps)</label>
-                    </el-col>
-                    <el-col :span="14">
-                      <el-input v-model="rps_ref" :readonly=true />
-                    </el-col>
-                  </el-row>
-                </el-col>
-              </el-row>
-
-              <el-row :gutter="20" class="mt-1">
-                <el-col>
-                  <el-row :gutter="1">
-                    <el-col :span="10">
                       <label>扭矩 (N-m)</label>
                     </el-col>
                     <el-col :span="14">
@@ -494,10 +527,88 @@ async function update_acc_start() {
                 <el-col>
                   <el-row :gutter="1">
                     <el-col :span="10">
+                      <label>I.0 (A)</label>
+                    </el-col>
+                    <el-col :span="14">
+                      <el-input v-model="I_A" :readonly=true />
+                    </el-col>
+                  </el-row>
+                </el-col>
+              </el-row>
+
+              <el-row :gutter="20" class="mt-1">
+                <el-col>
+                  <el-row :gutter="1">
+                    <el-col :span="10">
+                      <label>I.1 (A)</label>
+                    </el-col>
+                    <el-col :span="14">
+                      <el-input v-model="I_B" :readonly=true />
+                    </el-col>
+                  </el-row>
+                </el-col>
+              </el-row>
+
+              <el-row :gutter="20" class="mt-1">
+                <el-col>
+                  <el-row :gutter="1">
+                    <el-col :span="10">
+                      <label>I.2 (A)</label>
+                    </el-col>
+                    <el-col :span="14">
+                      <el-input v-model="I_C" :readonly=true />
+                    </el-col>
+                  </el-row>
+                </el-col>
+              </el-row>
+
+              <el-row :gutter="20" class="mt-1">
+                <el-col>
+                  <el-row :gutter="1">
+                    <el-col :span="10">
+                      <label>V.0 (V)</label>
+                    </el-col>
+                    <el-col :span="14">
+                      <el-input v-model="V_A" :readonly=true />
+                    </el-col>
+                  </el-row>
+                </el-col>
+              </el-row>
+
+              <el-row :gutter="20" class="mt-1">
+                <el-col>
+                  <el-row :gutter="1">
+                    <el-col :span="10">
+                      <label>V.1 (V)</label>
+                    </el-col>
+                    <el-col :span="14">
+                      <el-input v-model="V_B" :readonly=true />
+                    </el-col>
+                  </el-row>
+                </el-col>
+              </el-row>
+
+              <el-row :gutter="20" class="mt-1">
+                <el-col>
+                  <el-row :gutter="1">
+                    <el-col :span="10">
+                      <label>V.2 (V)</label>
+                    </el-col>
+                    <el-col :span="14">
+                      <el-input v-model="V_C" :readonly=true />
+                    </el-col>
+                  </el-row>
+                </el-col>
+              </el-row>
+
+              <el-row :gutter="20" class="mt-1">
+                <el-col>
+                  <el-row :gutter="1">
+                    <el-col :span="10">
                       <label>最大加速度 (Hz)</label>
                     </el-col>
                     <el-col :span="14">
-                      <el-input v-model="accMaxHz" @input="update_acc_max" :readonly=motorStarted />
+                      <el-input v-model="accMaxHz" @input="update_acc_max" :readonly=!isConnect />
                     </el-col>
                   </el-row>
                 </el-col>
@@ -510,7 +621,7 @@ async function update_acc_start() {
                       <label>启动加速度 (Hz)</label>
                     </el-col>
                     <el-col :span="14">
-                      <el-input v-model="accStartHz" @input="update_acc_start" :readonly=motorStarted />
+                      <el-input v-model="accStartHz" @input="update_acc_start" :readonly=!isConnect />
                     </el-col>
                   </el-row>
                 </el-col>

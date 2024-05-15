@@ -38,6 +38,23 @@ function cmd_disconnect_motor(sp, baud) {
   })
 }
 
+function cmd_get_motor_current_rps() {
+  return new Promise(function (resolve, reject) {
+    invoke('get_motor_current_rps', {})
+      .then((data) => {
+        resolve(data);
+      })
+      .catch((error) => {
+        console.log(error)
+        notify_failed(error)
+        resolve()
+      })
+  }).catch(err => {
+    this.$message.error(err.message);
+    console.log(err);
+  });
+}
+
 function cmd_get_motor_params() {
   return new Promise(function (resolve, reject) {
     invoke('get_motor_params', {})
@@ -80,9 +97,9 @@ function cmd_get_avaliable_ports() {
   })
 }
 
-function cmd_update_motor_rps(rps, poles) {
+function cmd_update_motor_rps(rps) {
   return new Promise(function (resolve, reject) {
-    invoke('update_motor_rps', { rps: rps, poles: poles })
+    invoke('update_motor_rps', { rps: rps })
       .then((data) => {
         resolve(data);
       })
@@ -150,9 +167,9 @@ function cmd_clear_motor_faults(enable) {
   })
 }
 
-function cmd_start_motor(rps, poles) {
+function cmd_start_motor(rps) {
   return new Promise(function (resolve, reject) {
-    invoke('start_motor', { rps: rps, poles: poles })
+    invoke('start_motor', { rps: rps })
       .then((data) => {
         resolve(data);
       })
@@ -243,6 +260,7 @@ function cmd_stop_record_rps() {
 export default {
   cmd_connect_motor,
   cmd_disconnect_motor,
+  cmd_get_motor_current_rps,
   cmd_get_motor_params,
   cmd_get_motor_status,
   cmd_get_avaliable_ports,
