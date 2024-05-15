@@ -12,6 +12,15 @@ function notify_failed(msg) {
   })
 }
 
+function formatSeconds(sec) {
+  const date = new Date(sec * 1000);
+  const hours = date.getUTCHours();
+  const minutes = date.getUTCMinutes();
+  const seconds = date.getUTCSeconds();
+
+  return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+}
+
 function cmd_connect_motor(sp, baud) {
   return new Promise(function (resolve, reject) {
     invoke('init_serial_port', { sp: sp, baud: baud })
@@ -258,6 +267,7 @@ function cmd_stop_record_rps() {
 }
 
 export default {
+  formatSeconds,
   cmd_connect_motor,
   cmd_disconnect_motor,
   cmd_get_motor_current_rps,

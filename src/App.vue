@@ -10,6 +10,7 @@ import Motor_main from "./views/Motor_main.vue";
 const navs = ref([
   { idx: "1", title: '电机控制', icon: 'icon-control', to: '/' },
   { idx: "2", title: '转速监控', icon: 'icon-monitoring', to: '/speedMonitor' },
+  { idx: "3", title: '启停测试', icon: 'icon-stressTest', to: '/stressTest' },
 ])
 </script>
 

@@ -133,11 +133,11 @@ onMounted(() => {
 
     if (recording.value) {
       recordTimer += 1;
-      recordTimerFormated.value = formatSeconds(recordTimer);
+      recordTimerFormated.value = cmds.formatSeconds(recordTimer);
     }
 
     chartInstance.setOption(option);
-  }, 500);
+  }, 1000);
 });
 
 async function handleRecodeRps() {
@@ -178,15 +178,6 @@ async function handleStartObserv() {
   }
 }
 
-function formatSeconds(sec) {
-  const date = new Date(sec * 1000);
-  const hours = date.getUTCHours();
-  const minutes = date.getUTCMinutes();
-  const seconds = date.getUTCSeconds();
-
-  return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-}
-
 function onResize() {
 
 }
@@ -199,7 +190,7 @@ function onResize() {
       <el-col :span="16">
         <cardBase title="转速趋势">
           <template #content>
-            <div ref="chartContainer" style="width: 100%; height: 460px;"></div>
+            <div ref="chartContainer" style="width: 100%; height: 76vh;"></div>
           </template>
         </cardBase>
       </el-col>
