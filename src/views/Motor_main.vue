@@ -7,6 +7,7 @@ import VueSpeedometer from "vue-speedometer";
 import UpdataFwDialog from "../components/UpdataFwDialog.vue";
 import PageBase from "../components/PageBase.vue";
 import { useMotorStore } from '../stores/motorState'
+import parseErrorCode from "../api/parseErrorCode.js";
 
 const store = useMotorStore()
 const isConnect = ref(false);
@@ -67,6 +68,8 @@ const baudRates = [
 const baudRate = ref(115200);
 const serialPorts = ref(["COM0"]);
 const serialPort = ref();
+
+const errorCodeForm = ref([])
 
 onMounted(() => { //组件挂载时的生命周期执行的方法
   get_avaliable_ports()
@@ -179,6 +182,8 @@ async function get_motor_status() {
       enableIdentify.value = data.identified_en;
       enableRsOnline.value = data.rsonline_en;
       enableRsReCalc.value = data.rsrecalc_en;
+
+      errorCodeForm.value = parseErrorCode.getFaultStates(errorCode.value);
     })
 }
 
@@ -411,8 +416,17 @@ async function update_acc_start() {
                     <el-col :span="10">
                       <label>故障码</label>
                     </el-col>
+
                     <el-col :span="8">
-                      <el-input v-model="errorCode" :readonly=true />
+                      <el-popover placement="right" :width="400" trigger="click">
+                        <template #reference>
+                          <el-input v-model="errorCode" :readonly=true />
+                        </template>
+                        <el-table :data="errorCodeForm">
+                          <el-table-column width="500" property="flag" label="故障详情" />
+                        </el-table>
+                      </el-popover>
+
                     </el-col>
                     <el-col :span="6">
                       <el-button @click="clear_motor_faults" :disabled=!isConnect type="danger" plain>清除错误</el-button>
