@@ -266,6 +266,48 @@ function cmd_stop_record_rps() {
   })
 }
 
+function cmd_start_startup_test(rps, count) {
+  return new Promise(function (resolve, reject) {
+    invoke('start_startup_task', {rps: rps, count: count})
+      .then((data) => {
+        resolve(data);
+      })
+      .catch((error) => {
+        console.log(error)
+        notify_failed(error)
+        resolve()
+      })
+  })
+}
+
+function cmd_stop_startup_test() {
+  return new Promise(function (resolve, reject) {
+    invoke('stop_startup_task', {})
+      .then((data) => {
+        resolve(data);
+      })
+      .catch((error) => {
+        console.log(error)
+        notify_failed(error)
+        resolve()
+      })
+  })
+}
+
+function cmd_get_startup_test_result() {
+  return new Promise(function (resolve, reject) {
+    invoke('get_startup_test_result', {})
+      .then((data) => {
+        resolve(data);
+      })
+      .catch((error) => {
+        console.log(error)
+        notify_failed(error)
+        resolve()
+      })
+  })
+}
+
 export default {
   formatSeconds,
   cmd_connect_motor,
@@ -285,4 +327,7 @@ export default {
   cmd_update_acc_start,
   cmd_start_record_rps,
   cmd_stop_record_rps,
+  cmd_start_startup_test,
+  cmd_stop_startup_test,
+  cmd_get_startup_test_result,
 }

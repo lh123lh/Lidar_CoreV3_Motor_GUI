@@ -43,9 +43,9 @@ pub async fn list_avaliable_ports() -> CmdResult<Vec<String>> {
 
 #[tauri::command]
 pub async fn get_motor_current_rps() -> CmdResult<f32> {
-    let params = MOTOR.lock().unwrap().get_current_rps().unwrap();
+    let rps = MOTOR.lock().unwrap().get_current_rps().unwrap();
 
-    Ok(params)
+    Ok(rps)
 }
 
 #[tauri::command]
@@ -57,9 +57,9 @@ pub async fn get_motor_params() -> CmdResult<MotorParams> {
 
 #[tauri::command]
 pub async fn get_motor_status() -> CmdResult<MotorStatus> {
-    let params = MOTOR.lock().unwrap().get_motor_status().unwrap();
+    let status = MOTOR.lock().unwrap().get_motor_status().unwrap();
 
-    Ok(params)
+    Ok(status)
 }
 
 #[tauri::command]
@@ -139,8 +139,8 @@ pub async fn start_motor(rps: f32) -> CmdResult {
         .update_motor_speed_rps((rps * 1000.0) as u32)
         .unwrap();
 
-    std::thread::sleep(std::time::Duration::from_micros(10));
-    
+    std::thread::sleep(std::time::Duration::from_millis(100));
+
     MOTOR.lock().unwrap().start_motor().unwrap();
 
     Ok(())
@@ -155,17 +155,17 @@ pub async fn stop_motor() -> CmdResult {
 }
 
 #[tauri::command]
-pub fn upload_file(file: std::path::PathBuf) -> Result<String, String> {
+pub async fn upload_file(file: std::path::PathBuf) -> Result<String, String> {
     // 在这里处理文件，例如保存到磁盘或进一步处理
     println!("{:?}", file);
     Ok("File uploaded successfully".to_string())
 }
 
 #[tauri::command]
-pub fn start_record_rps(path: String) -> CmdResult {
+pub async fn start_record_rps(path: String) -> CmdResult {
     // 检查路径是否合法
     if path.is_empty() {
-      return Err("path is invalid".to_string());
+        return Err("path is invalid".to_string());
     }
 
     MOTOR.lock().unwrap().start_rps_record(&path).unwrap();
@@ -174,8 +174,28 @@ pub fn start_record_rps(path: String) -> CmdResult {
 }
 
 #[tauri::command]
-pub fn stop_record_rps() -> CmdResult {
+pub async fn stop_record_rps() -> CmdResult {
     MOTOR.lock().unwrap().stop_rps_record().unwrap();
 
     Ok(())
+}
+
+#[tauri::command]
+pub async fn start_startup_task(rps: f32, count: u32) -> CmdResult {
+    STARTUPTEST.lock().unwrap().start(rps, count);
+
+    Ok(())
+}
+
+#[tauri::command]
+pub async fn stop_startup_task() -> CmdResult {
+    STARTUPTEST.lock().unwrap().stop();
+    Ok(())
+}
+
+#[tauri::command]
+pub async fn get_startup_test_result() -> CmdResult<TestResult> {
+    let result = STARTUPTEST.lock().unwrap().get_test_result().unwrap();
+
+    Ok(result)
 }

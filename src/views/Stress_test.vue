@@ -6,37 +6,78 @@ import PageBase from '../components/PageBase.vue';
 import cmds from '../api/cmds';
 import { updater } from '@tauri-apps/api';
 import { useMotorStore } from '../stores/motorState'
+import { listen } from '@tauri-apps/api/event';
 
 const store = useMotorStore()
 
 const totalCnt = ref(1000);
+const targetRps = ref(20);
 const ratateDuration = ref(10);
 const successCnt = ref(0);
 const failedCnt = ref(0);
+const progress = ref(0.0);
 const testDuration = ref(0);
 const testDurationFormated = ref("00:00:00");
-const started = ref(false);
+const logs = ref([]);
 
 // onUpdated(() => {
-//   chartInstance.resize();
 // })
 
 onMounted(() => {
   setInterval(() => {
-    if (started.value) {
+    if (store.isTesting) {
       testDuration.value += 1;
       testDurationFormated.value = cmds.formatSeconds(testDuration.value);
+      get_startup_test_result();
     }
   }, 1000);
+
+  listen('log_event', event => {
+    // logs.value.push(event.payload);
+
+    const { message, level, timestamp } = event.payload;
+    logs.value.push({ id: logs.value.length, message, level, timestamp });
+  });
+
 });
 
-function handleStartTest() {
-  if (!started.value) {
-    started.value = true;
+async function handleStartTest() {
+  if (!store.isTesting) {
+    await cmds.cmd_start_startup_test(parseFloat(targetRps.value), parseInt(totalCnt.value))
+      .then((data) => {
+        store.isTesting = true;
+        testDuration.value = 0;
+        logs.value = [];
+      })
   } else {
-    started.value = false;
+    await cmds.cmd_stop_startup_test()
+      .then((data) => {
+        store.isTesting = false;
+      })
   }
 }
+
+async function get_startup_test_result() {
+  if (store.isTesting) {
+    await cmds.cmd_get_startup_test_result()
+      .then((data) => {
+        successCnt.value = data.success_cnt;
+        failedCnt.value = data.failed_cnt;
+        progress.value = data.progress;
+      })
+  }
+}
+
+const tableRowClassName = ({ row }) => {
+  // console.log(row);
+  if (row.level === 'danger') {
+    return 'danger-row';
+  } else if (row.level === 'warning') {
+    return 'warning-row';
+  }
+
+  return '';
+};
 
 </script>
 
@@ -46,10 +87,13 @@ function handleStartTest() {
       <el-col :span="16">
         <cardBase title="日志">
           <template #content>
-            <div style="width: 100%; height: 79vh;">
-              <el-scrollbar max-height="29.0rem" class="mt-n3">
-
-              </el-scrollbar>
+            <div style="width: 100%; height: 78.5vh;">
+              <el-scrollbar max-height="32.0rem" class="mt-n3">
+              <el-table :data="logs" :row-class-name="tableRowClassName" class="mt-n2">
+                <el-table-column width="250" prop="timestamp" label="时间戳"></el-table-column>
+                <el-table-column prop="message" label="日志消息"></el-table-column>
+              </el-table>
+            </el-scrollbar>
             </div>
           </template>
         </cardBase>
@@ -62,23 +106,34 @@ function handleStartTest() {
                 <label>测试次数:</label>
               </el-col>
               <el-col :span="12">
-                <el-input v-model="totalCnt" :disabled="started">
+                <el-input v-model="totalCnt" :disabled="store.isTesting">
                 </el-input>
               </el-col>
             </el-row>
 
             <el-row :gutter="5" class="mt-1">
+              <el-col :span="12">
+                <label>目标转速:</label>
+              </el-col>
+              <el-col :span="12">
+                <el-input v-model="targetRps" :disabled="store.isTesting">
+                </el-input>
+              </el-col>
+            </el-row>
+
+            <!-- <el-row :gutter="5" class="mt-1">
               <el-col :span="12">
                 <label>单次测试时长:</label>
               </el-col>
               <el-col :span="12">
-                <el-input v-model="ratateDuration" :disabled="started">
+                <el-input v-model="ratateDuration" :disabled="store.isTesting">
                 </el-input>
               </el-col>
-            </el-row>
+            </el-row> -->
 
             <el-row :gutter="5" class="mt-1">
-              <el-button type="primary" @click="handleStartTest" v-if="!started" plain class="ms-auto">开始测试</el-button>
+              <el-button type="primary" @click="handleStartTest" v-if="!store.isTesting" plain
+                class="ms-auto" :disabled=!store.isConnected>开始测试</el-button>
               <el-button type="danger" @click="handleStartTest" v-else plain class="ms-auto">停止测试</el-button>
             </el-row>
           </template>
@@ -120,3 +175,17 @@ function handleStartTest() {
     </el-row>
   </PageBase>
 </template>
+
+<style>
+.el-table .danger-row {
+  --el-table-tr-bg-color: var(--el-color-danger-light-5);
+}
+
+.el-table .warning-row {
+  --el-table-tr-bg-color: var(--el-color-warning-light-5);
+}
+
+.el-table .success-row {
+  --el-table-tr-bg-color: var(--el-color-success-light-5);
+}
+</style>

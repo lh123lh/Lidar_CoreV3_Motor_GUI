@@ -75,14 +75,14 @@ onMounted(() => { //组件挂载时的生命周期执行的方法
   get_avaliable_ports()
 
   window.setInterval(function timer() {
-    if (isConnect.value) {
+    if (store.isConnected && !store.isTesting) {
       get_motor_runtime_params();
       get_motor_status();
     }
   }, 1000);
 
   window.setInterval(function timer() {
-    if (isConnect.value) {
+    if (store.isConnected && !store.isTesting) {
       get_motor_current_rps()
     }
   }, 500);
@@ -113,14 +113,14 @@ watch(enableRsReCalc, (newVal, oldVal) => {
 })
 
 async function connect_motor() {
-  if (isConnect.value) {
-    isConnect.value = false;
+  if (store.isConnected) {
+    store.isConnected = false;
     motorStarted.value = false;
     startBtn.value = "启动";
     connectBtn.value = "连接";
     await cmds.cmd_disconnect_motor(serialPort.value, baudRate.value);
   } else {
-    isConnect.value = true;
+    store.isConnected = true;
     connectBtn.value = "断开";
     await cmds.cmd_connect_motor(serialPort.value, baudRate.value);
 
@@ -300,7 +300,7 @@ async function update_acc_start() {
                     <label>自动识别参数</label>
                   </el-col>
                   <el-col :span="4">
-                    <el-switch v-model="enableIdentify" :disabled=!isConnect />
+                    <el-switch v-model="enableIdentify" :disabled=!store.isConnected />
                   </el-col>
                 </el-row>
               </el-col>
@@ -313,7 +313,7 @@ async function update_acc_start() {
                     <label>Rs在线估算</label>
                   </el-col>
                   <el-col :span="4">
-                    <el-switch v-model="enableRsOnline" :disabled=!isConnect />
+                    <el-switch v-model="enableRsOnline" :disabled=!store.isConnected />
                   </el-col>
                 </el-row>
               </el-col>
@@ -326,7 +326,7 @@ async function update_acc_start() {
                     <label>Rs重校准</label>
                   </el-col>
                   <el-col :span="4">
-                    <el-switch v-model="enableRsReCalc" :disabled=!isConnect />
+                    <el-switch v-model="enableRsReCalc" :disabled=!store.isConnected />
                   </el-col>
                 </el-row>
               </el-col>
@@ -339,12 +339,12 @@ async function update_acc_start() {
                     <label>目标转速</label>
                   </el-col>
                   <el-col :span="10">
-                    <el-input v-model="targetRps" :disabled=!isConnect>
+                    <el-input v-model="targetRps" :disabled=!store.isConnected>
                       <template #append>rps</template>
                     </el-input>
                   </el-col>
                   <el-col :span="4">
-                    <el-button @click="update_motor_rps" :disabled=!isConnect type="primary" plain>{{ startBtn
+                    <el-button @click="update_motor_rps" :disabled=!store.isConnected type="primary" plain>{{ startBtn
                       }}</el-button>
                   </el-col>
 
@@ -429,7 +429,7 @@ async function update_acc_start() {
 
                     </el-col>
                     <el-col :span="6">
-                      <el-button @click="clear_motor_faults" :disabled=!isConnect type="danger" plain>清除错误</el-button>
+                      <el-button @click="clear_motor_faults" :disabled=!store.isConnected type="danger" plain>清除错误</el-button>
                     </el-col>
                   </el-row>
                 </el-col>
@@ -622,7 +622,7 @@ async function update_acc_start() {
                       <label>最大加速度 (Hz)</label>
                     </el-col>
                     <el-col :span="14">
-                      <el-input v-model="accMaxHz" @input="update_acc_max" :readonly=!isConnect />
+                      <el-input v-model="accMaxHz" @input="update_acc_max" :readonly=!store.isConnected />
                     </el-col>
                   </el-row>
                 </el-col>
@@ -635,7 +635,7 @@ async function update_acc_start() {
                       <label>启动加速度 (Hz)</label>
                     </el-col>
                     <el-col :span="14">
-                      <el-input v-model="accStartHz" @input="update_acc_start" :readonly=!isConnect />
+                      <el-input v-model="accStartHz" @input="update_acc_start" :readonly=!store.isConnected />
                     </el-col>
                   </el-row>
                 </el-col>
@@ -651,7 +651,7 @@ async function update_acc_start() {
                       v0.0.1_20240401
                     </el-col>
                     <el-col :span="6">
-                      <el-button @click="updateDialogVisible = true" :disabled=!isConnect type="success"
+                      <el-button @click="updateDialogVisible = true" :disabled=!store.isConnected type="success"
                         plain>升级固件</el-button>
                     </el-col>
                   </el-row>

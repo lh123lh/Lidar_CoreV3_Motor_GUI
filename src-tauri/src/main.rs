@@ -3,12 +3,20 @@
 
 // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
 
+use logger::LOGGER;
+
 mod cmds;
+mod logger;
 mod motor;
 
 #[tokio::main]
 async fn main() {
     tauri::Builder::default()
+        .setup(|app| {
+            let app_handle = app.handle();
+            LOGGER.lock().unwrap().app_handle = Some(Box::new(app_handle));
+            Ok(())
+        })
         .invoke_handler(tauri::generate_handler![
             cmds::init_serial_port,
             cmds::deinit_serial_port,
@@ -28,6 +36,9 @@ async fn main() {
             cmds::upload_file,
             cmds::start_record_rps,
             cmds::stop_record_rps,
+            cmds::start_startup_task,
+            cmds::stop_startup_task,
+            cmds::get_startup_test_result,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

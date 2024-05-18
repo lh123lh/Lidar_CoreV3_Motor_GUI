@@ -20,6 +20,9 @@ dependencies:
   pinia:
     specifier: ^2.1.7
     version: 2.1.7(vue@3.4.25)
+  pnpm:
+    specifier: ^9.1.1
+    version: 9.1.1
   v-wave:
     specifier: ^2.0.0
     version: 2.0.0(vue@3.4.25)
@@ -1794,6 +1797,12 @@ packages:
       confbox: 0.1.7
       mlly: 1.6.1
       pathe: 1.1.2
+    dev: false
+
+  /pnpm@9.1.1:
+    resolution: {integrity: sha512-FOkVdZwR936sB/q6TQGcGT7IY3Ip5i7Jnu+3zzw7dcZER4grfEhRQkUe46a0CAWc37e3+gNBuXXxLQ92KccRlQ==}
+    engines: {node: '>=18.12'}
+    hasBin: true
     dev: false
 
   /postcss@8.4.38:

@@ -3,8 +3,10 @@ import { defineStore } from 'pinia'
 
 export const useMotorStore = defineStore('motor', () => {
   const currRps = ref(0.0);
+  const isTesting = ref(false);
+  const isConnected = ref(false);
 
-  return { currRps };
+  return { currRps, isTesting, isConnected };
 })
 
 // export const useMotorStore = defineStore('motor', {
