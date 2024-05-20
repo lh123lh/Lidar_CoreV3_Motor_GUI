@@ -23,6 +23,7 @@ async fn main() {
             cmds::get_motor_current_rps,
             cmds::get_motor_params,
             cmds::get_motor_status,
+            cmds::get_motor_static_params,
             cmds::list_avaliable_ports,
             cmds::update_motor_rps,
             cmds::enable_motor_identify,

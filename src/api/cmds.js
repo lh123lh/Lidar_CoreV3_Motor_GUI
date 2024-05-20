@@ -78,6 +78,20 @@ function cmd_get_motor_params() {
   })
 }
 
+function cmd_get_motor_static_params() {
+  return new Promise(function (resolve, reject) {
+    invoke('get_motor_static_params', {})
+      .then((data) => {
+        resolve(data);
+      })
+      .catch((error) => {
+        console.log(error)
+        notify_failed(error)
+        resolve()
+      })
+  })
+}
+
 function cmd_get_motor_status() {
   return new Promise(function (resolve, reject) {
     invoke('get_motor_status', {})
@@ -315,6 +329,7 @@ export default {
   cmd_get_motor_current_rps,
   cmd_get_motor_params,
   cmd_get_motor_status,
+  cmd_get_motor_static_params,
   cmd_get_avaliable_ports,
   cmd_update_motor_rps,
   cmd_enable_motor_identify,

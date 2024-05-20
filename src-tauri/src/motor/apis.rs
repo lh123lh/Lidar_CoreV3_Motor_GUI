@@ -6,26 +6,16 @@ use std::sync::Mutex;
 
 #[derive(Debug, PartialEq, Serialize, Deserialize, Clone)]
 pub struct MotorParams {
+    pub vdc_bus: Option<f64>,
+}
+
+#[derive(Debug, PartialEq, Serialize, Deserialize, Clone)]
+pub struct MotorStaticParams {
     pub rs: Option<f64>,
-    pub rs_online: Option<f64>,
     pub ls_d: Option<f64>,
     pub ls_q: Option<f64>,
     pub flux: Option<f64>,
     pub poles: Option<u32>,
-    pub torque: Option<f64>,
-    pub vdc_bus: Option<f64>,
-    pub ia: Option<f64>,
-    pub ib: Option<f64>,
-    pub ic: Option<f64>,
-    pub va: Option<f64>,
-    pub vb: Option<f64>,
-    pub vc: Option<f64>,
-    pub acc_max_hzps: Option<f64>,
-    pub acc_start_hzps: Option<f64>,
-}
-
-#[derive(Debug, PartialEq, Serialize, Deserialize, Clone)]
-pub struct MotorVariableParams {
     pub acc_max_hzps: Option<f64>,
     pub acc_start_hzps: Option<f64>,
 }
@@ -41,14 +31,14 @@ pub struct MotorStatus {
     pub rsrecalc_en: Option<bool>,
 }
 
-pub struct Motor {
-    pub port: Option<Box<dyn SerialPort>>,
-    pub recoder_handle: Option<Box<csv::Writer<std::fs::File>>>,
-}
-
 #[derive(Debug, Serialize)]
 struct RpsRecoder {
     rps: Option<f32>,
+}
+
+pub struct Motor {
+    pub port: Option<Box<dyn SerialPort>>,
+    pub recoder_handle: Option<Box<csv::Writer<std::fs::File>>>,
 }
 
 pub static MOTOR: Lazy<Mutex<Motor>> = Lazy::new(|| Mutex::new(Motor::new()));
@@ -95,9 +85,7 @@ impl Motor {
 
         // 记录转速
         if let Some(ref mut wtr) = self.recoder_handle {
-            wtr.serialize(RpsRecoder {
-                rps: Some(rps),
-            })?;
+            wtr.serialize(RpsRecoder { rps: Some(rps) })?;
 
             wtr.flush()?;
         }
@@ -105,154 +93,80 @@ impl Motor {
         Ok(rps)
     }
 
-    #[allow(unused_assignments)]
-    pub fn get_motor_params(&mut self) -> Result<MotorParams> {
+    pub fn get_motor_static_params(&mut self) -> Result<MotorStaticParams> {
         let mut rs = 0.0;
-        let mut rs_online = 0.0;
         let mut ls_d = 0.0;
         let mut ls_q = 0.0;
         let mut flux = 0.0;
         let mut poles = 0;
-        let mut torque = 0.0;
-        let mut vdc_bus = 0.0;
-        let mut ia = 0.0;
-        let mut ib = 0.0;
-        let mut ic = 0.0;
-        let mut va = 0.0;
-        let mut vb = 0.0;
-        let mut vc = 0.0;
         let mut acc_max_hzps = 0.0;
         let mut acc_start_hzps = 0.0;
 
-        // if let Some(buf) = self.request(0x01, 0) {
-        //     // TODO: 需要校验buf的长度及正确性
-        //     if buf.len() >= 4 {
-        //         rs = vec_to_int(&buf[0..4]) as f64 / 100000000.0;
-        //     }
-        // }
-
-        // if let Some(buf) = self.request(0x02, 0) {
-        //     // TODO: 需要校验buf的长度及正确性
-        //     if buf.len() >= 4 {
-        //         rs_online = vec_to_int(&buf[0..4]) as f64 / 100000000.0;
-        //     }
-        // }
-
-        // if let Some(buf) = self.request(0x03, 0) {
-        //     // TODO: 需要校验buf的长度及正确性
-        //     if buf.len() >= 4 {
-        //         ls_d = vec_to_int(&buf[0..4]) as f64 / 100000000.0;
-        //     }
-        // }
-
-        // if let Some(buf) = self.request(0x04, 0) {
-        //     // TODO: 需要校验buf的长度及正确性
-        //     if buf.len() >= 4 {
-        //         ls_q = vec_to_int(&buf[0..4]) as f64 / 100000000.0;
-        //     }
-        // }
-
-        // if let Some(buf) = self.request(0x05, 0) {
-        //     // TODO: 需要校验buf的长度及正确性
-        //     if buf.len() >= 4 {
-        //         flux = vec_to_int(&buf[0..4]) as f64 / 100000000.0;
-        //     }
-        // }
-
-        // if let Some(buf) = self.request(0x08, 0) {
-        //     // TODO: 需要校验buf的长度及正确性
-        //     if buf.len() >= 4 {
-        //         poles = vec_to_int(&buf[0..4]) as u32;
-        //     }
-        // }
-
-        // if let Some(buf) = self.request(0x09, 0) {
-        //     // TODO: 需要校验buf的长度及正确性
-        //     if buf.len() >= 4 {
-        //         torque = vec_to_int(&buf[0..4]) as f64 / 1000.0;
-        //     }
-        // }
-
-        if let Some(buf) = self.request(0x0A, 0) {
-            // TODO: 需要校验buf的长度及正确性
+        if let Some(buf) = self.request(0x01, 0) {
             if buf.len() >= 4 {
-                vdc_bus = vec_to_int(&buf[0..4]) as f64 / 1000.0;
+                rs = vec_to_int(&buf[0..4]) as f64 / 100000000.0;
             }
         }
 
-        // if let Some(buf) = self.request(0x0B, 0) {
-        //     // TODO: 需要校验buf的长度及正确性
-        //     if buf.len() >= 4 {
-        //         ia = vec_to_int(&buf[0..4]) as f64 / 1000.0;
-        //     }
-        // }
+        if let Some(buf) = self.request(0x03, 0) {
+            if buf.len() >= 4 {
+                ls_d = vec_to_int(&buf[0..4]) as f64 / 100000000.0;
+            }
+        }
 
-        // if let Some(buf) = self.request(0x0C, 0) {
-        //     // TODO: 需要校验buf的长度及正确性
-        //     if buf.len() >= 4 {
-        //         ib = vec_to_int(&buf[0..4]) as f64 / 1000.0;
-        //     }
-        // }
+        if let Some(buf) = self.request(0x04, 0) {
+            if buf.len() >= 4 {
+                ls_q = vec_to_int(&buf[0..4]) as f64 / 100000000.0;
+            }
+        }
 
-        // if let Some(buf) = self.request(0x0D, 0) {
-        //     // TODO: 需要校验buf的长度及正确性
-        //     if buf.len() >= 4 {
-        //         ic = vec_to_int(&buf[0..4]) as f64 / 1000.0;
-        //     }
-        // }
+        if let Some(buf) = self.request(0x05, 0) {
+            if buf.len() >= 4 {
+                flux = vec_to_int(&buf[0..4]) as f64 / 100000000.0;
+            }
+        }
 
-        // if let Some(buf) = self.request(0x0E, 0) {
-        //     // TODO: 需要校验buf的长度及正确性
-        //     if buf.len() >= 4 {
-        //         va = vec_to_int(&buf[0..4]) as f64 / 1000.0;
-        //     }
-        // }
-
-        // if let Some(buf) = self.request(0x0F, 0) {
-        //     // TODO: 需要校验buf的长度及正确性
-        //     if buf.len() >= 4 {
-        //         vb = vec_to_int(&buf[0..4]) as f64 / 1000.0;
-        //     }
-        // }
-
-        // if let Some(buf) = self.request(0x10, 0) {
-        //     // TODO: 需要校验buf的长度及正确性
-        //     if buf.len() >= 4 {
-        //         vc = vec_to_int(&buf[0..4]) as f64 / 1000.0;
-        //     }
-        // }
+        if let Some(buf) = self.request(0x08, 0) {
+            if buf.len() >= 4 {
+                poles = vec_to_int(&buf[0..4]) as u32;
+            }
+        }
 
         if let Some(buf) = self.request(0x11, 0) {
-            // TODO: 需要校验buf的长度及正确性
             if buf.len() >= 4 {
                 acc_start_hzps = vec_to_int(&buf[0..4]) as f64 / 1000.0;
             }
         }
 
         if let Some(buf) = self.request(0x12, 0) {
-            // TODO: 需要校验buf的长度及正确性
             if buf.len() >= 4 {
                 acc_max_hzps = vec_to_int(&buf[0..4]) as f64 / 1000.0;
             }
         }
 
-        Ok(MotorParams {
+        Ok(MotorStaticParams {
             rs: Some(rs),
-            rs_online: Some(rs_online),
             ls_d: Some(ls_d),
             ls_q: Some(ls_q),
             flux: Some(flux),
             poles: Some(poles),
-            torque: Some(torque),
-            vdc_bus: Some(vdc_bus),
-            ia: Some(ia),
-            ib: Some(ib),
-            ic: Some(ic),
-            va: Some(va),
-            vb: Some(vb),
-            vc: Some(vc),
             acc_max_hzps: Some(acc_max_hzps),
             acc_start_hzps: Some(acc_start_hzps),
+        })
+    }
+
+    #[allow(unused_assignments)]
+    pub fn get_motor_params(&mut self) -> Result<MotorParams> {
+        let mut vdc_bus = 0.0;
+
+        if let Some(buf) = self.request(0x0A, 0) {
+            if buf.len() >= 4 {
+                vdc_bus = vec_to_int(&buf[0..4]) as f64 / 1000.0;
+            }
+        }
+
+        Ok(MotorParams {
+            vdc_bus: Some(vdc_bus),
         })
     }
 
@@ -267,7 +181,7 @@ impl Motor {
         let mut rsrecalc_en = false;
 
         if let Some(buf) = self.request(0x06, 0) {
-            if buf.len() >= 4 {
+            if buf.len() >= 10 {
                 identified = buf[0] != 0;
                 error_code = vec_to_short(&buf[1..3]) as u16;
                 motor_state = self.motor_state_to_string(&buf[3]);

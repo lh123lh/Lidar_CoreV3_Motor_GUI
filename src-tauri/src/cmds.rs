@@ -56,6 +56,13 @@ pub async fn get_motor_params() -> CmdResult<MotorParams> {
 }
 
 #[tauri::command]
+pub async fn get_motor_static_params() -> CmdResult<MotorStaticParams> {
+    let params = MOTOR.lock().unwrap().get_motor_static_params().unwrap();
+
+    Ok(params)
+}
+
+#[tauri::command]
 pub async fn get_motor_status() -> CmdResult<MotorStatus> {
     let status = MOTOR.lock().unwrap().get_motor_status().unwrap();
 

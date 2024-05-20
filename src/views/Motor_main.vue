@@ -10,7 +10,6 @@ import { useMotorStore } from '../stores/motorState'
 import parseErrorCode from "../api/parseErrorCode.js";
 
 const store = useMotorStore()
-const isConnect = ref(false);
 const Rs_Ohm = ref(0.00);
 const Rs_Ohm_Online = ref(0.00);
 const Ls_d = ref(0.00);
@@ -21,14 +20,7 @@ const connectBtn = ref("连接");
 const startBtn = ref("启动");
 const targetRps = ref(0.00);
 const currentRps = ref(0.00);
-const torqueNm = ref(0.0);
 const vdcBus = ref(0.0);
-const I_A = ref(0.0);
-const I_B = ref(0.0);
-const I_C = ref(0.0);
-const V_A = ref(0.0);
-const V_B = ref(0.0);
-const V_C = ref(0.0);
 const enableIdentify = ref(false);
 const enableRsOnline = ref(false);
 const enableRsReCalc = ref(false);
@@ -130,8 +122,14 @@ async function connect_motor() {
 
 // 获取电机启动参数, 运行时不可变
 async function get_motor_static_params() {
-  await cmds.cmd_get_motor_params()
+  await cmds.cmd_get_motor_static_params()
     .then((data) => {
+      Rs_Ohm.value = data.rs;
+      Rs_Ohm_Online.value = data.rs_online;
+      Ls_d.value = data.ls_d;
+      Ls_q.value = data.ls_q;
+      flux.value = data.flux;
+      poles.value = data.poles;
       accMaxHz.value = data.acc_max_hzps;
       accStartHz.value = data.acc_start_hzps;
     })
@@ -141,20 +139,7 @@ async function get_motor_static_params() {
 async function get_motor_runtime_params() {
   await cmds.cmd_get_motor_params()
     .then((data) => {
-      Rs_Ohm.value = data.rs;
-      Rs_Ohm_Online.value = data.rs_online;
-      Ls_d.value = data.ls_d;
-      Ls_q.value = data.ls_q;
-      flux.value = data.flux;
-      poles.value = data.poles;
-      torqueNm.value = data.torque;
       vdcBus.value = data.vdc_bus;
-      I_A.value = data.ia;
-      I_B.value = data.ib;
-      I_C.value = data.ic;
-      V_A.value = data.va;
-      V_B.value = data.vb;
-      V_C.value = data.vc;
     })
 }
 
@@ -447,19 +432,6 @@ async function update_acc_start() {
                   </el-row>
                 </el-col>
               </el-row>
-              <el-row class="mt-1">
-                <el-col>
-                  <el-row :gutter="1">
-                    <el-col :span="10">
-                      <label style="font-size: 1rem;">Rs Online</label>
-                    </el-col>
-                    <el-col :span="14">
-                      <el-input v-model="Rs_Ohm_Online" :readonly=true />
-                    </el-col>
-                  </el-row>
-                </el-col>
-              </el-row>
-
               <el-row :gutter="20" class="mt-1">
                 <el-col>
                   <el-row :gutter="1">
@@ -515,101 +487,10 @@ async function update_acc_start() {
                 <el-col>
                   <el-row :gutter="1">
                     <el-col :span="10">
-                      <label>扭矩 (N-m)</label>
-                    </el-col>
-                    <el-col :span="14">
-                      <el-input v-model="torqueNm" :readonly=true />
-                    </el-col>
-                  </el-row>
-                </el-col>
-              </el-row>
-
-              <el-row :gutter="20" class="mt-1">
-                <el-col>
-                  <el-row :gutter="1">
-                    <el-col :span="10">
                       <label>母线电压 (V)</label>
                     </el-col>
                     <el-col :span="14">
                       <el-input v-model="vdcBus" :readonly=true />
-                    </el-col>
-                  </el-row>
-                </el-col>
-              </el-row>
-
-              <el-row :gutter="20" class="mt-1">
-                <el-col>
-                  <el-row :gutter="1">
-                    <el-col :span="10">
-                      <label>I.0 (A)</label>
-                    </el-col>
-                    <el-col :span="14">
-                      <el-input v-model="I_A" :readonly=true />
-                    </el-col>
-                  </el-row>
-                </el-col>
-              </el-row>
-
-              <el-row :gutter="20" class="mt-1">
-                <el-col>
-                  <el-row :gutter="1">
-                    <el-col :span="10">
-                      <label>I.1 (A)</label>
-                    </el-col>
-                    <el-col :span="14">
-                      <el-input v-model="I_B" :readonly=true />
-                    </el-col>
-                  </el-row>
-                </el-col>
-              </el-row>
-
-              <el-row :gutter="20" class="mt-1">
-                <el-col>
-                  <el-row :gutter="1">
-                    <el-col :span="10">
-                      <label>I.2 (A)</label>
-                    </el-col>
-                    <el-col :span="14">
-                      <el-input v-model="I_C" :readonly=true />
-                    </el-col>
-                  </el-row>
-                </el-col>
-              </el-row>
-
-              <el-row :gutter="20" class="mt-1">
-                <el-col>
-                  <el-row :gutter="1">
-                    <el-col :span="10">
-                      <label>V.0 (V)</label>
-                    </el-col>
-                    <el-col :span="14">
-                      <el-input v-model="V_A" :readonly=true />
-                    </el-col>
-                  </el-row>
-                </el-col>
-              </el-row>
-
-              <el-row :gutter="20" class="mt-1">
-                <el-col>
-                  <el-row :gutter="1">
-                    <el-col :span="10">
-                      <label>V.1 (V)</label>
-                    </el-col>
-                    <el-col :span="14">
-                      <el-input v-model="V_B" :readonly=true />
-                    </el-col>
-                  </el-row>
-                </el-col>
-              </el-row>
-
-              <el-row :gutter="20" class="mt-1">
-                <el-col>
-                  <el-row :gutter="1">
-                    <el-col :span="10">
-                      <label>V.2 (V)</label>
-                    </el-col>
-                    <el-col :span="14">
-                      <el-input v-model="V_C" :readonly=true />
                     </el-col>
                   </el-row>
                 </el-col>
@@ -651,7 +532,7 @@ async function update_acc_start() {
                       v0.0.1_20240401
                     </el-col>
                     <el-col :span="6">
-                      <el-button @click="updateDialogVisible = true" :disabled=!store.isConnected type="success"
+                      <el-button @click="updateDialogVisible = true" :disabled=!store.isConnected type="primary"
                         plain>升级固件</el-button>
                     </el-col>
                   </el-row>
