@@ -13,6 +13,7 @@ const store = useMotorStore()
 const totalCnt = ref(1000);
 const targetRps = ref(20);
 const ratateDuration = ref(10);
+const coldDuration = ref(10);
 const successCnt = ref(0);
 const failedCnt = ref(0);
 const progress = ref(0.0);
@@ -43,7 +44,7 @@ onMounted(() => {
 
 async function handleStartTest() {
   if (!store.isTesting) {
-    await cmds.cmd_start_startup_test(parseFloat(targetRps.value), parseInt(totalCnt.value))
+    await cmds.cmd_start_startup_test(parseFloat(targetRps.value), parseInt(totalCnt.value), parseInt(coldDuration.value))
       .then((data) => {
         store.isTesting = true;
         testDuration.value = 0;
@@ -64,6 +65,10 @@ async function get_startup_test_result() {
         successCnt.value = data.success_cnt;
         failedCnt.value = data.failed_cnt;
         progress.value = data.progress;
+
+        if (successCnt.value + failedCnt.value >= totalCnt.value) {
+          store.isTesting = false;
+        }
       })
   }
 }
@@ -88,12 +93,12 @@ const tableRowClassName = ({ row }) => {
         <cardBase title="日志">
           <template #content>
             <div style="width: 100%; height: 78.5vh;">
-              <el-scrollbar max-height="32.0rem" class="mt-n3">
-              <el-table :data="logs" :row-class-name="tableRowClassName" class="mt-n2">
-                <el-table-column width="250" prop="timestamp" label="时间戳"></el-table-column>
-                <el-table-column prop="message" label="日志消息"></el-table-column>
-              </el-table>
-            </el-scrollbar>
+              <el-scrollbar max-height="100%" class="mt-n3">
+                <el-table :data="logs" :row-class-name="tableRowClassName" class="mt-n2">
+                  <el-table-column width="250" prop="timestamp" label="时间戳"></el-table-column>
+                  <el-table-column prop="message" label="日志消息"></el-table-column>
+                </el-table>
+              </el-scrollbar>
             </div>
           </template>
         </cardBase>
@@ -121,6 +126,16 @@ const tableRowClassName = ({ row }) => {
               </el-col>
             </el-row>
 
+            <el-row :gutter="5" class="mt-1">
+              <el-col :span="12">
+                <label>冷却时长:</label>
+              </el-col>
+              <el-col :span="12">
+                <el-input v-model="coldDuration" :disabled="store.isTesting">
+                </el-input>
+              </el-col>
+            </el-row>
+
             <!-- <el-row :gutter="5" class="mt-1">
               <el-col :span="12">
                 <label>单次测试时长:</label>
@@ -132,8 +147,8 @@ const tableRowClassName = ({ row }) => {
             </el-row> -->
 
             <el-row :gutter="5" class="mt-1">
-              <el-button type="primary" @click="handleStartTest" v-if="!store.isTesting" plain
-                class="ms-auto" :disabled=!store.isConnected>开始测试</el-button>
+              <el-button type="primary" @click="handleStartTest" v-if="!store.isTesting" plain class="ms-auto"
+                :disabled=!store.isConnected>开始测试</el-button>
               <el-button type="danger" @click="handleStartTest" v-else plain class="ms-auto">停止测试</el-button>
             </el-row>
           </template>

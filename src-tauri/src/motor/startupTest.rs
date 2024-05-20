@@ -47,7 +47,7 @@ impl StartupTestHandle {
         }
     }
 
-    pub fn start(&self, target_rps: f32, total_count: u32) {
+    pub fn start(&self, target_rps: f32, total_count: u32, cold_duration: u32) {
         let running = Arc::clone(&self.running);
         let mut handle_guard = self.handle.lock().unwrap();
         let total_cnt = Arc::clone(&self.total_cnt);
@@ -127,11 +127,11 @@ impl StartupTestHandle {
 
                         MOTOR.lock().unwrap().stop_motor().unwrap();
 
-                        // 等待电机停止转动
+                        // 等待电机停止转动并冷却
                         let start = Instant::now();
                         while running.load(Ordering::SeqCst) {
                             thread::sleep(std::time::Duration::from_millis(100));
-                            if start.elapsed().as_millis() > 10000 {
+                            if start.elapsed().as_millis() > (1000 * cold_duration) as u128 {
                                 break;
                             }
                         }

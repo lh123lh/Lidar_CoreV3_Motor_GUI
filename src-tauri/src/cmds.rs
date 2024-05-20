@@ -181,8 +181,8 @@ pub async fn stop_record_rps() -> CmdResult {
 }
 
 #[tauri::command]
-pub async fn start_startup_task(rps: f32, count: u32) -> CmdResult {
-    STARTUPTEST.lock().unwrap().start(rps, count);
+pub async fn start_startup_task(rps: f32, count: u32, cold: u32) -> CmdResult {
+    STARTUPTEST.lock().unwrap().start(rps, count, cold);
 
     Ok(())
 }

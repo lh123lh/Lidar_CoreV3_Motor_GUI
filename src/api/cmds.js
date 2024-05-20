@@ -266,9 +266,9 @@ function cmd_stop_record_rps() {
   })
 }
 
-function cmd_start_startup_test(rps, count) {
+function cmd_start_startup_test(rps, count, cold_duration) {
   return new Promise(function (resolve, reject) {
-    invoke('start_startup_task', {rps: rps, count: count})
+    invoke('start_startup_task', {rps: rps, count: count, cold: cold_duration})
       .then((data) => {
         resolve(data);
       })
