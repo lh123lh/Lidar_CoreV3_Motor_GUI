@@ -3,6 +3,7 @@ import { createRouter, createWebHashHistory } from "vue-router";
 import Motor_main from '../views/Motor_main.vue'
 import speedMonitor from '../views/Speed_monitor.vue'
 import stressTest from '../views/Stress_test.vue'
+import setting from '../views/Setting.vue'
 
 
 // 2. 定义一些路由
@@ -39,6 +40,17 @@ const routes = [
       deepth: 3,
     },
     component: stressTest
+  },
+  {
+    path: '/setting',
+    name: 'setting',
+    meta: {
+      //	当前页面要不要缓存
+      keepAlive: true,
+      //	当前页面层级
+      deepth: 4,
+    },
+    component: setting
   },
 ];
 

@@ -11,6 +11,7 @@ const navs = ref([
   { idx: "1", title: '电机控制', icon: 'icon-control', to: '/' },
   { idx: "2", title: '转速监控', icon: 'icon-monitoring', to: '/speedMonitor' },
   { idx: "3", title: '启停测试', icon: 'icon-stressTest', to: '/stressTest' },
+  { idx: "4", title: '设置', icon: 'icon-setting', to: '/setting' },
 ])
 </script>
 
@@ -30,7 +31,7 @@ const navs = ref([
                   <SvgIcon :iconName=nav.icon />
                 </el-icon>
               </el-col>
-              <el-col :span="16">
+              <el-col :span="16" style="text-align: end;">
                 <span style="font-weight: 1000; font-size: 1rem;">{{ nav.title }}</span>
               </el-col>
             </el-row>
