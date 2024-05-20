@@ -1,8 +1,8 @@
 [package]
 name = "lidar_corev3_motor_gui"
-version = "0.0.0"
+version = "0.0.1"
 description = "A Tauri App"
-authors = ["you"]
+authors = ["calvin.liu"]
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
@@ -22,6 +22,7 @@ csv = "1.3.0"
 libm = "0.2.8"
 log = "0.4.21"
 chrono = "0.4.38"
+ymodem = "0.1.1"
 
 [features]
 # This feature is used for production builds or when a dev server is not specified, DO NOT REMOVE!!

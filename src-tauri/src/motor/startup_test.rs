@@ -9,10 +9,9 @@ use std::sync::{Arc, Mutex};
 use std::thread;
 use std::time::Instant;
 
-#[derive(Debug)]
 enum TestStatus {
-    TestFailed,   // 测试失败
-    TestSuccess,  // 测试成功
+    // TestFailed,   // 测试失败
+    // TestSuccess,  // 测试成功
     Rotating,     // 转动中
     RotatFailed,  // 启动失败
     RotatSuccess, // 达到目标转速

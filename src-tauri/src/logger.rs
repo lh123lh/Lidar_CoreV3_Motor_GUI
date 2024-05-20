@@ -18,7 +18,7 @@ pub struct Logger {
 pub static LOGGER: Lazy<Mutex<Logger>> = Lazy::new(|| Mutex::new(Logger { app_handle: None }));
 
 impl Logger {
-    pub fn log_message(&mut self, log: &LogEntry) {
+    fn log_message(&mut self, log: &LogEntry) {
         if let Some(ref mut app) = self.app_handle {
             app.emit_all("log_event", log).unwrap();
         }

@@ -309,6 +309,7 @@ impl Motor {
         Ok(())
     }
 
+    #[allow(dead_code)]
     pub fn reset_motor(&mut self) -> Result<()> {
         if let Some(_) = self.request(0x84, 0) {}
         Ok(())
