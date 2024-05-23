@@ -379,6 +379,7 @@ function cmd_get_startup_test_result() {
 }
 
 export default {
+  notify_failed,
   formatSeconds,
   cmd_connect_motor,
   cmd_disconnect_motor,

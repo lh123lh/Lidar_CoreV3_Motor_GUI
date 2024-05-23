@@ -79,7 +79,7 @@ impl Motor {
     }
 
     pub fn get_current_rps(&mut self) -> Result<f32> {
-        let mut rps: f32 = 0.0;
+        let mut rps: f32 = -1000.0;
 
         if let Some(buf) = self.request(0x00, 0) {
             if buf.len() >= 4 {

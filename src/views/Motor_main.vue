@@ -156,8 +156,13 @@ async function get_motor_current_rps() {
     .then((data) => {
       store.currRps = parseFloat(data.toFixed(3));
       // store.update(parseFloat(data.toFixed(3)));
-      if (isActived.value) {
-        currentRps.value = store.currRps;
+      if(store.currRps <= -1000.0) {
+        cmds.notify_failed("电机已断开连接");
+        connect_motor();
+      } else {
+        if (isActived.value) {
+          currentRps.value = store.currRps;
+        }
       }
     }).catch(err => {
       this.$message.error(err.message);
@@ -168,7 +173,6 @@ async function get_motor_current_rps() {
 async function get_motor_status() {
   await cmds.cmd_get_motor_status()
     .then((data) => {
-      console.log(data);
       motorIdentified.value = data.identified;
       errorCode.value = data.error_code;
       motorState.value = data.motor_state;
