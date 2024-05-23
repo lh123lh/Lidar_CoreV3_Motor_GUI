@@ -139,6 +139,50 @@ pub async fn update_motor_acc_start(hz: f32) -> CmdResult {
 }
 
 #[tauri::command]
+pub async fn update_motor_kp_spd(kp: f32) -> CmdResult {
+    MOTOR
+        .lock()
+        .unwrap()
+        .update_motor_kp_spd((kp * 100000000.0) as u32)
+        .unwrap();
+
+    Ok(())
+}
+
+#[tauri::command]
+pub async fn update_motor_ki_spd(ki: f32) -> CmdResult {
+    MOTOR
+        .lock()
+        .unwrap()
+        .update_motor_ki_spd((ki * 100000000.0) as u32)
+        .unwrap();
+
+    Ok(())
+}
+
+#[tauri::command]
+pub async fn update_motor_kp_iq(kp: f32) -> CmdResult {
+    MOTOR
+        .lock()
+        .unwrap()
+        .update_motor_kp_iq((kp * 100000000.0) as u32)
+        .unwrap();
+
+    Ok(())
+}
+
+#[tauri::command]
+pub async fn update_motor_ki_iq(ki: f32) -> CmdResult {
+    MOTOR
+        .lock()
+        .unwrap()
+        .update_motor_ki_iq((ki * 100000000.0) as u32)
+        .unwrap();
+
+    Ok(())
+}
+
+#[tauri::command]
 pub async fn start_motor(rps: f32) -> CmdResult {
     MOTOR
         .lock()

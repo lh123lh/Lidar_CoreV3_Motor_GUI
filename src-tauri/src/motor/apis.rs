@@ -16,6 +16,10 @@ pub struct MotorStaticParams {
     pub ls_q: Option<f64>,
     pub flux: Option<f64>,
     pub poles: Option<u32>,
+    pub kp_spd: Option<f64>,
+    pub ki_spd: Option<f64>,
+    pub kp_iq: Option<f64>,
+    pub ki_iq: Option<f64>,
     pub acc_max_hzps: Option<f64>,
     pub acc_start_hzps: Option<f64>,
 }
@@ -99,6 +103,10 @@ impl Motor {
         let mut ls_q = 0.0;
         let mut flux = 0.0;
         let mut poles = 0;
+        let mut kp_spd = 0.0;
+        let mut ki_spd = 0.0;
+        let mut kp_iq = 0.0;
+        let mut ki_iq = 0.0;
         let mut acc_max_hzps = 0.0;
         let mut acc_start_hzps = 0.0;
 
@@ -144,12 +152,30 @@ impl Motor {
             }
         }
 
+        if let Some(buf) = self.request(0x13, 0) {
+            if buf.len() >= 8 {
+                kp_spd = vec_to_int(&buf[0..4]) as f64 / 100000000.0;
+                ki_spd = vec_to_int(&buf[4..8]) as f64 / 100000000.0;
+            }
+        }
+
+        if let Some(buf) = self.request(0x14, 0) {
+            if buf.len() >= 8 {
+                kp_iq = vec_to_int(&buf[0..4]) as f64 / 100000000.0;
+                ki_iq = vec_to_int(&buf[4..8]) as f64 / 100000000.0;
+            }
+        }
+
         Ok(MotorStaticParams {
             rs: Some(rs),
             ls_d: Some(ls_d),
             ls_q: Some(ls_q),
             flux: Some(flux),
             poles: Some(poles),
+            kp_spd: Some(kp_spd),
+            ki_spd: Some(ki_spd),
+            kp_iq: Some(kp_iq),
+            ki_iq: Some(ki_iq),
             acc_max_hzps: Some(acc_max_hzps),
             acc_start_hzps: Some(acc_start_hzps),
         })
@@ -181,7 +207,7 @@ impl Motor {
         let mut rsrecalc_en = false;
 
         if let Some(buf) = self.request(0x06, 0) {
-            if buf.len() >= 10 {
+            if buf.len() >= 8 {
                 identified = buf[0] != 0;
                 error_code = vec_to_short(&buf[1..3]) as u16;
                 motor_state = self.motor_state_to_string(&buf[3]);
@@ -256,6 +282,26 @@ impl Motor {
 
     pub fn update_motor_acc_start(&mut self, hz: u32) -> Result<()> {
         if let Some(_) = self.request(0x8B, hz) {}
+        Ok(())
+    }
+
+    pub fn update_motor_kp_spd(&mut self, kp: u32) -> Result<()> {
+        if let Some(_) = self.request(0x8C, kp) {}
+        Ok(())
+    }
+
+    pub fn update_motor_ki_spd(&mut self, ki: u32) -> Result<()> {
+        if let Some(_) = self.request(0x8D, ki) {}
+        Ok(())
+    }
+
+    pub fn update_motor_kp_iq(&mut self, kp: u32) -> Result<()> {
+        if let Some(_) = self.request(0x8E, kp) {}
+        Ok(())
+    }
+
+    pub fn update_motor_ki_iq(&mut self, ki: u32) -> Result<()> {
+        if let Some(_) = self.request(0x8F, ki) {}
         Ok(())
     }
 

@@ -34,6 +34,10 @@ const isActived = ref(false);
 
 const accMaxHz = ref(0.0);
 const accStartHz = ref(0.0);
+const kp_spd = ref(0.0);
+const ki_spd = ref(0.0);
+const kp_iq = ref(0.0);
+const ki_iq = ref(0.0);
 
 const baudRates = [
   {
@@ -132,6 +136,10 @@ async function get_motor_static_params() {
       poles.value = data.poles;
       accMaxHz.value = data.acc_max_hzps;
       accStartHz.value = data.acc_start_hzps;
+      kp_spd.value = data.kp_spd;
+      ki_spd.value = data.ki_spd;
+      kp_iq.value = data.kp_iq;
+      ki_iq.value = data.ki_iq;
     })
 }
 
@@ -160,6 +168,7 @@ async function get_motor_current_rps() {
 async function get_motor_status() {
   await cmds.cmd_get_motor_status()
     .then((data) => {
+      console.log(data);
       motorIdentified.value = data.identified;
       errorCode.value = data.error_code;
       motorState.value = data.motor_state;
@@ -233,6 +242,30 @@ async function update_acc_max() {
 
 async function update_acc_start() {
   await cmds.cmd_update_acc_start(parseFloat(accStartHz.value))
+    .then((data) => {
+    })
+}
+
+async function update_kp_spd() {
+  await cmds.cmd_update_kp_spd(parseFloat(kp_spd.value))
+    .then((data) => {
+    })
+}
+
+async function update_ki_spd() {
+  await cmds.cmd_update_ki_spd(parseFloat(ki_spd.value))
+    .then((data) => {
+    })
+}
+
+async function update_kp_iq() {
+  await cmds.cmd_update_kp_iq(parseFloat(kp_iq.value))
+    .then((data) => {
+    })
+}
+
+async function update_ki_iq() {
+  await cmds.cmd_update_ki_iq(parseFloat(ki_iq.value))
     .then((data) => {
     })
 }
@@ -414,7 +447,8 @@ async function update_acc_start() {
 
                     </el-col>
                     <el-col :span="6">
-                      <el-button @click="clear_motor_faults" :disabled=!store.isConnected type="danger" plain>清除错误</el-button>
+                      <el-button @click="clear_motor_faults" :disabled=!store.isConnected type="danger"
+                        plain>清除错误</el-button>
                     </el-col>
                   </el-row>
                 </el-col>
@@ -517,6 +551,58 @@ async function update_acc_start() {
                     </el-col>
                     <el-col :span="14">
                       <el-input v-model="accStartHz" @input="update_acc_start" :readonly=!store.isConnected />
+                    </el-col>
+                  </el-row>
+                </el-col>
+              </el-row>
+
+              <el-row :gutter="20" class="mt-1">
+                <el-col>
+                  <el-row :gutter="1">
+                    <el-col :span="10">
+                      <label>Kp SPD</label>
+                    </el-col>
+                    <el-col :span="14">
+                      <el-input v-model="kp_spd" @input="update_kp_spd" :readonly=!store.isConnected />
+                    </el-col>
+                  </el-row>
+                </el-col>
+              </el-row>
+
+              <el-row :gutter="20" class="mt-1">
+                <el-col>
+                  <el-row :gutter="1">
+                    <el-col :span="10">
+                      <label>Ki SPD</label>
+                    </el-col>
+                    <el-col :span="14">
+                      <el-input v-model="ki_spd" @input="update_ki_spd" :readonly=!store.isConnected />
+                    </el-col>
+                  </el-row>
+                </el-col>
+              </el-row>
+
+              <el-row :gutter="20" class="mt-1">
+                <el-col>
+                  <el-row :gutter="1">
+                    <el-col :span="10">
+                      <label>Kp Iq</label>
+                    </el-col>
+                    <el-col :span="14">
+                      <el-input v-model="kp_iq" @input="update_kp_iq" :readonly=!store.isConnected />
+                    </el-col>
+                  </el-row>
+                </el-col>
+              </el-row>
+
+              <el-row :gutter="20" class="mt-1">
+                <el-col>
+                  <el-row :gutter="1">
+                    <el-col :span="10">
+                      <label>Ki Iq</label>
+                    </el-col>
+                    <el-col :span="14">
+                      <el-input v-model="ki_iq" @input="update_ki_iq" :readonly=!store.isConnected />
                     </el-col>
                   </el-row>
                 </el-col>

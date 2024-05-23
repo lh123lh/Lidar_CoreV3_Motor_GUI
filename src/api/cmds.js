@@ -246,6 +246,62 @@ function cmd_update_acc_start(hz) {
   })
 }
 
+function cmd_update_kp_spd(kp) {
+  return new Promise(function (resolve, reject) {
+    invoke('update_motor_kp_spd', { kp: kp })
+      .then((data) => {
+        resolve(data);
+      })
+      .catch((error) => {
+        console.log(error)
+        notify_failed(error)
+        resolve()
+      })
+  })
+}
+
+function cmd_update_ki_spd(ki) {
+  return new Promise(function (resolve, reject) {
+    invoke('update_motor_ki_spd', { ki: ki })
+      .then((data) => {
+        resolve(data);
+      })
+      .catch((error) => {
+        console.log(error)
+        notify_failed(error)
+        resolve()
+      })
+  })
+}
+
+function cmd_update_kp_iq(kp) {
+  return new Promise(function (resolve, reject) {
+    invoke('update_motor_kp_iq', { kp: kp })
+      .then((data) => {
+        resolve(data);
+      })
+      .catch((error) => {
+        console.log(error)
+        notify_failed(error)
+        resolve()
+      })
+  })
+}
+
+function cmd_update_ki_iq(ki) {
+  return new Promise(function (resolve, reject) {
+    invoke('update_motor_ki_ip', { ki: ki })
+      .then((data) => {
+        resolve(data);
+      })
+      .catch((error) => {
+        console.log(error)
+        notify_failed(error)
+        resolve()
+      })
+  })
+}
+
 function cmd_start_record_rps(path) {
   if (path === null || path === undefined || path.trim() === '') {
     notify_failed("record path is empty!");
@@ -340,6 +396,10 @@ export default {
   cmd_stop_motor,
   cmd_update_acc_max,
   cmd_update_acc_start,
+  cmd_update_kp_spd,
+  cmd_update_ki_spd,
+  cmd_update_kp_iq,
+  cmd_update_ki_iq,
   cmd_start_record_rps,
   cmd_stop_record_rps,
   cmd_start_startup_test,
