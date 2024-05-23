@@ -66,6 +66,7 @@ impl StartupTestHandle {
 
             let handle = thread::spawn(move || {
                 let mut test_cnt = 0;
+                let mut reached_cnt = 0; // 达到目标转速计数
                 while running.load(Ordering::SeqCst) {
                     {
                         // 1. 启动电机
@@ -90,14 +91,10 @@ impl StartupTestHandle {
                             match status {
                                 TestStatus::Rotating => {}
                                 TestStatus::RotatSuccess => {
-                                    *success_cnt.lock().unwrap() += 1;
-                                    LOGGER
-                                        .lock()
-                                        .unwrap()
-                                        .info(format!("第{}次测试通过", test_cnt).as_str());
-                                    break;
+                                    reached_cnt += 1;
                                 } // 启动成功
                                 _ => {
+                                    reached_cnt = 0;
                                     *failed_cnt.lock().unwrap() += 1;
                                     LOGGER
                                         .lock()
@@ -105,6 +102,18 @@ impl StartupTestHandle {
                                         .danger(format!("第{}次测试未通过", test_cnt).as_str());
                                     break;
                                 } // 启动失败
+                            }
+
+                            // 需要连续3秒钟都达到目标转速才判定为测试通过
+                            if reached_cnt >= 3 {
+                                reached_cnt = 0;
+                                *success_cnt.lock().unwrap() += 1;
+                                LOGGER
+                                    .lock()
+                                    .unwrap()
+                                    .info(format!("第{}次测试通过", test_cnt).as_str());
+
+                                break;
                             }
 
                             if !running.load(Ordering::SeqCst) {
@@ -115,6 +124,7 @@ impl StartupTestHandle {
 
                             // 启动超时则判定为启动失败
                             if start.elapsed().as_millis() > 20000 {
+                                reached_cnt = 0;
                                 *failed_cnt.lock().unwrap() += 1;
                                 LOGGER
                                     .lock()
@@ -164,6 +174,10 @@ impl StartupTestHandle {
         match MOTOR.lock().unwrap().get_motor_status() {
             std::result::Result::Ok(status) => {
                 if status.error_code.unwrap() > 0 {
+                    LOGGER
+                        .lock()
+                        .unwrap()
+                        .warning(format!("故障状态: 0x{:x}", status.error_code.unwrap()).as_str());
                     return Ok(TestStatus::RotatFailed);
                 }
             }
