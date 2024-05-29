@@ -92,7 +92,7 @@ const tableRowClassName = ({ row }) => {
       <el-col :span="16">
         <cardBase title="日志">
           <template #content>
-            <div style="width: 100%; height: 77vh;">
+            <div style="width: 100%; height: 79vh;">
               <el-scrollbar max-height="100%" class="mt-1">
                 <el-table :data="logs" :row-class-name="tableRowClassName" class="mt-n2">
                   <el-table-column width="250" prop="timestamp" label="时间戳"></el-table-column>

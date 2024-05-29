@@ -5,7 +5,7 @@ defineProps(['title',])
 </script>
 
 <template>
-  <el-card >
+  <el-card>
     <div class="fs5 fw-bolder">
       <span>{{ title }}</span>
     </div>
@@ -13,3 +13,9 @@ defineProps(['title',])
     <!-- <template #footer>Footer content</template> -->
   </el-card>
 </template>
+
+<style scoped>
+.el-card {
+  --el-card-padding: 10px;
+}
+</style>

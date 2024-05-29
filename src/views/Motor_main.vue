@@ -441,8 +441,8 @@ async function update_ki_iq() {
 
         <cardBase title="实时转速" class="mt-1">
           <template #content>
-            <div class="mt-2">
-              <VueSpeedometer :height="180" :value="currentRps" :minValue="0" :maxValue="250" :segments="10" />
+            <div style="text-align: center" class="mt-2">
+              <VueSpeedometer :height="190" :value="currentRps" :minValue="0" :maxValue="250" :segments="10" />
             </div>
           </template>
         </cardBase>
@@ -452,7 +452,7 @@ async function update_ki_iq() {
       <el-col :span="12">
         <cardBase title="状态及参数">
           <template #content>
-            <el-scrollbar height="29.0rem" class="mt-1">
+            <el-scrollbar height="28.65rem" class="mt-1">
               <el-row :gutter="20">
                 <el-col>
                   <el-row :gutter="1">
