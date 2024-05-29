@@ -92,8 +92,8 @@ const tableRowClassName = ({ row }) => {
       <el-col :span="16">
         <cardBase title="日志">
           <template #content>
-            <div style="width: 100%; height: 78.5vh;">
-              <el-scrollbar max-height="100%" class="mt-n3">
+            <div style="width: 100%; height: 77vh;">
+              <el-scrollbar max-height="100%" class="mt-1">
                 <el-table :data="logs" :row-class-name="tableRowClassName" class="mt-n2">
                   <el-table-column width="250" prop="timestamp" label="时间戳"></el-table-column>
                   <el-table-column prop="message" label="日志消息"></el-table-column>
@@ -106,7 +106,7 @@ const tableRowClassName = ({ row }) => {
       <el-col :span="8">
         <cardBase title="设置">
           <template #content>
-            <el-row :gutter="5" class="mt-n3">
+            <el-row :gutter="5" class="mt-1">
               <el-col :span="12">
                 <label>测试次数:</label>
               </el-col>
@@ -156,7 +156,7 @@ const tableRowClassName = ({ row }) => {
 
         <cardBase title="状态" class="mt-1">
           <template #content>
-            <el-row :gutter="5" class="mt-n3">
+            <el-row :gutter="5" class="mt-1">
               <el-col :span="8">
                 <label>成功次数:</label>
               </el-col>

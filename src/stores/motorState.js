@@ -9,6 +9,43 @@ export const useMotorStore = defineStore('motor', () => {
   return { currRps, isTesting, isConnected };
 })
 
+export const MotorParams = defineStore('params', () => {
+  const featureParams = ref({
+    poles: 0,
+    rs_ohm: 0.0,
+    ls_d: 0.0,
+    ls_q: 0.0,
+    rated_flux: 0.0,
+    res_est_current: 0.0,
+    ind_est_current: 0.0,
+    max_current: 0.0,
+    flux_exc_freq: 0.0,
+    wbp_kgm2: 0.0,
+    rated_voltage: 0.0,
+  });
+
+  const startupParams = ref({
+    flux_current: 0.0,
+    align_current: 0.0,
+    startup_current: 0.0,
+    torque_current: 0.0,
+    speed_start: 0.0,
+    speed_force: 0.0,
+  });
+
+  const faultChkParams = ref({
+    over_voltage: 0.0,
+    under_voltage: 0.0,
+    over_load_power: 0.0,
+    stall_current: 0.0,
+    fault_ckeck_current: 0.0,
+    fail_speed_max: 0.0,
+    fail_speed_min: 0.0,
+  });
+
+  return { featureParams, startupParams, faultChkParams };
+})
+
 // export const useMotorStore = defineStore('motor', {
 //   state: () => ({ currRps: 0.0 }),
 //   getters: {

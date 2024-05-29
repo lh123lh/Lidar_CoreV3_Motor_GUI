@@ -67,6 +67,20 @@ const serialPort = ref();
 
 const errorCodeForm = ref([])
 
+const ctrlModes = [
+  {
+    value: 0,
+    label: '速度环',
+  },
+  {
+    value: 1,
+    label: '位置环',
+  }
+]
+const ctrlMode = ref(0);
+const targetPosition = ref(0.0);
+const currentPosition = ref(0.0);
+
 onMounted(() => { //组件挂载时的生命周期执行的方法
   get_avaliable_ports()
 
@@ -156,7 +170,7 @@ async function get_motor_current_rps() {
     .then((data) => {
       store.currRps = parseFloat(data.toFixed(3));
       // store.update(parseFloat(data.toFixed(3)));
-      if(store.currRps <= -1000.0) {
+      if (store.currRps <= -1000.0) {
         cmds.notify_failed("电机已断开连接");
         connect_motor();
       } else {
@@ -203,7 +217,17 @@ async function update_motor_rps() {
     startBtn.value = "更新";
     await cmds.cmd_start_motor(parseFloat(targetRps.value))
   }
+}
 
+async function update_motor_positon() {
+  if (motorStarted.value) {
+    await cmds.cmd_update_motor_position(parseFloat(targetPosition.value))
+  } else {
+    motorStarted.value = true;
+    startBtn.value = "更新";
+    await cmds.cmd_enable_motor_pos_ctrl(true);
+    await cmds.cmd_start_motor(parseFloat(10.0));
+  }
 }
 
 async function stop_motor() {
@@ -212,6 +236,8 @@ async function stop_motor() {
       motorStarted.value = false;
       startBtn.value = "启动";
     })
+
+    await cmds.cmd_enable_motor_pos_ctrl(false);
 }
 
 async function enable_motor_identify(enable) {
@@ -282,7 +308,7 @@ async function update_ki_iq() {
       <el-col :span="12">
         <cardBase title="电机配置">
           <template #content>
-            <el-row :gutter="5" class="mt-n3">
+            <el-row :gutter="5" class="mt-1">
               <el-col>
                 <el-row>
                   <el-col :span="5">
@@ -315,14 +341,24 @@ async function update_ki_iq() {
               </el-col>
             </el-row>
 
-            <el-row :gutter="5" class="mt-0">
+            <el-row :gutter="5" class="mt-1">
               <el-col>
-                <el-row :gutter="5">
+                <!-- <el-row :gutter="5">
                   <el-col :span="15">
                     <label>自动识别参数</label>
                   </el-col>
                   <el-col :span="4">
                     <el-switch v-model="enableIdentify" :disabled=!store.isConnected />
+                  </el-col>
+                </el-row> -->
+                <el-row :gutter="5">
+                  <el-col :span="5">
+                    <label>控制模式</label>
+                  </el-col>
+                  <el-col :span="10">
+                    <el-select v-model="ctrlMode" placeholder="Ctrl Mode" :disabled=!store.isConnected>
+                      <el-option v-for="item in ctrlModes" :key="item.value" :label="item.label" :value="item.value" />
+                    </el-select>
                   </el-col>
                 </el-row>
               </el-col>
@@ -356,7 +392,7 @@ async function update_ki_iq() {
 
             <el-row :gutter="5" class="mt-1">
               <el-col>
-                <el-row :gutter="5">
+                <el-row :gutter="5" v-if="ctrlMode==0">
                   <el-col :span="5">
                     <label>目标转速</label>
                   </el-col>
@@ -374,6 +410,24 @@ async function update_ki_iq() {
                     <el-button @click="stop_motor" :disabled=!motorStarted type="warning" plain>停止</el-button>
                   </el-col>
                 </el-row>
+                <el-row :gutter="5" v-else>
+                  <el-col :span="5">
+                    <label>目标位置</label>
+                  </el-col>
+                  <el-col :span="10">
+                    <el-input v-model="targetPosition" :disabled=!store.isConnected>
+                      <template #append>&deg;</template>
+                    </el-input>
+                  </el-col>
+                  <el-col :span="4">
+                    <el-button @click="update_motor_positon" :disabled=!store.isConnected type="primary" plain>{{ startBtn
+                      }}</el-button>
+                  </el-col>
+
+                  <el-col :span="4" class="ms-1">
+                    <el-button @click="stop_motor" :disabled=!motorStarted type="warning" plain>停止</el-button>
+                  </el-col>
+                </el-row>
               </el-col>
             </el-row>
           </template>
@@ -381,7 +435,9 @@ async function update_ki_iq() {
 
         <cardBase title="实时转速" class="mt-1">
           <template #content>
-            <VueSpeedometer :height="180" :value="currentRps" :minValue="0" :maxValue="250" :segments="10" />
+            <div class="mt-2">
+              <VueSpeedometer :height="180" :value="currentRps" :minValue="0" :maxValue="250" :segments="10" />
+            </div>
           </template>
         </cardBase>
 
@@ -390,7 +446,7 @@ async function update_ki_iq() {
       <el-col :span="12">
         <cardBase title="状态及参数">
           <template #content>
-            <el-scrollbar max-height="29.0rem" class="mt-n3">
+            <el-scrollbar height="29.0rem" class="mt-1">
               <el-row :gutter="20">
                 <el-col>
                   <el-row :gutter="1">
@@ -450,7 +506,7 @@ async function update_ki_iq() {
                       </el-popover>
 
                     </el-col>
-                    <el-col :span="6">
+                    <el-col :span="6" style="text-align: end;">
                       <el-button @click="clear_motor_faults" :disabled=!store.isConnected type="danger"
                         plain>清除错误</el-button>
                     </el-col>
@@ -621,7 +677,7 @@ async function update_ki_iq() {
                     <el-col :span="8">
                       v0.0.1_20240401
                     </el-col>
-                    <el-col :span="6">
+                    <el-col :span="6" style="text-align: end;">
                       <el-button @click="updateDialogVisible = true" :disabled=!store.isConnected type="primary"
                         plain>升级固件</el-button>
                     </el-col>

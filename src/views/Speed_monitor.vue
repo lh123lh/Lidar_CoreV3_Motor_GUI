@@ -197,7 +197,7 @@ function onResize() {
       <el-col :span="8">
         <cardBase title="趋势表设置">
           <template #content>
-            <el-row :gutter="5" class="mt-n3">
+            <el-row :gutter="5" class="mt-1">
               <el-col :span="8">
                 <label>观测点数:</label>
               </el-col>
@@ -218,7 +218,7 @@ function onResize() {
 
         <cardBase title="转速记录" class="mt-1">
           <template #content>
-            <el-row :gutter="5" class="mt-n3">
+            <el-row :gutter="5" class="mt-1">
               <el-col :span="8">
                 <label>记录位置:</label>
               </el-col>

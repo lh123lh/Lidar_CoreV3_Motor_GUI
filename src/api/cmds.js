@@ -106,6 +106,20 @@ function cmd_get_motor_status() {
   })
 }
 
+function cmd_get_motor_special_params() {
+  return new Promise(function (resolve, reject) {
+    invoke('get_motor_special_params', {})
+      .then((data) => {
+        resolve(data);
+      })
+      .catch((error) => {
+        console.log(error)
+        notify_failed(error)
+        resolve()
+      })
+  })
+}
+
 function cmd_get_avaliable_ports() {
   return new Promise(function (resolve, reject) {
     invoke('list_avaliable_ports', {})
@@ -302,6 +316,34 @@ function cmd_update_ki_iq(ki) {
   })
 }
 
+function cmd_enable_motor_pos_ctrl(enable) {
+  return new Promise(function (resolve, reject) {
+    invoke('enable_motor_pos_ctrl', { en: enable })
+      .then((data) => {
+        resolve(data);
+      })
+      .catch((error) => {
+        console.log(error)
+        notify_failed(error)
+        resolve()
+      })
+  })
+}
+
+function cmd_update_motor_position(pos) {
+  return new Promise(function (resolve, reject) {
+    invoke('update_motor_position', { pos: pos })
+      .then((data) => {
+        resolve(data);
+      })
+      .catch((error) => {
+        console.log(error)
+        notify_failed(error)
+        resolve()
+      })
+  })
+}
+
 function cmd_start_record_rps(path) {
   if (path === null || path === undefined || path.trim() === '') {
     notify_failed("record path is empty!");
@@ -387,6 +429,7 @@ export default {
   cmd_get_motor_params,
   cmd_get_motor_status,
   cmd_get_motor_static_params,
+  cmd_get_motor_special_params,
   cmd_get_avaliable_ports,
   cmd_update_motor_rps,
   cmd_enable_motor_identify,
@@ -401,6 +444,8 @@ export default {
   cmd_update_ki_spd,
   cmd_update_kp_iq,
   cmd_update_ki_iq,
+  cmd_enable_motor_pos_ctrl,
+  cmd_update_motor_position,
   cmd_start_record_rps,
   cmd_stop_record_rps,
   cmd_start_startup_test,

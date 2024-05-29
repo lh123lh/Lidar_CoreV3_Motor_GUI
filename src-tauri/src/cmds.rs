@@ -70,6 +70,13 @@ pub async fn get_motor_status() -> CmdResult<MotorStatus> {
 }
 
 #[tauri::command]
+pub async fn get_motor_special_params() -> CmdResult<MotorSpecialParams> {
+    let params = MOTOR.lock().unwrap().get_motor_special_params().unwrap();
+
+    Ok(params)
+}
+
+#[tauri::command]
 pub async fn update_motor_rps(rps: f32) -> CmdResult {
     MOTOR
         .lock()
@@ -202,6 +209,28 @@ pub async fn stop_motor() -> CmdResult {
     MOTOR.lock().unwrap().update_motor_speed_hz(0).unwrap();
     MOTOR.lock().unwrap().stop_motor().unwrap();
     // MOTOR.lock().unwrap().reset_motor().unwrap();
+    Ok(())
+}
+
+#[tauri::command]
+pub async fn enable_motor_pos_ctrl(en: bool) -> CmdResult {
+    MOTOR
+        .lock()
+        .unwrap()
+        .set_motor_pos_ctrl_enable(en)
+        .unwrap();
+
+    Ok(())
+}
+
+#[tauri::command]
+pub async fn update_motor_position(pos: f32) -> CmdResult {
+    MOTOR
+        .lock()
+        .unwrap()
+        .update_motor_position((pos * 1000.0) as u32)
+        .unwrap();
+
     Ok(())
 }
 

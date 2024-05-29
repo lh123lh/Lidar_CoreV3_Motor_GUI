@@ -19,9 +19,9 @@ defineProps(['title',])
       </el-row>
     </el-header>
     <el-main style="height: 100vh" class="mt-n3">
-      <el-scrollbar view-style="overflow-x: hidden;">
+      <!-- <el-scrollbar view-style="overflow-x: hidden;"> -->
         <slot></slot>
-      </el-scrollbar>
+      <!-- </el-scrollbar> -->
     </el-main>
   </el-container>
 </template>
