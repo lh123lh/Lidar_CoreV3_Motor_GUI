@@ -213,6 +213,11 @@ async function update_motor_rps() {
   if (motorStarted.value) {
     await cmds.cmd_update_motor_rps(parseFloat(targetRps.value))
   } else {
+    if (targetRps.value == 0) {
+      cmds.notify_failed("请先设置目标转速");
+      return;
+    }
+
     motorStarted.value = true;
     startBtn.value = "更新";
     await cmds.cmd_start_motor(parseFloat(targetRps.value))
@@ -237,7 +242,7 @@ async function stop_motor() {
       startBtn.value = "启动";
     })
 
-    await cmds.cmd_enable_motor_pos_ctrl(false);
+  await cmds.cmd_enable_motor_pos_ctrl(false);
 }
 
 async function enable_motor_identify(enable) {
@@ -392,7 +397,7 @@ async function update_ki_iq() {
 
             <el-row :gutter="5" class="mt-1">
               <el-col>
-                <el-row :gutter="5" v-if="ctrlMode==0">
+                <el-row :gutter="5" v-if="ctrlMode == 0">
                   <el-col :span="5">
                     <label>目标转速</label>
                   </el-col>
@@ -420,8 +425,9 @@ async function update_ki_iq() {
                     </el-input>
                   </el-col>
                   <el-col :span="4">
-                    <el-button @click="update_motor_positon" :disabled=!store.isConnected type="primary" plain>{{ startBtn
-                      }}</el-button>
+                    <el-button @click="update_motor_positon" :disabled=!store.isConnected type="primary" plain>{{
+      startBtn
+    }}</el-button>
                   </el-col>
 
                   <el-col :span="4" class="ms-1">

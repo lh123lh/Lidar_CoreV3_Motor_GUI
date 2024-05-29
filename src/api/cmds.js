@@ -8,7 +8,7 @@ function notify_failed(msg) {
     message: msg,
     type: 'error',
     showClose: false,
-    duration: 500,
+    duration: 1500,
   })
 }
 

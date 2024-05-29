@@ -636,6 +636,10 @@ impl Motor {
         cmd.push(0xa5);
         cmd.push(0xa5);
 
+        let crc_engine = crc::Crc::<u8>::new(&crc::CRC_8_CDMA2000);
+        let crc = crc_engine.checksum(&cmd[2..8]);
+        cmd.insert(cmd.len() - 2, crc);
+
         if let Some(ref mut port) = self.port {
             match port.write(&cmd) {
                 core::result::Result::Ok(_) => {
@@ -644,16 +648,17 @@ impl Motor {
 
                     match port.read(buf.as_mut_slice()) {
                         core::result::Result::Ok(t) => {
-                            if t != 16 {
+                            let len = buf[3] as usize;
+                            let crc = buf[t - 3];
+
+                            if crc != crc_engine.checksum(&buf[2..t - 3]) {
                                 return None;
                             }
 
-                            let len = buf[3] as usize;
-
                             if buf[0] != 0x5a
                                 || buf[1] != 0x5a
-                                || buf[len + 6 - 1] != 0xa5
-                                || buf[len + 6 - 2] != 0xa5
+                                || buf[len + 7 - 1] != 0xa5
+                                || buf[len + 7 - 2] != 0xa5
                             {
                                 return None;
                             }
