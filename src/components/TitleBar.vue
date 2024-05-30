@@ -27,25 +27,36 @@ async function window_close() {
 </script>
 
 <template>
-  <div data-tauri-drag-region class="titlebar">
-    <div id="stage-button">
-      <div class="min" viewBox="0 0 1024 1024" name="window-minimize" @click.left="window_minimize">
-        <el-icon style="margin-left: 0.4rem; margin-top: 0.35rem;">
-          <SvgIcon iconName="icon-zuixiaohua" />
-        </el-icon>
+  <!-- <div data-tauri-drag-region class="titlebar"> -->
+
+  <!-- TODO: 此处需要完善 -->
+  <el-row class="titlebar">
+    <el-col :span="22" data-tauri-drag-region>
+      <!-- <img style="width: 30px" class="" src="../../src-tauri/icons/icon.ico" size="small" />
+      <span style="" class="ms-3 fs-3 fw-bolder">FAST FOC</span> -->
+    </el-col>
+    <el-col :span="2" class="ms-auto">
+      <div id="stage-button">
+        <div class="min" viewBox="0 0 1024 1024" name="window-minimize" @click.left="window_minimize">
+          <el-icon style="margin-left: 0.4rem; margin-top: 0.35rem;">
+            <SvgIcon iconName="icon-zuixiaohua" />
+          </el-icon>
         </div>
-      <div class="max" viewBox="0 0 1024 1024" @click.left="window_maximize" :name=max_state_name>
-        <el-icon style="margin-left: 0.4rem; margin-top: 0.35rem;">
-          <SvgIcon iconName="icon-zuidahua" />
-        </el-icon>
+        <div class="max" viewBox="0 0 1024 1024" @click.left="window_maximize" :name=max_state_name>
+          <el-icon style="margin-left: 0.4rem; margin-top: 0.35rem;">
+            <SvgIcon iconName="icon-zuidahua" />
+          </el-icon>
+        </div>
+        <div class="close" name="multiply" @click.left="window_close" icon-style="monochrome">
+          <el-icon style="margin-left: 0.4rem; margin-top: 0.35rem;">
+            <SvgIcon iconName="icon-guanbichuangkou" />
+          </el-icon>
+        </div>
       </div>
-      <div class="close" name="multiply" @click.left="window_close" icon-style="monochrome">
-        <el-icon style="margin-left: 0.4rem; margin-top: 0.35rem;">
-          <SvgIcon iconName="icon-guanbichuangkou" />
-        </el-icon>
-      </div>
-    </div>
-  </div>
+    </el-col>
+  </el-row>
+  <!-- </div> -->
+
 </template>
 
 <style scoped>
@@ -55,9 +66,9 @@ async function window_close() {
   height: 30px;
   user-select: none;
   background-color: white;
-  /*top: 0px;
+  top: 0px;
   left: 0;
-  right: 0;*/
+  right: 0;
 }
 
 #stage-button {

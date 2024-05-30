@@ -190,7 +190,7 @@ function onResize() {
       <el-col :span="16">
         <cardBase title="转速趋势">
           <template #content>
-            <div ref="chartContainer" style="width: 100%; height: 80vh;"></div>
+            <div ref="chartContainer" style="width: 100%; height: 79vh;"></div>
           </template>
         </cardBase>
       </el-col>

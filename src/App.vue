@@ -17,7 +17,7 @@ const navs = ref([
 
 <template>
   <TitleBar />
-  <el-container class="mt-n1" style="height: 98vh">
+  <el-container class="mt-0" style="height: 98vh">
     <el-aside width="180px" class="mt-n3">
       <el-scrollbar>
         <el-menu default-active="1" router style="height: 98vh">
