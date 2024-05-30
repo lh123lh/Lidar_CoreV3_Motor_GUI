@@ -10,7 +10,7 @@ export const useMotorStore = defineStore('motor', () => {
 })
 
 export const MotorParams = defineStore('params', () => {
-  const featureParams = ref({
+  const feature_param = ref({
     poles: 0,
     rs_ohm: 0.0,
     ls_d: 0.0,
@@ -19,12 +19,12 @@ export const MotorParams = defineStore('params', () => {
     res_est_current: 0.0,
     ind_est_current: 0.0,
     max_current: 0.0,
-    flux_exc_freq: 0.0,
+    flux_exec_freq: 0.0,
     wbp_kgm2: 0.0,
     rated_voltage: 0.0,
   });
 
-  const startupParams = ref({
+  const startup_param = ref({
     flux_current: 0.0,
     align_current: 0.0,
     startup_current: 0.0,
@@ -33,7 +33,8 @@ export const MotorParams = defineStore('params', () => {
     speed_force: 0.0,
   });
 
-  const faultChkParams = ref({
+  const fault_check_param = ref({
+    over_current: 0.0,
     over_voltage: 0.0,
     under_voltage: 0.0,
     over_load_power: 0.0,
@@ -43,7 +44,7 @@ export const MotorParams = defineStore('params', () => {
     fail_speed_min: 0.0,
   });
 
-  return { featureParams, startupParams, faultChkParams };
+  return { feature_param, startup_param, fault_check_param };
 })
 
 // export const useMotorStore = defineStore('motor', {

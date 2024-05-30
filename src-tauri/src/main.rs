@@ -41,6 +41,7 @@ async fn main() {
             cmds::stop_motor,
             cmds::enable_motor_pos_ctrl,
             cmds::update_motor_position,
+            cmds::update_motor_special_params,
             cmds::upload_file,
             cmds::start_record_rps,
             cmds::stop_record_rps,

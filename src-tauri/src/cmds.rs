@@ -235,6 +235,12 @@ pub async fn update_motor_position(pos: f32) -> CmdResult {
 }
 
 #[tauri::command]
+pub async fn update_motor_special_params(param: MotorSpecialParams) -> CmdResult {
+    MOTOR.lock().unwrap().update_motor_special_params(param).unwrap();
+    Ok(())
+}
+
+#[tauri::command]
 pub async fn upload_file(file: std::path::PathBuf) -> Result<String, String> {
     // 在这里处理文件，例如保存到磁盘或进一步处理
     println!("{:?}", file);

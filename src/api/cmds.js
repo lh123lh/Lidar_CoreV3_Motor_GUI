@@ -380,7 +380,7 @@ function cmd_stop_record_rps() {
 
 function cmd_start_startup_test(rps, count, cold_duration) {
   return new Promise(function (resolve, reject) {
-    invoke('start_startup_task', {rps: rps, count: count, cold: cold_duration})
+    invoke('start_startup_task', { rps: rps, count: count, cold: cold_duration })
       .then((data) => {
         resolve(data);
       })
@@ -409,6 +409,20 @@ function cmd_stop_startup_test() {
 function cmd_get_startup_test_result() {
   return new Promise(function (resolve, reject) {
     invoke('get_startup_test_result', {})
+      .then((data) => {
+        resolve(data);
+      })
+      .catch((error) => {
+        console.log(error)
+        notify_failed(error)
+        resolve()
+      })
+  })
+}
+
+function cmd_update_motor_special_params(param) {
+  return new Promise(function (resolve, reject) {
+    invoke('update_motor_special_params', { param: param })
       .then((data) => {
         resolve(data);
       })
@@ -451,4 +465,5 @@ export default {
   cmd_start_startup_test,
   cmd_stop_startup_test,
   cmd_get_startup_test_result,
+  cmd_update_motor_special_params,
 }
