@@ -208,10 +208,12 @@ function onResize() {
             </el-row>
 
             <el-row :gutter="5" class="mt-1">
-              <el-button type="primary" @click="handleStartObserv" v-if="!startObserv" plain
-                class="ms-auto">开始观测</el-button>
-              <el-button type="danger" @click="handleStartObserv" v-else plain class="ms-auto"
-                :disabled="recording">停止观测</el-button>
+              <el-col :span="24" style="text-align: end;">
+                <el-button type="primary" @click="handleStartObserv" v-if="!startObserv" plain
+                  class="ms-auto">开始观测</el-button>
+                <el-button type="danger" @click="handleStartObserv" v-else plain class="ms-auto"
+                  :disabled="recording">停止观测</el-button>
+              </el-col>
             </el-row>
           </template>
         </cardBase>
@@ -238,9 +240,11 @@ function onResize() {
             </el-row>
 
             <el-row :gutter="5" class="mt-1">
-              <el-button type="primary" v-if="!recording" @click="dialogVisable = true" plain class="ms-auto"
-                :disabled="!startObserv">开始记录</el-button>
-              <el-button type="danger" v-else @click="startRecodeRps" plain class="ms-auto">停止记录</el-button>
+              <el-col :span="24" style="text-align: end;">
+                <el-button type="primary" v-if="!recording" @click="dialogVisable = true" plain class="ms-auto"
+                  :disabled="!startObserv">开始记录</el-button>
+                <el-button type="danger" v-else @click="startRecodeRps" plain class="ms-auto">停止记录</el-button>
+              </el-col>
             </el-row>
 
           </template>
@@ -265,6 +269,4 @@ function onResize() {
 
 </template>
 
-<style scoped>
-
-</style>
+<style scoped></style>

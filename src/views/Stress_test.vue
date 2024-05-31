@@ -147,9 +147,11 @@ const tableRowClassName = ({ row }) => {
             </el-row> -->
 
             <el-row :gutter="5" class="mt-1">
-              <el-button type="primary" @click="handleStartTest" v-if="!store.isTesting" plain class="ms-auto"
-                :disabled=!store.isConnected>开始测试</el-button>
-              <el-button type="danger" @click="handleStartTest" v-else plain class="ms-auto">停止测试</el-button>
+              <el-col :span="24" style="text-align: end;">
+                <el-button type="primary" @click="handleStartTest" v-if="!store.isTesting" plain class="ms-auto"
+                  :disabled=!store.isConnected>开始测试</el-button>
+                <el-button type="danger" @click="handleStartTest" v-else plain class="ms-auto">停止测试</el-button>
+              </el-col>
             </el-row>
           </template>
         </cardBase>
