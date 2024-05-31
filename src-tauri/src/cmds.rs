@@ -1,5 +1,6 @@
 use crate::motor::*;
 use anyhow::Result;
+use serde_json::Value;
 use serialport;
 use std::time::Duration;
 
@@ -214,11 +215,7 @@ pub async fn stop_motor() -> CmdResult {
 
 #[tauri::command]
 pub async fn enable_motor_pos_ctrl(en: bool) -> CmdResult {
-    MOTOR
-        .lock()
-        .unwrap()
-        .set_motor_pos_ctrl_enable(en)
-        .unwrap();
+    MOTOR.lock().unwrap().set_motor_pos_ctrl_enable(en).unwrap();
 
     Ok(())
 }
@@ -236,8 +233,40 @@ pub async fn update_motor_position(pos: f32) -> CmdResult {
 
 #[tauri::command]
 pub async fn update_motor_special_params(param: MotorSpecialParams) -> CmdResult {
-    MOTOR.lock().unwrap().update_motor_special_params(param).unwrap();
+    MOTOR
+        .lock()
+        .unwrap()
+        .update_motor_special_params(param)
+        .unwrap();
     Ok(())
+}
+
+#[tauri::command]
+pub async fn export_motor_special_params(param: MotorSpecialParams, path: String) -> CmdResult {
+    // 检查路径是否合法
+    if path.is_empty() {
+        return Err("path is invalid".to_string());
+    }
+
+    MOTOR
+        .lock()
+        .unwrap()
+        .export_motor_special_params(param, path)
+        .unwrap();
+
+    Ok(())
+}
+
+#[tauri::command]
+pub async fn import_motor_special_params(path: String) -> CmdResult<Value> {
+    // 检查路径是否合法
+    if path.is_empty() {
+        return Err("path is invalid".to_string());
+    }
+
+    let params = MOTOR.lock().unwrap().import_motor_special_params(path).unwrap();
+
+    Ok(params)
 }
 
 #[tauri::command]

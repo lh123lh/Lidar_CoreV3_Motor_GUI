@@ -8,6 +8,7 @@ use logger::LOGGER;
 mod cmds;
 mod logger;
 mod motor;
+mod tools;
 
 #[tokio::main]
 async fn main() {
@@ -42,6 +43,8 @@ async fn main() {
             cmds::enable_motor_pos_ctrl,
             cmds::update_motor_position,
             cmds::update_motor_special_params,
+            cmds::export_motor_special_params,
+            cmds::import_motor_special_params,
             cmds::upload_file,
             cmds::start_record_rps,
             cmds::stop_record_rps,

@@ -24,6 +24,7 @@ log = "0.4.21"
 chrono = "0.4.38"
 ymodem = "0.1.1"
 crc = "3.2.1"
+serde_yaml = "0.9"
 
 [features]
 # This feature is used for production builds or when a dev server is not specified, DO NOT REMOVE!!

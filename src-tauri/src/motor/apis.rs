@@ -1,6 +1,8 @@
-use anyhow::{Ok, Result};
+use crate::tools;
+use anyhow::{bail, Ok, Result};
 use once_cell::sync::Lazy;
 use serde::{Deserialize, Serialize};
+use serde_json::Value;
 use serialport::{self, SerialPort};
 use std::sync::Mutex;
 
@@ -349,9 +351,9 @@ impl Motor {
                 error_code = vec_to_short(&buf[1..3]) as u16;
                 motor_state = self.motor_state_to_string(&buf[3]);
                 mctrl_state = self.mctrl_state_to_string(&buf[4]);
-                identified_en = &buf[5].into() != 0;
-                rsonline_en = &buf[6].into() != 0;
-                rsrecalc_en = &buf[7].into() != 0;
+                identified_en = buf[5] != 0;
+                rsonline_en = buf[6] != 0;
+                rsrecalc_en = buf[7] != 0;
             }
         }
 
@@ -854,6 +856,29 @@ impl Motor {
         ) {}
 
         Ok(())
+    }
+
+    pub fn export_motor_special_params(
+        &mut self,
+        param: MotorSpecialParams,
+        path: String,
+    ) -> Result<()> {
+        let yaml = serde_yaml::to_string(&param).unwrap();
+        tools::save_yaml(yaml, path.as_str())?;
+        Ok(())
+    }
+
+    pub fn import_motor_special_params(&mut self, path: String) -> Result<Value> {
+        if !tools::is_file_exist(&path) {
+            bail!("File: {} not exist", path)
+        }
+
+        match tools::read_yaml::<Value>(&path) {
+            core::result::Result::Ok(param) => Ok(param),
+            Err(err) => {
+                bail!("Failed to read profile: {}", err)
+            }
+        }
     }
 }
 

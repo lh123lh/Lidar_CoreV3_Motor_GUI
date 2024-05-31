@@ -2,6 +2,16 @@ import { ref, watch } from 'vue'
 import { ElNotification } from 'element-plus'
 import { invoke } from '@tauri-apps/api/tauri'
 
+function notify_success(msg) {
+  ElNotification({
+    title: 'Info',
+    message: msg,
+    type: 'success',
+    showClose: false,
+    duration: 1500,
+  })
+}
+
 function notify_failed(msg) {
   ElNotification({
     title: 'Error',
@@ -434,7 +444,36 @@ function cmd_update_motor_special_params(param) {
   })
 }
 
+function cmd_export_motor_special_params(param, path) {
+  return new Promise(function (resolve, reject) {
+    invoke('export_motor_special_params', { param: param, path: path })
+      .then((data) => {
+        resolve(data);
+      })
+      .catch((error) => {
+        console.log(error)
+        notify_failed(error)
+        resolve()
+      })
+  })
+}
+
+function cmd_import_motor_special_params(path) {
+  return new Promise(function (resolve, reject) {
+    invoke('import_motor_special_params', { path: path })
+      .then((data) => {
+        resolve(data);
+      })
+      .catch((error) => {
+        console.log(error)
+        notify_failed(error)
+        resolve()
+      })
+  })
+}
+
 export default {
+  notify_success,
   notify_failed,
   formatSeconds,
   cmd_connect_motor,
@@ -466,4 +505,6 @@ export default {
   cmd_stop_startup_test,
   cmd_get_startup_test_result,
   cmd_update_motor_special_params,
+  cmd_export_motor_special_params,
+  cmd_import_motor_special_params,
 }
