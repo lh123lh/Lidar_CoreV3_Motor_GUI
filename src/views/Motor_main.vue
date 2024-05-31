@@ -8,6 +8,9 @@ import UpdataFwDialog from "../components/UpdataFwDialog.vue";
 import PageBase from "../components/PageBase.vue";
 import { useMotorStore } from '../stores/motorState'
 import parseErrorCode from "../api/parseErrorCode.js";
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 const store = useMotorStore()
 const Rs_Ohm = ref(0.00);
@@ -16,8 +19,8 @@ const Ls_d = ref(0.00);
 const Ls_q = ref(0.00);
 const flux = ref(0.00);
 const poles = ref(0); //  磁极对数
-const connectBtn = ref("连接");
-const startBtn = ref("启动");
+const connectBtn = ref(t('main.cfg.connect'));
+const startBtn = ref(t('main.cfg.start'));
 const targetRps = ref(0.00);
 const currentRps = ref(0.00);
 const vdcBus = ref(0.0);
@@ -126,12 +129,12 @@ async function connect_motor() {
   if (store.isConnected) {
     store.isConnected = false;
     motorStarted.value = false;
-    startBtn.value = "启动";
-    connectBtn.value = "连接";
+    startBtn.value = t('main.cfg.start');
+    connectBtn.value = t('main.cfg.connect');
     await cmds.cmd_disconnect_motor(serialPort.value, baudRate.value);
   } else {
     store.isConnected = true;
-    connectBtn.value = "断开";
+    connectBtn.value = t('main.cfg.disconnect');
     await cmds.cmd_connect_motor(serialPort.value, baudRate.value);
 
     get_motor_static_params();
@@ -219,7 +222,7 @@ async function update_motor_rps() {
     }
 
     motorStarted.value = true;
-    startBtn.value = "更新";
+    startBtn.value = t('main.cfg.update');
     await cmds.cmd_start_motor(parseFloat(targetRps.value))
   }
 }
@@ -239,7 +242,7 @@ async function stop_motor() {
   await cmds.cmd_stop_motor()
     .then((data) => {
       motorStarted.value = false;
-      startBtn.value = "启动";
+      startBtn.value = t('main.cfg.start');
     })
 
   await cmds.cmd_enable_motor_pos_ctrl(false);
@@ -308,16 +311,16 @@ async function update_ki_iq() {
 </script>
 
 <template>
-  <PageBase title="电机控制">
+  <PageBase :title="$t('main.title')">
     <el-row :gutter="5">
       <el-col :span="12">
-        <cardBase title="电机配置">
+        <cardBase :title="$t('main.cfg.title')">
           <template #content>
             <el-row :gutter="5" class="mt-1">
               <el-col>
                 <el-row>
                   <el-col :span="5">
-                    <label>串口</label>
+                    <label>{{ $t('main.cfg.serialPort') }}</label>
                   </el-col>
                   <el-col :span="10">
                     <el-select v-model="serialPort" placeholder="Serial Port">
@@ -332,7 +335,7 @@ async function update_ki_iq() {
               <el-col>
                 <el-row :gutter="5">
                   <el-col :span="5">
-                    <label>波特率</label>
+                    <label>{{ $t('main.cfg.baudRate') }}</label>
                   </el-col>
                   <el-col :span="10">
                     <el-select v-model="baudRate" placeholder="Baud Rate">
@@ -358,7 +361,7 @@ async function update_ki_iq() {
                 </el-row> -->
                 <el-row :gutter="5">
                   <el-col :span="5">
-                    <label>控制模式</label>
+                    <label>{{ $t('main.cfg.ctrlMode') }}</label>
                   </el-col>
                   <el-col :span="10">
                     <el-select v-model="ctrlMode" placeholder="Ctrl Mode" :disabled=!store.isConnected>
@@ -373,7 +376,7 @@ async function update_ki_iq() {
               <el-col>
                 <el-row :gutter="5">
                   <el-col :span="15">
-                    <label>Rs在线估算</label>
+                    <label>{{ $t('main.cfg.rsOnline') }}</label>
                   </el-col>
                   <el-col :span="4">
                     <el-switch v-model="enableRsOnline" :disabled=!store.isConnected />
@@ -386,7 +389,7 @@ async function update_ki_iq() {
               <el-col>
                 <el-row :gutter="5">
                   <el-col :span="15">
-                    <label>Rs重校准</label>
+                    <label>{{ $t('main.cfg.rsReCalc') }}</label>
                   </el-col>
                   <el-col :span="4">
                     <el-switch v-model="enableRsReCalc" :disabled=!store.isConnected />
@@ -399,25 +402,43 @@ async function update_ki_iq() {
               <el-col>
                 <el-row :gutter="5" v-if="ctrlMode == 0">
                   <el-col :span="5">
-                    <label>目标转速</label>
+                    <label>{{ $t('main.cfg.targetRps') }}</label>
                   </el-col>
                   <el-col :span="10">
                     <el-input v-model="targetRps" :disabled=!store.isConnected>
                       <template #append>rps</template>
                     </el-input>
                   </el-col>
-                  <el-col :span="4">
+
+                  <el-col :span="9">
+                    <el-row :gutter="5">
+                      <el-col :span="12">
+                        <el-button @click="update_motor_rps" :disabled=!store.isConnected type="primary" plain>{{
+    startBtn
+  }}</el-button>
+                      </el-col>
+                      <el-col :span="12">
+                        <el-button @click="stop_motor" :disabled=!motorStarted type="warning" plain>{{
+    $t('main.cfg.stop')
+  }}</el-button>
+                      </el-col>
+                    </el-row>
+
+                  </el-col>
+
+                  <!-- <el-col :span="4">
                     <el-button @click="update_motor_rps" :disabled=!store.isConnected type="primary" plain>{{ startBtn
                       }}</el-button>
                   </el-col>
 
-                  <el-col :span="4" class="ms-1">
-                    <el-button @click="stop_motor" :disabled=!motorStarted type="warning" plain>停止</el-button>
-                  </el-col>
+                  <el-col :span="4" class="ms-3">
+                    <el-button @click="stop_motor" :disabled=!motorStarted type="warning" plain>{{ $t('main.cfg.stop')
+                      }}</el-button>
+                  </el-col> -->
                 </el-row>
                 <el-row :gutter="5" v-else>
                   <el-col :span="5">
-                    <label>目标位置</label>
+                    <label>{{ $t('main.cfg.targetPos') }}</label>
                   </el-col>
                   <el-col :span="10">
                     <el-input v-model="targetPosition" :disabled=!store.isConnected>
@@ -426,12 +447,13 @@ async function update_ki_iq() {
                   </el-col>
                   <el-col :span="4">
                     <el-button @click="update_motor_positon" :disabled=!store.isConnected type="primary" plain>{{
-      startBtn
-    }}</el-button>
+    startBtn
+  }}</el-button>
                   </el-col>
 
                   <el-col :span="4" class="ms-1">
-                    <el-button @click="stop_motor" :disabled=!motorStarted type="warning" plain>停止</el-button>
+                    <el-button @click="stop_motor" :disabled=!motorStarted type="warning" plain>{{ $t('main.cfg.stop')
+                      }}</el-button>
                   </el-col>
                 </el-row>
               </el-col>

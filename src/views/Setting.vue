@@ -1,5 +1,6 @@
 <script setup>
 import { ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import PageBase from '../components/PageBase.vue';
 import cardBase from '../components/cardBase.vue';
 import { useMotorStore } from '../stores/motorState';
@@ -8,20 +9,45 @@ import MotorSpecialParamsDialog from '../components/MotorSpecialParamsDialog.vue
 const status = useMotorStore();
 const motorParamDialog = ref(false);
 
+const { locale } = useI18n()
+
+const language = ref({ value: '中文', lang: 'zh' })
+const supportLangs = [
+  { value: 'English', lang: 'en' },
+  { value: '中文', lang: 'zh' },
+]
+
+function changeLanguage(val) {
+  locale.value = val;
+}
+
 </script>
 
 <template>
   <PageBase title="设置">
     <el-row :gutter="5">
       <el-col :xs="12" :sm="12" :md="12" :lg="12" :xl="12">
-        <cardBase title="电机设置" class="mt-1">
+        <cardBase title="电机设置">
           <template #content>
-            <el-row :gutter="20" class="mt-1">
-              <el-col :span="18">
+            <el-row :gutter="5">
+              <el-col :span="18" class="setting-item">
                 电机特性参数设置
               </el-col>
-              <el-col :span="6" class=" me-n3 ps-9">
+              <el-col :span="6" style="text-align: end;">
                 <el-link :underline="false" :disabled=!status.isConnected class="mb-1" @click="motorParamDialog = true">
+                  <el-icon :size="16">
+                    <SvgIcon iconName=icon-arrow-right />
+                  </el-icon>
+                </el-link>
+              </el-col>
+            </el-row>
+
+            <el-row :gutter="5">
+              <el-col :span="18" class="setting-item">
+                编码器设置
+              </el-col>
+              <el-col :span="6" style="text-align: end;">
+                <el-link :underline="false" :disabled=!status.isConnected class="mb-1">
                   <el-icon :size="16">
                     <SvgIcon iconName=icon-arrow-right />
                   </el-icon>
@@ -32,7 +58,24 @@ const motorParamDialog = ref(false);
           </template>
         </cardBase>
       </el-col>
-      <el-col :xs="12" :sm="12" :md="12" :lg="12" :xl="12"></el-col>
+      <el-col :xs="12" :sm="12" :md="12" :lg="12" :xl="12">
+        <cardBase title="系统设置">
+          <template #content>
+            <el-row :gutter="5">
+              <el-col :span="18" class="setting-item">
+                语言设置
+              </el-col>
+              <el-col :span="6" style="text-align: end;">
+                <el-select v-model="language" style="width: 100px" @change="changeLanguage(language.lang)">
+                  <el-option v-for="item in supportLangs" :key="item.lang" :label="item.value" :value="item"
+                    class="fw-bolder" />
+                </el-select>
+              </el-col>
+            </el-row>
+
+          </template>
+        </cardBase>
+      </el-col>
     </el-row>
 
 
@@ -41,4 +84,8 @@ const motorParamDialog = ref(false);
   <MotorSpecialParamsDialog v-model="motorParamDialog" />
 </template>
 
-<style scoped></style>
+<style scoped>
+.setting-item {
+  font-size: 0.9rem;
+}
+</style>
