@@ -2,6 +2,7 @@ use anyhow::{bail, Context, Result};
 use serde::de::DeserializeOwned;
 use serde_yaml;
 
+#[allow(dead_code)]
 pub fn parse_str<T: std::str::FromStr>(target: &str, key: &str) -> Option<T> {
     let parts: Vec<&str> = target.split(";").collect();
     for part in parts {

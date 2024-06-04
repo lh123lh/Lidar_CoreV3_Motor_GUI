@@ -1,5 +1,5 @@
 use crate::ymodem::xymodem_util::*;
-use log::{info, warn};
+use log::warn;
 use std::io::{Read, Write};
 
 // TODO: Send CAN byte after too many errors
@@ -10,6 +10,7 @@ pub const SOH: u8 = 0x01;
 pub const STX: u8 = 0x02;
 pub const EOT: u8 = 0x04;
 pub const ACK: u8 = 0x06;
+#[allow(dead_code)]
 pub const NAK: u8 = 0x15;
 pub const CAN: u8 = 0x18;
 pub const CRC: u8 = 0x43;
@@ -17,6 +18,7 @@ pub const CRC: u8 = 0x43;
 pub type Result<T> = std::result::Result<T, Error>;
 
 /// Configuration for the YMODEM transfer.
+#[allow(dead_code)]
 #[derive(Copy, Clone, Debug)]
 pub struct Ymodem {
     /// The number of errors that can occur before the communication is
@@ -68,6 +70,7 @@ impl Ymodem {
     /// to set the timeout of the device before calling this method. Timeouts on receiving
     /// bytes will be counted against `max_errors`, but timeouts on transmitting bytes
     /// will be considered a fatal error.
+    #[allow(dead_code)]
     pub fn recv<D: Read + Write, W: Write>(
         &mut self,
         dev: &mut D,

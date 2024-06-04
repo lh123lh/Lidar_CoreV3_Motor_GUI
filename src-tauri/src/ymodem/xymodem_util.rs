@@ -1,5 +1,6 @@
 use std::io::{self, Read};
 
+#[allow(dead_code)]
 pub fn calc_checksum(data: &[u8]) -> u8 {
     data.iter().fold(0, |x, &y| x.wrapping_add(y))
 }
