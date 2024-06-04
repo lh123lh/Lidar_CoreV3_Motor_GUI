@@ -5,6 +5,7 @@ import cmds from '../api/cmds';
 import cardBase from "../components/cardBase.vue";
 import VueSpeedometer from "vue-speedometer";
 import UpdataFwDialog from "../components/UpdataFwDialog.vue";
+import UploadDialog from "../components/UploadDialog.vue";
 import PageBase from "../components/PageBase.vue";
 import { useMotorStore } from '../stores/motorState'
 import parseErrorCode from "../api/parseErrorCode.js";
@@ -30,6 +31,7 @@ const enableRsReCalc = ref(false);
 const motorIdentified = ref(false);
 const motorStarted = ref(false);
 const updateDialogVisible = ref(false);
+const updateStatus = ref(false);
 const motorState = ref("STOP_IDLE");
 const mctrlState = ref("FIRST_RUN");
 const errorCode = ref(0);
@@ -305,6 +307,21 @@ async function update_kp_iq() {
 async function update_ki_iq() {
   await cmds.cmd_update_ki_iq(parseFloat(ki_iq.value))
     .then((data) => {
+    })
+}
+
+async function upgrade_motor_fw(path) {
+  console.log(path, serialPort.value, baudRate.value)
+  updateStatus.value = true;
+  await cmds.cmd_upgrade_motor_fw(path, serialPort.value, baudRate.value)
+    .then(() => {
+      updateDialogVisible.value = false;
+      cmds.notify_success("升级完成");
+      updateStatus.value = false;
+    })
+    .catch(() => {
+      cmds.notify_failed("升级失败");
+      updateStatus.value = false;
     })
 }
 
@@ -706,7 +723,7 @@ async function update_ki_iq() {
                       v0.0.1_20240401
                     </el-col>
                     <el-col :span="6" style="text-align: end;">
-                      <el-button @click="updateDialogVisible = true" :disabled=!store.isConnected type="primary"
+                      <el-button @click="updateDialogVisible = true" :disabled=store.isConnected type="primary"
                         plain>升级固件</el-button>
                     </el-col>
                   </el-row>
@@ -720,7 +737,7 @@ async function update_ki_iq() {
     </el-row>
   </PageBase>
 
-  <UpdataFwDialog v-model="updateDialogVisible" />
+  <UploadDialog v-model="updateDialogVisible" :handleUpload="upgrade_motor_fw" title="固件升级" uploadBtnName="升级" :status="updateStatus" />
 
 </template>
 

@@ -2,12 +2,21 @@
 import { ref } from 'vue'
 import { invoke } from '@tauri-apps/api/tauri'
 import { open, save } from "@tauri-apps/api/dialog"
+import cmds from '../api/cmds';
 
 const visable = defineModel();
 const startUpdate = ref(false);
 const fwPath = ref("");
 
 async function update_fw() {
+  await cmds.cmd_upgrade_motor_fw(fwPath.value)
+    .then((data) => {
+      cmds.notify_success("升级完成");
+    }).catch(err => {
+      this.$message.error(err.message);
+      console.log(err);
+      cmds.notify_failed("升级失败");
+    });
 }
 
 async function handleFwUpload() {

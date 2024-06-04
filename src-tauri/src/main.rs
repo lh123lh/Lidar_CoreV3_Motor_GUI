@@ -9,6 +9,7 @@ mod cmds;
 mod logger;
 mod motor;
 mod tools;
+mod ymodem;
 
 #[tokio::main]
 async fn main() {
@@ -51,6 +52,7 @@ async fn main() {
             cmds::start_startup_task,
             cmds::stop_startup_task,
             cmds::get_startup_test_result,
+            cmds::upgrade_motor_fw,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

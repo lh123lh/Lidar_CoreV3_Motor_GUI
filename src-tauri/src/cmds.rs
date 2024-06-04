@@ -264,7 +264,11 @@ pub async fn import_motor_special_params(path: String) -> CmdResult<Value> {
         return Err("path is invalid".to_string());
     }
 
-    let params = MOTOR.lock().unwrap().import_motor_special_params(path).unwrap();
+    let params = MOTOR
+        .lock()
+        .unwrap()
+        .import_motor_special_params(path)
+        .unwrap();
 
     Ok(params)
 }
@@ -313,4 +317,21 @@ pub async fn get_startup_test_result() -> CmdResult<TestResult> {
     let result = STARTUPTEST.lock().unwrap().get_test_result().unwrap();
 
     Ok(result)
+}
+
+#[tauri::command]
+pub async fn upgrade_motor_fw(path: String, sp: String, baud: u32) -> CmdResult {
+    // 检查路径是否合法
+    if path.is_empty() {
+        return Err("path is invalid".to_string());
+    }
+
+    match UPGRADE.lock().unwrap().start(&sp, baud, &path) {
+        Ok(_) => {
+            return Ok(());
+        }
+        Err(err) => {
+            return Err(err.to_string());
+        }
+    }
 }

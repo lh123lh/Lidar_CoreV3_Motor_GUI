@@ -26,6 +26,10 @@ const props = defineProps({
     type: String,
     required: true
   },
+  status: {
+    type: Boolean,
+    required: false,
+  }
 });
 
 </script>
@@ -47,8 +51,11 @@ const props = defineProps({
     <template #footer>
       <div class="dialog-footer">
         <el-button @click="visable = false">Cancel</el-button>
-        <el-button type="primary" @click="handleUpload(filePath)">
+        <el-button v-if="!status" type="primary" @click="handleUpload(filePath)">
           {{ uploadBtnName }}
+        </el-button>
+        <el-button v-else type="primary" loading>
+          {{ uploadBtnName }}中
         </el-button>
       </div>
     </template>

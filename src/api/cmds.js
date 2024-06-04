@@ -7,7 +7,7 @@ function notify_success(msg) {
     title: 'Info',
     message: msg,
     type: 'success',
-    showClose: false,
+    showClose: true,
     duration: 1500,
   })
 }
@@ -17,7 +17,7 @@ function notify_failed(msg) {
     title: 'Error',
     message: msg,
     type: 'error',
-    showClose: false,
+    showClose: true,
     duration: 1500,
   })
 }
@@ -472,6 +472,20 @@ function cmd_import_motor_special_params(path) {
   })
 }
 
+function cmd_upgrade_motor_fw(path, sp, baud) {
+  return new Promise(function (resolve, reject) {
+    invoke('upgrade_motor_fw', { path: path, sp: sp, baud: baud })
+      .then((data) => {
+        resolve(data);
+      })
+      .catch((error) => {
+        console.log(error)
+        notify_failed(error)
+        resolve(error)
+      })
+  })
+}
+
 export default {
   notify_success,
   notify_failed,
@@ -507,4 +521,5 @@ export default {
   cmd_update_motor_special_params,
   cmd_export_motor_special_params,
   cmd_import_motor_special_params,
+  cmd_upgrade_motor_fw,
 }

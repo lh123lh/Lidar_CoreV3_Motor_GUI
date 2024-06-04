@@ -685,6 +685,10 @@ impl Motor {
 
                     match port.read(buf.as_mut_slice()) {
                         core::result::Result::Ok(t) => {
+                            if t < 7 {
+                                return None;
+                            }
+
                             let len = buf[3] as usize;
                             let crc = buf[t - 3];
 
