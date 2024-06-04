@@ -4,7 +4,6 @@ import { invoke } from "@tauri-apps/api/tauri";
 import cmds from '../api/cmds';
 import cardBase from "../components/cardBase.vue";
 import VueSpeedometer from "vue-speedometer";
-import UpdataFwDialog from "../components/UpdataFwDialog.vue";
 import UploadDialog from "../components/UploadDialog.vue";
 import PageBase from "../components/PageBase.vue";
 import { useMotorStore } from '../stores/motorState'
