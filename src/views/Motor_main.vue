@@ -487,16 +487,15 @@ async function upgrade_motor_fw(path) {
 
         <cardBase v-if="ctrlMode == 0" title="实时转速" class="mt-1">
           <template #content>
-            <div style="text-align: center" class="mt-2">
-              <!-- <VueSpeedometer :height="190" :value="currentRps" :minValue="0" :maxValue="250" :segments="10" /> -->
-              <SpeedMeter :value="currentRps" height="35vh" />
+            <div>
+              <SpeedMeter :value="currentRps" height="36vh" />
             </div>
           </template>
         </cardBase>
         <cardBase v-else title="实时位置" class="mt-1">
           <template #content>
-            <div style="text-align: center" class="mt-2">
-              <MotorPosGuage :value="currentPos" height="35vh" />
+            <div>
+              <MotorPosGuage :value="currentPos" height="36vh" />
             </div>
           </template>
         </cardBase>
@@ -506,7 +505,7 @@ async function upgrade_motor_fw(path) {
       <el-col :span="12">
         <cardBase title="状态及参数">
           <template #content>
-            <el-scrollbar height="79vh" class="mt-1">
+            <el-scrollbar height="78.5vh" class="mt-1">
               <el-row :gutter="20">
                 <el-col>
                   <el-row :gutter="1">
