@@ -1,9 +1,7 @@
 <script setup>
 import { ref, onMounted, nextTick, computed, watch, onActivated, onDeactivated } from "vue";
-import { invoke } from "@tauri-apps/api/tauri";
 import cmds from '../api/cmds';
 import cardBase from "../components/cardBase.vue";
-import VueSpeedometer from "vue-speedometer";
 import UploadDialog from "../components/UploadDialog.vue";
 import PageBase from "../components/PageBase.vue";
 import { useMotorStore } from '../stores/motorState'
@@ -77,11 +75,11 @@ const errorCodeForm = ref([])
 const ctrlModes = [
   {
     value: 0,
-    label: '速度环',
+    label: '速度模式',
   },
   {
     value: 1,
-    label: '位置环',
+    label: '位置模式',
   }
 ]
 const ctrlMode = ref(0);
