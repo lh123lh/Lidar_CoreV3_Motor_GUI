@@ -74,6 +74,23 @@ function cmd_get_motor_current_rps() {
   });
 }
 
+function cmd_get_motor_current_pos() {
+  return new Promise(function (resolve, reject) {
+    invoke('get_motor_current_pos', {})
+      .then((data) => {
+        resolve(data);
+      })
+      .catch((error) => {
+        console.log(error)
+        notify_failed(error)
+        resolve()
+      })
+  }).catch(err => {
+    this.$message.error(err.message);
+    console.log(err);
+  });
+}
+
 function cmd_get_motor_params() {
   return new Promise(function (resolve, reject) {
     invoke('get_motor_params', {})
@@ -492,6 +509,7 @@ export default {
   cmd_connect_motor,
   cmd_disconnect_motor,
   cmd_get_motor_current_rps,
+  cmd_get_motor_current_pos,
   cmd_get_motor_params,
   cmd_get_motor_status,
   cmd_get_motor_static_params,

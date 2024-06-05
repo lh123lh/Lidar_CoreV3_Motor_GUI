@@ -50,6 +50,13 @@ pub async fn get_motor_current_rps() -> CmdResult<f32> {
 }
 
 #[tauri::command]
+pub async fn get_motor_current_pos() -> CmdResult<f32> {
+    let pos = MOTOR.lock().unwrap().get_current_pos().unwrap();
+
+    Ok(pos)
+}
+
+#[tauri::command]
 pub async fn get_motor_params() -> CmdResult<MotorParams> {
     let params = MOTOR.lock().unwrap().get_motor_params().unwrap();
 

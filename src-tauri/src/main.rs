@@ -23,6 +23,7 @@ async fn main() {
             cmds::init_serial_port,
             cmds::deinit_serial_port,
             cmds::get_motor_current_rps,
+            cmds::get_motor_current_pos,
             cmds::get_motor_params,
             cmds::get_motor_status,
             cmds::get_motor_static_params,

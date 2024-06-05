@@ -47,6 +47,7 @@ struct RpsRecoder {
 #[allow(dead_code)]
 enum GetCmdTypes {
     GetMotorRps,
+    GetMotorPos,
     GetVersion,
     GetVersionDate,
     GetParamRs,
@@ -238,6 +239,18 @@ impl Motor {
         }
 
         Ok(rps)
+    }
+
+    pub fn get_current_pos(&mut self) -> Result<f32> {
+        let mut pos: f32 = -1000.0;
+
+        if let Some(buf) = self.request(GetCmdTypes::GetMotorPos as u8, 0) {
+            if buf.len() >= 4 {
+                pos = vec_to_int(&buf[0..4]) as f32 / 1000.0;
+            }
+        }
+
+        Ok(pos)
     }
 
     pub fn get_motor_static_params(&mut self) -> Result<MotorStaticParams> {
