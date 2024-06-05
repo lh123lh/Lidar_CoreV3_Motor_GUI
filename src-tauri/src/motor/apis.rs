@@ -22,6 +22,9 @@ pub struct MotorStaticParams {
     pub ki_spd: Option<f64>,
     pub kp_iq: Option<f64>,
     pub ki_iq: Option<f64>,
+    pub main_version: Option<u8>,
+    pub sub_version: Option<u8>,
+    pub version_date: Option<u32>,
     pub acc_max_hzps: Option<f64>,
     pub acc_start_hzps: Option<f64>,
 }
@@ -32,7 +35,6 @@ pub struct MotorStatus {
     pub error_code: Option<u16>,
     pub motor_state: Option<String>,
     pub mctrl_state: Option<String>,
-    pub identified_en: Option<bool>,
     pub rsonline_en: Option<bool>,
     pub rsrecalc_en: Option<bool>,
 }
@@ -45,6 +47,8 @@ struct RpsRecoder {
 #[allow(dead_code)]
 enum GetCmdTypes {
     GetMotorRps,
+    GetVersion,
+    GetVersionDate,
     GetParamRs,
     GetParamRsOnline,
     GetParamLsD,
@@ -220,7 +224,7 @@ impl Motor {
     pub fn get_current_rps(&mut self) -> Result<f32> {
         let mut rps: f32 = -1000.0;
 
-        if let Some(buf) = self.request(0x00, 0) {
+        if let Some(buf) = self.request(GetCmdTypes::GetMotorRps as u8, 0) {
             if buf.len() >= 4 {
                 rps = vec_to_int(&buf[0..4]) as f32 / 1000.0;
             }
@@ -246,59 +250,75 @@ impl Motor {
         let mut ki_spd = 0.0;
         let mut kp_iq = 0.0;
         let mut ki_iq = 0.0;
+        let mut main_version = 0;
+        let mut sub_version = 0;
+        let mut version_date = 0;
         let mut acc_max_hzps = 0.0;
         let mut acc_start_hzps = 0.0;
 
-        if let Some(buf) = self.request(0x01, 0) {
+        if let Some(buf) = self.request(GetCmdTypes::GetParamRs as u8, 0) {
             if buf.len() >= 4 {
                 rs = vec_to_int(&buf[0..4]) as f64 / 100000000.0;
             }
         }
 
-        if let Some(buf) = self.request(0x03, 0) {
+        if let Some(buf) = self.request(GetCmdTypes::GetVersion as u8, 0) {
+            if buf.len() >= 4 {
+                main_version = buf[2];
+                sub_version = buf[3];
+            }
+        }
+
+        if let Some(buf) = self.request(GetCmdTypes::GetVersionDate as u8, 0) {
+            if buf.len() >= 4 {
+                version_date = vec_to_int(&buf[0..4]) as u32;
+            }
+        }
+
+        if let Some(buf) = self.request(GetCmdTypes::GetParamLsD as u8, 0) {
             if buf.len() >= 4 {
                 ls_d = vec_to_int(&buf[0..4]) as f64 / 100000000.0;
             }
         }
 
-        if let Some(buf) = self.request(0x04, 0) {
+        if let Some(buf) = self.request(GetCmdTypes::GetParamLsQ as u8, 0) {
             if buf.len() >= 4 {
                 ls_q = vec_to_int(&buf[0..4]) as f64 / 100000000.0;
             }
         }
 
-        if let Some(buf) = self.request(0x05, 0) {
+        if let Some(buf) = self.request(GetCmdTypes::GetParamFlux as u8, 0) {
             if buf.len() >= 4 {
                 flux = vec_to_int(&buf[0..4]) as f64 / 100000000.0;
             }
         }
 
-        if let Some(buf) = self.request(0x08, 0) {
+        if let Some(buf) = self.request(GetCmdTypes::GetPolePairs as u8, 0) {
             if buf.len() >= 4 {
                 poles = vec_to_int(&buf[0..4]) as u32;
             }
         }
 
-        if let Some(buf) = self.request(0x11, 0) {
+        if let Some(buf) = self.request(GetCmdTypes::GetAccStart as u8, 0) {
             if buf.len() >= 4 {
                 acc_start_hzps = vec_to_int(&buf[0..4]) as f64 / 1000.0;
             }
         }
 
-        if let Some(buf) = self.request(0x12, 0) {
+        if let Some(buf) = self.request(GetCmdTypes::GetAccMax as u8, 0) {
             if buf.len() >= 4 {
                 acc_max_hzps = vec_to_int(&buf[0..4]) as f64 / 1000.0;
             }
         }
 
-        if let Some(buf) = self.request(0x13, 0) {
+        if let Some(buf) = self.request(GetCmdTypes::GetPidSpd as u8, 0) {
             if buf.len() >= 8 {
                 kp_spd = vec_to_int(&buf[0..4]) as f64 / 100000000.0;
                 ki_spd = vec_to_int(&buf[4..8]) as f64 / 100000000.0;
             }
         }
 
-        if let Some(buf) = self.request(0x14, 0) {
+        if let Some(buf) = self.request(GetCmdTypes::GetPidIQ as u8, 0) {
             if buf.len() >= 8 {
                 kp_iq = vec_to_int(&buf[0..4]) as f64 / 100000000.0;
                 ki_iq = vec_to_int(&buf[4..8]) as f64 / 100000000.0;
@@ -315,6 +335,9 @@ impl Motor {
             ki_spd: Some(ki_spd),
             kp_iq: Some(kp_iq),
             ki_iq: Some(ki_iq),
+            main_version: Some(main_version),
+            sub_version: Some(sub_version),
+            version_date: Some(version_date),
             acc_max_hzps: Some(acc_max_hzps),
             acc_start_hzps: Some(acc_start_hzps),
         })
@@ -324,7 +347,7 @@ impl Motor {
     pub fn get_motor_params(&mut self) -> Result<MotorParams> {
         let mut vdc_bus = 0.0;
 
-        if let Some(buf) = self.request(0x0A, 0) {
+        if let Some(buf) = self.request(GetCmdTypes::GetVdcBus as u8, 0) {
             if buf.len() >= 4 {
                 vdc_bus = vec_to_int(&buf[0..4]) as f64 / 1000.0;
             }
@@ -341,19 +364,22 @@ impl Motor {
         let mut error_code = 0;
         let mut motor_state = String::from("IDEL");
         let mut mctrl_state = String::from("IDEL");
-        let mut identified_en = false;
         let mut rsonline_en = false;
         let mut rsrecalc_en = false;
 
-        if let Some(buf) = self.request(0x06, 0) {
-            if buf.len() >= 8 {
-                identified = buf[0] != 0;
+        if let Some(buf) = self.request(GetCmdTypes::GetMotorStatus as u8, 0) {
+            if buf.len() >= 4 {
                 error_code = vec_to_short(&buf[1..3]) as u16;
                 motor_state = self.motor_state_to_string(&buf[3]);
-                mctrl_state = self.mctrl_state_to_string(&buf[4]);
-                identified_en = buf[5] != 0;
-                rsonline_en = buf[6] != 0;
-                rsrecalc_en = buf[7] != 0;
+            }
+        }
+
+        if let Some(buf) = self.request(GetCmdTypes::GetMctrlStatus as u8, 0) {
+            if buf.len() >= 4 {
+                mctrl_state = self.mctrl_state_to_string(&buf[0]);
+                identified = buf[1] != 0;
+                rsonline_en = buf[2] != 0;
+                rsrecalc_en = buf[3] != 0;
             }
         }
 
@@ -362,7 +388,6 @@ impl Motor {
             error_code: Some(error_code),
             motor_state: Some(motor_state),
             mctrl_state: Some(mctrl_state),
-            identified_en: Some(identified_en),
             rsonline_en: Some(rsonline_en),
             rsrecalc_en: Some(rsrecalc_en),
         })

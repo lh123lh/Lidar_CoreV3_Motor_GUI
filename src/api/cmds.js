@@ -479,9 +479,8 @@ function cmd_upgrade_motor_fw(path, sp, baud) {
         resolve(data);
       })
       .catch((error) => {
-        console.log(error)
         notify_failed(error)
-        resolve(error)
+        reject(error)
       })
   })
 }

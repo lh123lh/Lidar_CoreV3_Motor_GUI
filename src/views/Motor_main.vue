@@ -24,7 +24,6 @@ const startBtn = ref(t('main.cfg.start'));
 const targetRps = ref(0.00);
 const currentRps = ref(0.00);
 const vdcBus = ref(0.0);
-const enableIdentify = ref(false);
 const enableRsOnline = ref(false);
 const enableRsReCalc = ref(false);
 const motorIdentified = ref(false);
@@ -42,6 +41,7 @@ const kp_spd = ref(0.0);
 const ki_spd = ref(0.0);
 const kp_iq = ref(0.0);
 const ki_iq = ref(0.0);
+const motor_version = ref("v0.0_20240101")
 
 const baudRates = [
   {
@@ -114,10 +114,6 @@ onDeactivated(() => {
   isActived.value = false;
 })
 
-watch(enableIdentify, (newVal, oldVal) => {
-  enable_motor_identify(enableIdentify.value);
-})
-
 watch(enableRsOnline, (newVal, oldVal) => {
   enable_motor_rs_online(enableRsOnline.value);
 })
@@ -158,6 +154,7 @@ async function get_motor_static_params() {
       ki_spd.value = data.ki_spd;
       kp_iq.value = data.kp_iq;
       ki_iq.value = data.ki_iq;
+      motor_version.value = `v${data.main_version}.${data.sub_version}_${data.version_date}`;
     })
 }
 
@@ -195,7 +192,6 @@ async function get_motor_status() {
       errorCode.value = data.error_code;
       motorState.value = data.motor_state;
       mctrlState.value = data.mctrl_state;
-      enableIdentify.value = data.identified_en;
       enableRsOnline.value = data.rsonline_en;
       enableRsReCalc.value = data.rsrecalc_en;
 
@@ -339,7 +335,7 @@ async function upgrade_motor_fw(path) {
                     <label>{{ $t('main.cfg.serialPort') }}</label>
                   </el-col>
                   <el-col :span="10">
-                    <el-select v-model="serialPort" placeholder="Serial Port">
+                    <el-select v-model="serialPort" placeholder="Serial Port" :disabled=store.isConnected>
                       <el-option v-for="item in serialPorts" :value="item" />
                     </el-select>
                   </el-col>
@@ -354,7 +350,7 @@ async function upgrade_motor_fw(path) {
                     <label>{{ $t('main.cfg.baudRate') }}</label>
                   </el-col>
                   <el-col :span="10">
-                    <el-select v-model="baudRate" placeholder="Baud Rate">
+                    <el-select v-model="baudRate" placeholder="Baud Rate" :disabled=store.isConnected>
                       <el-option v-for="item in baudRates" :key="item.value" :label="item.label" :value="item.value" />
                     </el-select>
                   </el-col>
@@ -367,20 +363,12 @@ async function upgrade_motor_fw(path) {
 
             <el-row :gutter="5" class="mt-1">
               <el-col>
-                <!-- <el-row :gutter="5">
-                  <el-col :span="15">
-                    <label>自动识别参数</label>
-                  </el-col>
-                  <el-col :span="4">
-                    <el-switch v-model="enableIdentify" :disabled=!store.isConnected />
-                  </el-col>
-                </el-row> -->
                 <el-row :gutter="5">
                   <el-col :span="5">
                     <label>{{ $t('main.cfg.ctrlMode') }}</label>
                   </el-col>
                   <el-col :span="10">
-                    <el-select v-model="ctrlMode" placeholder="Ctrl Mode" :disabled=!store.isConnected>
+                    <el-select v-model="ctrlMode" placeholder="Ctrl Mode" :disabled=store.isConnected>
                       <el-option v-for="item in ctrlModes" :key="item.value" :label="item.label" :value="item.value" />
                     </el-select>
                   </el-col>
@@ -442,15 +430,6 @@ async function upgrade_motor_fw(path) {
 
                   </el-col>
 
-                  <!-- <el-col :span="4">
-                    <el-button @click="update_motor_rps" :disabled=!store.isConnected type="primary" plain>{{ startBtn
-                      }}</el-button>
-                  </el-col>
-
-                  <el-col :span="4" class="ms-3">
-                    <el-button @click="stop_motor" :disabled=!motorStarted type="warning" plain>{{ $t('main.cfg.stop')
-                      }}</el-button>
-                  </el-col> -->
                 </el-row>
                 <el-row :gutter="5" v-else>
                   <el-col :span="5">
@@ -461,15 +440,21 @@ async function upgrade_motor_fw(path) {
                       <template #append>&deg;</template>
                     </el-input>
                   </el-col>
-                  <el-col :span="4">
-                    <el-button @click="update_motor_positon" :disabled=!store.isConnected type="primary" plain>{{
+                  <el-col :span="9">
+                    <el-row :gutter="5">
+                      <el-col :span="12">
+                        <el-button @click="update_motor_positon" :disabled=!store.isConnected type="primary" plain>{{
     startBtn
   }}</el-button>
-                  </el-col>
+                      </el-col>
 
-                  <el-col :span="4" class="ms-1">
-                    <el-button @click="stop_motor" :disabled=!motorStarted type="warning" plain>{{ $t('main.cfg.stop')
-                      }}</el-button>
+                      <el-col :span="12">
+                        <el-button @click="stop_motor" :disabled=!motorStarted type="warning" plain>{{
+    $t('main.cfg.stop')
+  }}</el-button>
+                      </el-col>
+                    </el-row>
+
                   </el-col>
                 </el-row>
               </el-col>
@@ -719,7 +704,7 @@ async function upgrade_motor_fw(path) {
                       <label>固件版本</label>
                     </el-col>
                     <el-col :span="8">
-                      v0.0.1_20240401
+                      {{ motor_version }}
                     </el-col>
                     <el-col :span="6" style="text-align: end;">
                       <el-button @click="updateDialogVisible = true" :disabled=store.isConnected type="primary"
@@ -736,7 +721,8 @@ async function upgrade_motor_fw(path) {
     </el-row>
   </PageBase>
 
-  <UploadDialog v-model="updateDialogVisible" :handleUpload="upgrade_motor_fw" title="固件升级" uploadBtnName="升级" :status="updateStatus" />
+  <UploadDialog v-model="updateDialogVisible" :handleUpload="upgrade_motor_fw" title="固件升级" uploadBtnName="升级"
+    :status="updateStatus" />
 
 </template>
 
