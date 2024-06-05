@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, ref, onUpdated, computed, watch } from 'vue';
+import { onMounted, ref, onUpdated, computed, watch, onActivated } from 'vue';
 // Import only necessary parts of ECharts
 import * as echarts from 'echarts/core';
 import { GaugeChart } from 'echarts/charts'
@@ -114,6 +114,10 @@ onMounted(() => {
     chartInstance.resize();
   });
 });
+
+onActivated(() => {
+  chartInstance.resize();
+})
 
 watch(() => props.value, (newSpeed) => {
   if (chartInstance) {
