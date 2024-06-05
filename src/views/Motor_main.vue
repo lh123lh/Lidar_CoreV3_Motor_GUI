@@ -8,7 +8,9 @@ import UploadDialog from "../components/UploadDialog.vue";
 import PageBase from "../components/PageBase.vue";
 import { useMotorStore } from '../stores/motorState'
 import parseErrorCode from "../api/parseErrorCode.js";
-import { useI18n } from 'vue-i18n'
+import { useI18n } from 'vue-i18n';
+import SpeedMeter from '../components/SpeedMeter.vue';
+import MotorPosGuage from "../components/MotorPosGuage.vue";
 
 const { t } = useI18n()
 
@@ -23,6 +25,7 @@ const connectBtn = ref(t('main.cfg.connect'));
 const startBtn = ref(t('main.cfg.start'));
 const targetRps = ref(0.00);
 const currentRps = ref(0.00);
+const currentPos = ref(0.0);
 const vdcBus = ref(0.0);
 const enableRsOnline = ref(false);
 const enableRsReCalc = ref(false);
@@ -97,7 +100,10 @@ onMounted(() => { //组件挂载时的生命周期执行的方法
 
   window.setInterval(function timer() {
     if (store.isConnected && !store.isTesting) {
-      get_motor_current_rps()
+      if (ctrlMode.value == 0)
+        get_motor_current_rps()
+      else
+        get_motor_current_pos()
     }
   }, 500);
 
@@ -177,6 +183,25 @@ async function get_motor_current_rps() {
       } else {
         if (isActived.value) {
           currentRps.value = store.currRps;
+        }
+      }
+    }).catch(err => {
+      this.$message.error(err.message);
+      console.log(err);
+    });
+}
+
+async function get_motor_current_pos() {
+  await cmds.cmd_get_motor_current_pos()
+    .then((data) => {
+      store.currPos = parseFloat(data.toFixed(3));
+      // store.update(parseFloat(data.toFixed(3)));
+      if (store.currPos <= -1000.0) {
+        cmds.notify_failed("电机已断开连接");
+        connect_motor();
+      } else {
+        if (isActived.value) {
+          currentPos.value = store.currPos;
         }
       }
     }).catch(err => {
@@ -462,10 +487,18 @@ async function upgrade_motor_fw(path) {
           </template>
         </cardBase>
 
-        <cardBase title="实时转速" class="mt-1">
+        <cardBase v-if="ctrlMode == 0" title="实时转速" class="mt-1">
           <template #content>
             <div style="text-align: center" class="mt-2">
-              <VueSpeedometer :height="190" :value="currentRps" :minValue="0" :maxValue="250" :segments="10" />
+              <!-- <VueSpeedometer :height="190" :value="currentRps" :minValue="0" :maxValue="250" :segments="10" /> -->
+              <SpeedMeter :value="currentRps" height="35vh" />
+            </div>
+          </template>
+        </cardBase>
+        <cardBase v-else title="实时位置" class="mt-1">
+          <template #content>
+            <div style="text-align: center" class="mt-2">
+              <MotorPosGuage :value="currentPos" height="35vh" />
             </div>
           </template>
         </cardBase>
@@ -475,7 +508,7 @@ async function upgrade_motor_fw(path) {
       <el-col :span="12">
         <cardBase title="状态及参数">
           <template #content>
-            <el-scrollbar height="28.65rem" class="mt-1">
+            <el-scrollbar height="79vh" class="mt-1">
               <el-row :gutter="20">
                 <el-col>
                   <el-row :gutter="1">

@@ -40,7 +40,7 @@
       {
         "title": "lidar_corev3_motor_gui",
         "width": 1076,
-        "height": 590,
+        "height": 596,
         "decorations": false,
         "resizable": true,
         "center": true,
