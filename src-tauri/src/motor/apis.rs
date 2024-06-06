@@ -90,6 +90,7 @@ enum GetCmdTypes {
     GetFaultCheckCurrent,
     GetFailSpeedMax,
     GetFailSpeedMin,
+    GetEncSlots,
 }
 
 #[allow(dead_code)]
@@ -137,6 +138,7 @@ enum SetCmdTypes {
     SetFaultCheckCurrent,
     SetFailSpeedMax,
     SetFailSpeedMin,
+    SetEncSlots,
 }
 
 #[derive(Debug, PartialEq, Serialize, Deserialize, Clone)]
@@ -177,10 +179,16 @@ pub struct MotorFaultChkParams {
 }
 
 #[derive(Debug, PartialEq, Serialize, Deserialize, Clone)]
+pub struct MotorEncoderParams {
+    pub slots: Option<u32>,
+}
+
+#[derive(Debug, PartialEq, Serialize, Deserialize, Clone)]
 pub struct MotorSpecialParams {
     pub feature_param: MotorFeatureParams,
     pub startup_param: MotorStartupParams,
     pub fault_check_param: MotorFaultChkParams,
+    pub encoder_param: MotorEncoderParams,
 }
 
 pub struct Motor {
@@ -434,6 +442,8 @@ impl Motor {
         let mut fail_spd_max = 0.0;
         let mut fail_spd_min = 0.0;
 
+        let mut encoder_slots = 0;
+
         if let Some(buf) = self.request(GetCmdTypes::GetPolePairs as u8, 0) {
             if buf.len() >= 4 {
                 poles = vec_to_int(&buf[0..4]) as u32;
@@ -578,6 +588,12 @@ impl Motor {
             }
         }
 
+        if let Some(buf) = self.request(GetCmdTypes::GetEncSlots as u8, 0) {
+            if buf.len() >= 4 {
+                encoder_slots = vec_to_int(&buf[0..4]) as u32;
+            }
+        }
+
         Ok(MotorSpecialParams {
             feature_param: MotorFeatureParams {
                 poles: Some(poles),
@@ -609,6 +625,9 @@ impl Motor {
                 fault_ckeck_current: Some(falut_chk_curr),
                 fail_speed_max: Some(fail_spd_max),
                 fail_speed_min: Some(fail_spd_min),
+            },
+            encoder_param: MotorEncoderParams {
+                slots: Some(encoder_slots),
             },
         })
     }
@@ -895,6 +914,11 @@ impl Motor {
         if let Some(_) = self.request(
             SetCmdTypes::SetFailSpeedMin as u8,
             (param.fault_check_param.fail_speed_min.unwrap() * 1000.0) as i32,
+        ) {}
+
+        if let Some(_) = self.request(
+            SetCmdTypes::SetEncSlots as u8,
+            param.encoder_param.slots.unwrap() as i32,
         ) {}
 
         Ok(())

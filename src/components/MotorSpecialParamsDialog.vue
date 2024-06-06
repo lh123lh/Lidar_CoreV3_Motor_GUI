@@ -45,6 +45,9 @@ function format_special_params() {
       fault_ckeck_current: parseFloat(params.fault_check_param.fault_ckeck_current),
       fail_speed_max: parseFloat(params.fault_check_param.fail_speed_max),
       fail_speed_min: parseFloat(params.fault_check_param.fail_speed_min),
+    },
+    encoder_param: {
+      slots: parseInt(params.encoder_param.slots),
     }
   }
 }
@@ -77,6 +80,8 @@ function format_got_params(data) {
   params.fault_check_param.fault_ckeck_current = data.fault_check_param.fault_ckeck_current.toFixed(2);
   params.fault_check_param.fail_speed_max = data.fault_check_param.fail_speed_max;
   params.fault_check_param.fail_speed_min = data.fault_check_param.fail_speed_min;
+
+  params.encoder_param.slots = data.encoder_param.slots;
 }
 
 async function get_motor_special_params() {
@@ -265,6 +270,16 @@ async function import_motor_special_params(path) {
             <el-form-item label="堵转电流">
               <el-input v-model="params.fault_check_param.stall_current"></el-input>
             </el-form-item></el-col>
+        </el-row>
+
+        <span class="fs4 fw-bolder">编码器参数 :</span>
+        <el-row :gutter="20">
+          <el-col :span="12">
+            <el-form-item label="线数">
+              <el-input v-model="params.encoder_param.slots"></el-input>
+            </el-form-item></el-col>
+          <el-col :span="12">
+          </el-col>
         </el-row>
 
       </el-scrollbar>

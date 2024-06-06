@@ -45,7 +45,11 @@ export const MotorParams = defineStore('params', () => {
     fail_speed_min: 0.0,
   });
 
-  return { feature_param, startup_param, fault_check_param };
+  const encoder_param = ref({
+    slots: 0,
+  });
+
+  return { feature_param, startup_param, fault_check_param, encoder_param };
 })
 
 // export const useMotorStore = defineStore('motor', {
