@@ -91,6 +91,15 @@ enum GetCmdTypes {
     GetFailSpeedMax,
     GetFailSpeedMin,
     GetEncSlots,
+    GetAdcScaleVol,
+    GetAdcScaleCur,
+    GetAdcVolFilterPole,
+    GetAdcOffACurrent,
+    GetAdcOffBCurrent,
+    GetAdcOffCCurrent,
+    GetAdcOffAVoltage,
+    GetAdcOffBVoltage,
+    GetAdcOffCVoltage,
 }
 
 #[allow(dead_code)]
@@ -139,6 +148,15 @@ enum SetCmdTypes {
     SetFailSpeedMax,
     SetFailSpeedMin,
     SetEncSlots,
+    SetAdcScaleVol,
+    SetAdcScaleCur,
+    SetAdcVolFilterPole,
+    SetAdcOffACurrent,
+    SetAdcOffBCurrent,
+    SetAdcOffCCurrent,
+    SetAdcOffAVoltage,
+    SetAdcOffBVoltage,
+    SetAdcOffCVoltage,
 }
 
 #[derive(Debug, PartialEq, Serialize, Deserialize, Clone)]
@@ -184,11 +202,25 @@ pub struct MotorEncoderParams {
 }
 
 #[derive(Debug, PartialEq, Serialize, Deserialize, Clone)]
+pub struct MotorAdcParams {
+    pub vol_scale: Option<f32>,
+    pub cur_scale: Option<f32>,
+    pub vol_filter_pole: Option<f32>,
+    pub off_a_cur: Option<f32>,
+    pub off_b_cur: Option<f32>,
+    pub off_c_cur: Option<f32>,
+    pub off_a_vol: Option<f32>,
+    pub off_b_vol: Option<f32>,
+    pub off_c_vol: Option<f32>,
+}
+
+#[derive(Debug, PartialEq, Serialize, Deserialize, Clone)]
 pub struct MotorSpecialParams {
     pub feature_param: MotorFeatureParams,
     pub startup_param: MotorStartupParams,
     pub fault_check_param: MotorFaultChkParams,
     pub encoder_param: MotorEncoderParams,
+    pub adc_param: MotorAdcParams,
 }
 
 pub struct Motor {
@@ -415,6 +447,26 @@ impl Motor {
     }
 
     pub fn get_motor_special_params(&mut self) -> Result<MotorSpecialParams> {
+        let motor_feature_param = self.get_motor_feature_params().unwrap();
+
+        let motor_startup_param = self.get_motor_startup_params().unwrap();
+
+        let motor_faultchk_param = self.get_motor_faultchk_params().unwrap();
+
+        let motor_encoder_param = self.get_motor_encoder_params().unwrap();
+
+        let motor_adc_param = self.get_motor_adc_params().unwrap();
+
+        Ok(MotorSpecialParams {
+            feature_param: motor_feature_param,
+            startup_param: motor_startup_param,
+            fault_check_param: motor_faultchk_param,
+            encoder_param: motor_encoder_param,
+            adc_param: motor_adc_param,
+        })
+    }
+
+    pub fn get_motor_feature_params(&mut self) -> Result<MotorFeatureParams> {
         let mut poles = 0;
         let mut rs_ohm = 0.0;
         let mut ls_d = 0.0;
@@ -425,24 +477,6 @@ impl Motor {
         let mut flux_exec_freq = 0.0;
         let mut wbp_kgm2 = 0.0;
         let mut rated_vol = 0.0;
-
-        let mut flux_curr = 0.0;
-        let mut align_curr = 0.0;
-        let mut startup_curr = 0.0;
-        let mut torque_curr = 0.0;
-        let mut speed_start = 0.0;
-        let mut speed_force = 0.0;
-
-        let mut over_curr = 0.0;
-        let mut over_vol = 0.0;
-        let mut under_vol = 0.0;
-        let mut over_load = 0.0;
-        let mut stall_curr = 0.0;
-        let mut falut_chk_curr = 0.0;
-        let mut fail_spd_max = 0.0;
-        let mut fail_spd_min = 0.0;
-
-        let mut encoder_slots = 0;
 
         if let Some(buf) = self.request(GetCmdTypes::GetPolePairs as u8, 0) {
             if buf.len() >= 4 {
@@ -504,6 +538,29 @@ impl Motor {
             }
         }
 
+        Ok(MotorFeatureParams {
+            poles: Some(poles),
+            rs_ohm: Some(rs_ohm),
+            ls_d: Some(ls_d),
+            ls_q: Some(ls_d),
+            rated_flux: Some(rated_flux),
+            res_est_current: Some(res_est_curr),
+            ind_est_current: Some(ind_est_curr),
+            max_current: Some(max_curr),
+            flux_exec_freq: Some(flux_exec_freq),
+            wbp_kgm2: Some(wbp_kgm2),
+            rated_voltage: Some(rated_vol),
+        })
+    }
+
+    pub fn get_motor_startup_params(&mut self) -> Result<MotorStartupParams> {
+        let mut flux_curr = 0.0;
+        let mut align_curr = 0.0;
+        let mut startup_curr = 0.0;
+        let mut torque_curr = 0.0;
+        let mut speed_start = 0.0;
+        let mut speed_force = 0.0;
+
         if let Some(buf) = self.request(GetCmdTypes::GetFluxCurrent as u8, 0) {
             if buf.len() >= 4 {
                 flux_curr = vec_to_int(&buf[0..4]) as f32 / 1000.0;
@@ -539,6 +596,26 @@ impl Motor {
                 speed_force = vec_to_int(&buf[0..4]) as f32 / 1000.0;
             }
         }
+
+        Ok(MotorStartupParams {
+            flux_current: Some(flux_curr),
+            align_current: Some(align_curr),
+            startup_current: Some(startup_curr),
+            torque_current: Some(torque_curr),
+            speed_start: Some(speed_start),
+            speed_force: Some(speed_force),
+        })
+    }
+
+    pub fn get_motor_faultchk_params(&mut self) -> Result<MotorFaultChkParams> {
+        let mut over_curr = 0.0;
+        let mut over_vol = 0.0;
+        let mut under_vol = 0.0;
+        let mut over_load = 0.0;
+        let mut stall_curr = 0.0;
+        let mut falut_chk_curr = 0.0;
+        let mut fail_spd_max = 0.0;
+        let mut fail_spd_min = 0.0;
 
         if let Some(buf) = self.request(GetCmdTypes::GetOverCurrentFault as u8, 0) {
             if buf.len() >= 4 {
@@ -588,47 +665,107 @@ impl Motor {
             }
         }
 
+        Ok(MotorFaultChkParams {
+            over_current: Some(over_curr),
+            over_voltage: Some(over_vol),
+            under_voltage: Some(under_vol),
+            over_load_power: Some(over_load),
+            stall_current: Some(stall_curr),
+            fault_ckeck_current: Some(falut_chk_curr),
+            fail_speed_max: Some(fail_spd_max),
+            fail_speed_min: Some(fail_spd_min),
+        })
+    }
+
+    pub fn get_motor_encoder_params(&mut self) -> Result<MotorEncoderParams> {
+        let mut encoder_slots = 0;
+
         if let Some(buf) = self.request(GetCmdTypes::GetEncSlots as u8, 0) {
             if buf.len() >= 4 {
                 encoder_slots = vec_to_int(&buf[0..4]) as u32;
             }
         }
 
-        Ok(MotorSpecialParams {
-            feature_param: MotorFeatureParams {
-                poles: Some(poles),
-                rs_ohm: Some(rs_ohm),
-                ls_d: Some(ls_d),
-                ls_q: Some(ls_d),
-                rated_flux: Some(rated_flux),
-                res_est_current: Some(res_est_curr),
-                ind_est_current: Some(ind_est_curr),
-                max_current: Some(max_curr),
-                flux_exec_freq: Some(flux_exec_freq),
-                wbp_kgm2: Some(wbp_kgm2),
-                rated_voltage: Some(rated_vol),
-            },
-            startup_param: MotorStartupParams {
-                flux_current: Some(flux_curr),
-                align_current: Some(align_curr),
-                startup_current: Some(startup_curr),
-                torque_current: Some(torque_curr),
-                speed_start: Some(speed_start),
-                speed_force: Some(speed_force),
-            },
-            fault_check_param: MotorFaultChkParams {
-                over_current: Some(over_curr),
-                over_voltage: Some(over_vol),
-                under_voltage: Some(under_vol),
-                over_load_power: Some(over_load),
-                stall_current: Some(stall_curr),
-                fault_ckeck_current: Some(falut_chk_curr),
-                fail_speed_max: Some(fail_spd_max),
-                fail_speed_min: Some(fail_spd_min),
-            },
-            encoder_param: MotorEncoderParams {
-                slots: Some(encoder_slots),
-            },
+        Ok(MotorEncoderParams {
+            slots: Some(encoder_slots),
+        })
+    }
+
+    pub fn get_motor_adc_params(&mut self) -> Result<MotorAdcParams> {
+        let mut vol_scale = 0.0;
+        let mut cur_scale = 0.0;
+        let mut vol_filter_pole = 0.0;
+        let mut off_a_cur = 0.0;
+        let mut off_b_cur = 0.0;
+        let mut off_c_cur = 0.0;
+        let mut off_a_vol = 0.0;
+        let mut off_b_vol = 0.0;
+        let mut off_c_vol = 0.0;
+
+        if let Some(buf) = self.request(GetCmdTypes::GetAdcScaleVol as u8, 0) {
+            if buf.len() >= 4 {
+                vol_scale = vec_to_int(&buf[0..4]) as f32 / 1000000.0;
+            }
+        }
+
+        if let Some(buf) = self.request(GetCmdTypes::GetAdcScaleCur as u8, 0) {
+            if buf.len() >= 4 {
+                cur_scale = vec_to_int(&buf[0..4]) as f32 / 1000000.0;
+            }
+        }
+
+        if let Some(buf) = self.request(GetCmdTypes::GetAdcVolFilterPole as u8, 0) {
+            if buf.len() >= 4 {
+                vol_filter_pole = vec_to_int(&buf[0..4]) as f32 / 1000000.0;
+            }
+        }
+
+        if let Some(buf) = self.request(GetCmdTypes::GetAdcOffACurrent as u8, 0) {
+            if buf.len() >= 4 {
+                off_a_cur = vec_to_int(&buf[0..4]) as f32 / 10000.0;
+            }
+        }
+
+        if let Some(buf) = self.request(GetCmdTypes::GetAdcOffBCurrent as u8, 0) {
+            if buf.len() >= 4 {
+                off_b_cur = vec_to_int(&buf[0..4]) as f32 / 10000.0;
+            }
+        }
+
+        if let Some(buf) = self.request(GetCmdTypes::GetAdcOffCCurrent as u8, 0) {
+            if buf.len() >= 4 {
+                off_c_cur = vec_to_int(&buf[0..4]) as f32 / 10000.0;
+            }
+        }
+
+        if let Some(buf) = self.request(GetCmdTypes::GetAdcOffAVoltage as u8, 0) {
+            if buf.len() >= 4 {
+                off_a_vol = vec_to_int(&buf[0..4]) as f32 / 100000000.0;
+            }
+        }
+
+        if let Some(buf) = self.request(GetCmdTypes::GetAdcOffBVoltage as u8, 0) {
+            if buf.len() >= 4 {
+                off_b_vol = vec_to_int(&buf[0..4]) as f32 / 100000000.0;
+            }
+        }
+
+        if let Some(buf) = self.request(GetCmdTypes::GetAdcOffCVoltage as u8, 0) {
+            if buf.len() >= 4 {
+                off_c_vol = vec_to_int(&buf[0..4]) as f32 / 100000000.0;
+            }
+        }
+
+        Ok(MotorAdcParams {
+            vol_scale: Some(vol_scale),
+            cur_scale: Some(cur_scale),
+            vol_filter_pole: Some(vol_filter_pole),
+            off_a_cur: Some(off_a_cur),
+            off_b_cur: Some(off_b_cur),
+            off_c_cur: Some(off_c_cur),
+            off_a_vol: Some(off_a_vol),
+            off_b_vol: Some(off_b_vol),
+            off_c_vol: Some(off_c_vol),
         })
     }
 
@@ -791,134 +928,210 @@ impl Motor {
     }
 
     pub fn update_motor_special_params(&mut self, param: MotorSpecialParams) -> Result<()> {
-        if let Some(_) = self.request(
-            SetCmdTypes::SetPolePairs as u8,
-            param.feature_param.poles.unwrap() as i32,
-        ) {}
+        self.update_motor_feature_params(param.feature_param)
+            .unwrap();
+
+        self.update_motor_startup_params(param.startup_param)
+            .unwrap();
+
+        self.update_motor_faultchk_params(param.fault_check_param)
+            .unwrap();
+
+        self.update_motor_encoder_params(param.encoder_param)
+            .unwrap();
+
+        self.update_motor_adc_params(param.adc_param).unwrap();
+
+        Ok(())
+    }
+
+    pub fn update_motor_feature_params(&mut self, param: MotorFeatureParams) -> Result<()> {
+        if let Some(_) = self.request(SetCmdTypes::SetPolePairs as u8, param.poles.unwrap() as i32)
+        {
+        }
 
         if let Some(_) = self.request(
             SetCmdTypes::SetParamRs as u8,
-            (param.feature_param.rs_ohm.unwrap() * 100000000.0) as i32,
+            (param.rs_ohm.unwrap() * 100000000.0) as i32,
         ) {}
 
         if let Some(_) = self.request(
             SetCmdTypes::SetParamLsD as u8,
-            (param.feature_param.ls_d.unwrap() * 100000000.0) as i32,
+            (param.ls_d.unwrap() * 100000000.0) as i32,
         ) {}
 
         if let Some(_) = self.request(
             SetCmdTypes::SetParamLsQ as u8,
-            (param.feature_param.ls_d.unwrap() * 100000000.0) as i32,
+            (param.ls_d.unwrap() * 100000000.0) as i32,
         ) {}
 
         if let Some(_) = self.request(
             SetCmdTypes::SetParamFlux as u8,
-            (param.feature_param.rated_flux.unwrap() * 100000000.0) as i32,
+            (param.rated_flux.unwrap() * 100000000.0) as i32,
         ) {}
 
         if let Some(_) = self.request(
             SetCmdTypes::SetResEstCurrent as u8,
-            (param.feature_param.res_est_current.unwrap() * 1000.0) as i32,
+            (param.res_est_current.unwrap() * 1000.0) as i32,
         ) {}
 
         if let Some(_) = self.request(
             SetCmdTypes::SetIndEstCurrent as u8,
-            (param.feature_param.ind_est_current.unwrap() * 1000.0) as i32,
+            (param.ind_est_current.unwrap() * 1000.0) as i32,
         ) {}
 
         if let Some(_) = self.request(
             SetCmdTypes::SetMaxCurrent as u8,
-            (param.feature_param.max_current.unwrap() * 1000.0) as i32,
+            (param.max_current.unwrap() * 1000.0) as i32,
         ) {}
 
         if let Some(_) = self.request(
             SetCmdTypes::SetFluxExecFreq as u8,
-            (param.feature_param.flux_exec_freq.unwrap() * 1000.0) as i32,
+            (param.flux_exec_freq.unwrap() * 1000.0) as i32,
         ) {}
 
         if let Some(_) = self.request(
             SetCmdTypes::SetWbpKgm2 as u8,
-            (param.feature_param.wbp_kgm2.unwrap() * 1000.0) as i32,
+            (param.wbp_kgm2.unwrap() * 1000.0) as i32,
         ) {}
 
         if let Some(_) = self.request(
             SetCmdTypes::SetRatedVoltage as u8,
-            (param.feature_param.rated_voltage.unwrap() * 1000.0) as i32,
+            (param.rated_voltage.unwrap() * 1000.0) as i32,
         ) {}
 
+        Ok(())
+    }
+
+    pub fn update_motor_startup_params(&mut self, param: MotorStartupParams) -> Result<()> {
         if let Some(_) = self.request(
             SetCmdTypes::SetFluxCurrent as u8,
-            (param.startup_param.flux_current.unwrap() * 1000.0) as i32,
+            (param.flux_current.unwrap() * 1000.0) as i32,
         ) {}
 
         if let Some(_) = self.request(
             SetCmdTypes::SetAlignCurrent as u8,
-            (param.startup_param.align_current.unwrap() * 1000.0) as i32,
+            (param.align_current.unwrap() * 1000.0) as i32,
         ) {}
 
         if let Some(_) = self.request(
             SetCmdTypes::SetStartupCurrent as u8,
-            (param.startup_param.startup_current.unwrap() * 1000.0) as i32,
+            (param.startup_current.unwrap() * 1000.0) as i32,
         ) {}
 
         if let Some(_) = self.request(
             SetCmdTypes::SetTorqueCurrent as u8,
-            (param.startup_param.torque_current.unwrap() * 1000.0) as i32,
+            (param.torque_current.unwrap() * 1000.0) as i32,
         ) {}
 
         if let Some(_) = self.request(
             SetCmdTypes::SetSpeedStart as u8,
-            (param.startup_param.speed_start.unwrap() * 1000.0) as i32,
+            (param.speed_start.unwrap() * 1000.0) as i32,
         ) {}
 
         if let Some(_) = self.request(
             SetCmdTypes::SetSpeedForce as u8,
-            (param.startup_param.speed_force.unwrap() * 1000.0) as i32,
+            (param.speed_force.unwrap() * 1000.0) as i32,
         ) {}
 
+        Ok(())
+    }
+
+    pub fn update_motor_faultchk_params(&mut self, param: MotorFaultChkParams) -> Result<()> {
         if let Some(_) = self.request(
             SetCmdTypes::SetOverCurrentFault as u8,
-            (param.fault_check_param.over_current.unwrap() * 1000.0) as i32,
+            (param.over_current.unwrap() * 1000.0) as i32,
         ) {}
 
         if let Some(_) = self.request(
             SetCmdTypes::SetOverVoltageFault as u8,
-            (param.fault_check_param.over_voltage.unwrap() * 1000.0) as i32,
+            (param.over_voltage.unwrap() * 1000.0) as i32,
         ) {}
 
         if let Some(_) = self.request(
             SetCmdTypes::SetUnderVoltageFault as u8,
-            (param.fault_check_param.under_voltage.unwrap() * 1000.0) as i32,
+            (param.under_voltage.unwrap() * 1000.0) as i32,
         ) {}
 
         if let Some(_) = self.request(
             SetCmdTypes::SetOverLoadPower as u8,
-            (param.fault_check_param.over_load_power.unwrap() * 1000.0) as i32,
+            (param.over_load_power.unwrap() * 1000.0) as i32,
         ) {}
 
         if let Some(_) = self.request(
             SetCmdTypes::SetStallCurrent as u8,
-            (param.fault_check_param.stall_current.unwrap() * 1000.0) as i32,
+            (param.stall_current.unwrap() * 1000.0) as i32,
         ) {}
 
         if let Some(_) = self.request(
             SetCmdTypes::SetFaultCheckCurrent as u8,
-            (param.fault_check_param.fault_ckeck_current.unwrap() * 1000.0) as i32,
+            (param.fault_ckeck_current.unwrap() * 1000.0) as i32,
         ) {}
 
         if let Some(_) = self.request(
             SetCmdTypes::SetFailSpeedMax as u8,
-            (param.fault_check_param.fail_speed_max.unwrap() * 1000.0) as i32,
+            (param.fail_speed_max.unwrap() * 1000.0) as i32,
         ) {}
 
         if let Some(_) = self.request(
             SetCmdTypes::SetFailSpeedMin as u8,
-            (param.fault_check_param.fail_speed_min.unwrap() * 1000.0) as i32,
+            (param.fail_speed_min.unwrap() * 1000.0) as i32,
+        ) {}
+
+        Ok(())
+    }
+
+    pub fn update_motor_encoder_params(&mut self, param: MotorEncoderParams) -> Result<()> {
+        if let Some(_) = self.request(SetCmdTypes::SetEncSlots as u8, param.slots.unwrap() as i32) {
+        }
+
+        Ok(())
+    }
+
+    pub fn update_motor_adc_params(&mut self, param: MotorAdcParams) -> Result<()> {
+        if let Some(_) = self.request(
+            SetCmdTypes::SetAdcScaleVol as u8,
+            (param.vol_scale.unwrap() * 1000000.0) as i32,
         ) {}
 
         if let Some(_) = self.request(
-            SetCmdTypes::SetEncSlots as u8,
-            param.encoder_param.slots.unwrap() as i32,
+            SetCmdTypes::SetAdcScaleCur as u8,
+            (param.cur_scale.unwrap() * 1000000.0) as i32,
+        ) {}
+
+        if let Some(_) = self.request(
+            SetCmdTypes::SetAdcVolFilterPole as u8,
+            (param.vol_filter_pole.unwrap() * 1000000.0) as i32,
+        ) {}
+
+        if let Some(_) = self.request(
+            SetCmdTypes::SetAdcOffACurrent as u8,
+            (param.off_a_cur.unwrap() * 10000.0) as i32,
+        ) {}
+
+        if let Some(_) = self.request(
+            SetCmdTypes::SetAdcOffBCurrent as u8,
+            (param.off_b_cur.unwrap() * 10000.0) as i32,
+        ) {}
+
+        if let Some(_) = self.request(
+            SetCmdTypes::SetAdcOffCCurrent as u8,
+            (param.off_c_cur.unwrap() * 10000.0) as i32,
+        ) {}
+
+        if let Some(_) = self.request(
+            SetCmdTypes::SetAdcOffAVoltage as u8,
+            (param.off_a_vol.unwrap() * 100000000.0) as i32,
+        ) {}
+
+        if let Some(_) = self.request(
+            SetCmdTypes::SetAdcOffBVoltage as u8,
+            (param.off_b_vol.unwrap() * 100000000.0) as i32,
+        ) {}
+
+        if let Some(_) = self.request(
+            SetCmdTypes::SetAdcOffCVoltage as u8,
+            (param.off_c_vol.unwrap() * 100000000.0) as i32,
         ) {}
 
         Ok(())
@@ -946,6 +1159,17 @@ impl Motor {
             }
         }
     }
+}
+
+pub fn vec_to_long(buf: &[u8]) -> i64 {
+    ((buf[0] as i64) << 56
+        | (buf[1] as i64) << 48
+        | (buf[2] as i64) << 40
+        | (buf[3] as i64) << 32
+        | (buf[4] as i64) << 24
+        | (buf[5] as i64) << 16
+        | (buf[6] as i64) << 8
+        | (buf[7] as i64)) as i64
 }
 
 pub fn vec_to_int(buf: &[u8]) -> i32 {

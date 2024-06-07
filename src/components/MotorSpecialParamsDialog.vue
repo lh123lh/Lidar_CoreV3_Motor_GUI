@@ -4,6 +4,7 @@ import cmds from '../api/cmds';
 import { MotorParams } from '../stores/motorState';
 import UploadDialog from '../components/UploadDialog.vue'
 import DownloadDialog from '../components/DownloadDialog.vue'
+import Big from 'big.js';
 
 const params = MotorParams();
 const visable = defineModel();
@@ -48,6 +49,17 @@ function format_special_params() {
     },
     encoder_param: {
       slots: parseInt(params.encoder_param.slots),
+    },
+    adc_param: {
+      vol_scale: parseFloat(params.adc_param.vol_scale),
+      cur_scale: parseFloat(params.adc_param.cur_scale),
+      vol_filter_pole: parseFloat(params.adc_param.vol_filter_pole),
+      off_a_cur: parseFloat(params.adc_param.off_a_cur),
+      off_b_cur: parseFloat(params.adc_param.off_b_cur),
+      off_c_cur: parseFloat(params.adc_param.off_c_cur),
+      off_a_vol: parseFloat(params.adc_param.off_a_vol),
+      off_b_vol: parseFloat(params.adc_param.off_b_vol),
+      off_c_vol: parseFloat(params.adc_param.off_c_vol),
     }
   }
 }
@@ -82,6 +94,16 @@ function format_got_params(data) {
   params.fault_check_param.fail_speed_min = data.fault_check_param.fail_speed_min;
 
   params.encoder_param.slots = data.encoder_param.slots;
+
+  params.adc_param.vol_scale = Big(data.adc_param.vol_scale.toFixed(6));
+  params.adc_param.cur_scale = Big(data.adc_param.cur_scale.toFixed(6));
+  params.adc_param.vol_filter_pole = Big(data.adc_param.vol_filter_pole.toFixed(6));
+  params.adc_param.off_a_cur = Big(data.adc_param.off_a_cur.toFixed(6));
+  params.adc_param.off_b_cur = Big(data.adc_param.off_b_cur.toFixed(6));
+  params.adc_param.off_c_cur = Big(data.adc_param.off_c_cur.toFixed(6));
+  params.adc_param.off_a_vol = Big(data.adc_param.off_a_vol.toFixed(9));
+  params.adc_param.off_b_vol = Big(data.adc_param.off_b_vol.toFixed(9));
+  params.adc_param.off_c_vol = Big(data.adc_param.off_c_vol.toFixed(9));
 }
 
 async function get_motor_special_params() {
@@ -278,6 +300,76 @@ async function import_motor_special_params(path) {
             <el-form-item label="线数">
               <el-input v-model="params.encoder_param.slots"></el-input>
             </el-form-item></el-col>
+          <el-col :span="12">
+          </el-col>
+        </el-row>
+
+        <span class="fs4 fw-bolder">ADC采样参数 :</span>
+        <el-row :gutter="20">
+          <el-col :span="12">
+            <el-form-item label="满量程电压">
+              <el-input v-model="params.adc_param.vol_scale"></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="满量程电流">
+              <el-input v-model="params.adc_param.cur_scale"></el-input>
+            </el-form-item>
+          </el-col>
+        </el-row>
+
+        <el-row :gutter="20" class="mt-n3">
+          <el-col :span="12">
+            <el-form-item label="电压滤波极点">
+              <el-input v-model="params.adc_param.vol_filter_pole"></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+          </el-col>
+        </el-row>
+
+        <el-row :gutter="20" class="mt-n3">
+          <el-col :span="12">
+            <el-form-item label="A相电流偏移">
+              <el-input v-model="params.adc_param.off_a_cur"></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="B相电流偏移">
+              <el-input v-model="params.adc_param.off_b_cur"></el-input>
+            </el-form-item>
+          </el-col>
+        </el-row>
+
+        <el-row :gutter="20" class="mt-n3">
+          <el-col :span="12">
+            <el-form-item label="C相电流偏移">
+              <el-input v-model="params.adc_param.off_c_cur"></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+          </el-col>
+        </el-row>
+
+        <el-row :gutter="20" class="mt-n3">
+          <el-col :span="12">
+            <el-form-item label="A相电压偏移">
+              <el-input v-model="params.adc_param.off_a_vol"></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="B相电压偏移">
+              <el-input v-model="params.adc_param.off_b_vol"></el-input>
+            </el-form-item>
+          </el-col>
+        </el-row>
+
+        <el-row :gutter="20" class="mt-n3">
+          <el-col :span="12">
+            <el-form-item label="C相电压偏移">
+              <el-input v-model="params.adc_param.off_c_vol"></el-input>
+            </el-form-item>
+          </el-col>
           <el-col :span="12">
           </el-col>
         </el-row>

@@ -49,7 +49,19 @@ export const MotorParams = defineStore('params', () => {
     slots: 0,
   });
 
-  return { feature_param, startup_param, fault_check_param, encoder_param };
+  const adc_param = ref({
+    vol_scale: 0.0,
+    cur_scale: 0.0,
+    vol_filter_pole: 0.0,
+    off_a_cur: 0.0,
+    off_b_cur: 0.0,
+    off_c_cur: 0.0,
+    off_a_vol: 0.0,
+    off_b_vol: 0.0,
+    off_c_vol: 0.0,
+  });
+
+  return { feature_param, startup_param, fault_check_param, encoder_param, adc_param };
 })
 
 // export const useMotorStore = defineStore('motor', {
