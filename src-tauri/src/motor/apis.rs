@@ -1161,6 +1161,7 @@ impl Motor {
     }
 }
 
+#[allow(dead_code)]
 pub fn vec_to_long(buf: &[u8]) -> i64 {
     ((buf[0] as i64) << 56
         | (buf[1] as i64) << 48
