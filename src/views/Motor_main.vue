@@ -771,6 +771,12 @@ async function upgrade_motor_fw(path) {
 .disconnected {
   background-color: #F56C6C;
 }
+
+@media (min-width: 1200px) {
+  .el-scrollbar {
+      height: 84.5vh;
+  }
+}
 </style>
 
 <style lang="scss" scoped>
@@ -783,4 +789,5 @@ async function upgrade_motor_fw(path) {
 ::v-deep(.el-scrollbar__wrap) {
   overflow-x: hidden;
 }
+
 </style>

@@ -92,7 +92,7 @@ const tableRowClassName = ({ row }) => {
       <el-col :span="16">
         <cardBase title="日志">
           <template #content>
-            <div style="width: 100%; height: 78vh;">
+            <div class="logs">
               <el-scrollbar max-height="100%" class="mt-1">
                 <el-table :data="logs" :row-class-name="tableRowClassName" class="mt-n2">
                   <el-table-column width="250" prop="timestamp" label="时间戳"></el-table-column>
@@ -205,4 +205,16 @@ const tableRowClassName = ({ row }) => {
 .el-table .success-row {
   --el-table-tr-bg-color: var(--el-color-success-light-5);
 }
+
+.logs {
+  width: 100%; 
+  height: 78.5vh;
+}
+
+@media (min-width: 1200px) {
+  .logs {
+      height: 84.5vh;
+  }
+}
+
 </style>

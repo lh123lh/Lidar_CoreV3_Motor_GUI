@@ -190,7 +190,7 @@ function onResize() {
       <el-col :span="16">
         <cardBase title="转速趋势">
           <template #content>
-            <div ref="chartContainer" style="width: 100%; height: 79vh;"></div>
+            <div ref="chartContainer" class="monitor"></div>
           </template>
         </cardBase>
       </el-col>
@@ -269,4 +269,15 @@ function onResize() {
 
 </template>
 
-<style scoped></style>
+<style scoped>
+.monitor {
+  width: 100%; 
+  height: 79vh;
+}
+
+@media (min-width: 1200px) {
+  .monitor {
+      height: 84.5vh;
+  }
+}
+</style>
