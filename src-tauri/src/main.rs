@@ -54,6 +54,7 @@ async fn main() {
             cmds::stop_startup_task,
             cmds::get_startup_test_result,
             cmds::upgrade_motor_fw,
+            cmds::merge_firmware,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

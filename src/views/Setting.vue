@@ -5,9 +5,11 @@ import PageBase from '../components/PageBase.vue';
 import cardBase from '../components/cardBase.vue';
 import { useMotorStore } from '../stores/motorState';
 import MotorSpecialParamsDialog from '../components/MotorSpecialParamsDialog.vue';
+import FwMergeDialog from '../components/FwMergeDialog.vue';
 
 const status = useMotorStore();
 const motorParamDialog = ref(false);
+const fwMergeDialog = ref(false);
 
 const { locale } = useI18n()
 
@@ -54,6 +56,23 @@ function changeLanguage(val) {
                 </el-link>
               </el-col>
             </el-row>
+          </template>
+        </cardBase>
+
+        <cardBase title="辅助工具" class="mt-1">
+          <template #content>
+            <el-row :gutter="5">
+              <el-col :span="18" class="setting-item">
+                合并Hex
+              </el-col>
+              <el-col :span="6" style="text-align: end;">
+                <el-link :underline="false" class="mb-1" @click="fwMergeDialog = true">
+                  <el-icon :size="16">
+                    <SvgIcon iconName=icon-arrow-right />
+                  </el-icon>
+                </el-link>
+              </el-col>
+            </el-row>
 
           </template>
         </cardBase>
@@ -82,6 +101,7 @@ function changeLanguage(val) {
   </PageBase>
 
   <MotorSpecialParamsDialog v-model="motorParamDialog" />
+  <FwMergeDialog v-model="fwMergeDialog" />
 </template>
 
 <style scoped>

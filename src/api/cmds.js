@@ -502,6 +502,19 @@ function cmd_upgrade_motor_fw(path, sp, baud) {
   })
 }
 
+function cmd_merge_motor_fw(boot, app, output) {
+  return new Promise(function (resolve, reject) {
+    invoke('merge_firmware', { boot: boot, app: app, output: output })
+      .then((data) => {
+        resolve(data);
+      })
+      .catch((error) => {
+        notify_failed(error)
+        reject(error)
+      })
+  })
+}
+
 export default {
   notify_success,
   notify_failed,
@@ -539,4 +552,5 @@ export default {
   cmd_export_motor_special_params,
   cmd_import_motor_special_params,
   cmd_upgrade_motor_fw,
+  cmd_merge_motor_fw,
 }

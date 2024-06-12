@@ -1,4 +1,4 @@
-use crate::motor::*;
+use crate::{motor::*, tools};
 use anyhow::Result;
 use serde_json::Value;
 use serialport;
@@ -341,4 +341,12 @@ pub async fn upgrade_motor_fw(path: String, sp: String, baud: u32) -> CmdResult 
             return Err(err.to_string());
         }
     }
+}
+
+/// 合并电机驱动固件, 合成固件的原理其实很简单, 就是将BootLoader的Hex文件的最后两行删除, 将App的Hex文件第一行删除, 然后将Application的Hex文件所有内容复制到BootLoader的Hex文件的最后面即可
+#[tauri::command]
+pub async fn merge_firmware(boot: String, app: String, output: String) -> CmdResult {
+    tools::merge_file(&boot, &app, &output, 0, -2, 1, 0).unwrap();
+
+    Ok(())
 }
