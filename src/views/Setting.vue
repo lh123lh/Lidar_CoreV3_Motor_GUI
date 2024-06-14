@@ -61,8 +61,8 @@ function changeLanguage(val) {
 
         <cardBase title="辅助工具" class="mt-1">
           <template #content>
-            <el-row :gutter="5">
-              <el-col :span="18" class="setting-item">
+            <el-row :gutter="5" class="setting-item setting-item-clickable" @click="fwMergeDialog = true" v-wave>
+              <el-col :span="18">
                 合并Hex
               </el-col>
               <el-col :span="6" style="text-align: end;">
@@ -107,5 +107,13 @@ function changeLanguage(val) {
 <style scoped>
 .setting-item {
   font-size: 0.9rem;
+}
+
+.setting-item-clickable {
+  cursor: pointer;
+}
+
+.setting-item-clickable:hover {
+  background-color: rgb(237, 237, 237);
 }
 </style>
