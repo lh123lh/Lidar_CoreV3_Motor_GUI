@@ -653,7 +653,7 @@ async function upgrade_motor_fw(path) {
                 <el-col>
                   <el-row :gutter="1">
                     <el-col :span="10">
-                      <label>最大加速度 (Hz)</label>
+                      <label>最大加速度 (rps)</label>
                     </el-col>
                     <el-col :span="14">
                       <el-input v-model="accMaxHz" @input="update_acc_max" :readonly=!store.isConnected />
@@ -666,7 +666,7 @@ async function upgrade_motor_fw(path) {
                 <el-col>
                   <el-row :gutter="1">
                     <el-col :span="10">
-                      <label>启动加速度 (Hz)</label>
+                      <label>启动加速度 (rps)</label>
                     </el-col>
                     <el-col :span="14">
                       <el-input v-model="accStartHz" @input="update_acc_start" :readonly=!store.isConnected />
