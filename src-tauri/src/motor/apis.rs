@@ -24,6 +24,8 @@ pub struct MotorStaticParams {
     pub ki_iq: Option<f64>,
     pub main_version: Option<u8>,
     pub sub_version: Option<u8>,
+    pub rev_version: Option<u8>,
+    pub stage_version: Option<char>,
     pub version_date: Option<u32>,
     pub acc_max_hzps: Option<f64>,
     pub acc_start_hzps: Option<f64>,
@@ -305,6 +307,8 @@ impl Motor {
         let mut ki_iq = 0.0;
         let mut main_version = 0;
         let mut sub_version = 0;
+        let mut rev_version = 0;
+        let mut stage_version = 'a';
         let mut version_date = 0;
         let mut acc_max_hzps = 0.0;
         let mut acc_start_hzps = 0.0;
@@ -317,8 +321,10 @@ impl Motor {
 
         if let Some(buf) = self.request(GetCmdTypes::GetVersion as u8, 0) {
             if buf.len() >= 4 {
-                main_version = buf[2];
-                sub_version = buf[3];
+                main_version = buf[0];
+                sub_version = buf[1];
+                rev_version = buf[2];
+                stage_version = buf[3] as char;
             }
         }
 
@@ -390,6 +396,8 @@ impl Motor {
             ki_iq: Some(ki_iq),
             main_version: Some(main_version),
             sub_version: Some(sub_version),
+            rev_version: Some(rev_version),
+            stage_version: Some(stage_version),
             version_date: Some(version_date),
             acc_max_hzps: Some(acc_max_hzps),
             acc_start_hzps: Some(acc_start_hzps),

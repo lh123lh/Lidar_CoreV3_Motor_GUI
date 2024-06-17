@@ -42,7 +42,7 @@ const kp_spd = ref(0.0);
 const ki_spd = ref(0.0);
 const kp_iq = ref(0.0);
 const ki_iq = ref(0.0);
-const motor_version = ref("v0.0_20240101")
+const motor_version = ref("v0.0.0a_20240101")
 
 const baudRates = [
   {
@@ -158,7 +158,7 @@ async function get_motor_static_params() {
       ki_spd.value = data.ki_spd;
       kp_iq.value = data.kp_iq;
       ki_iq.value = data.ki_iq;
-      motor_version.value = `v${data.main_version}.${data.sub_version}_${data.version_date}`;
+      motor_version.value = `v${data.main_version}.${data.sub_version}.${data.rev_version}${data.stage_version}_${data.version_date}`;
     })
 }
 
