@@ -1,11 +1,11 @@
 <script setup>
 import { ref, onMounted, nextTick, computed, watch, onActivated, onDeactivated } from "vue";
-import cmds from '../api/cmds';
+import cmds from '../utils/cmds';
 import cardBase from "../components/cardBase.vue";
 import UploadDialog from "../components/UploadDialog.vue";
 import PageBase from "../components/PageBase.vue";
 import { useMotorStore } from '../stores/motorState'
-import parseErrorCode from "../api/parseErrorCode.js";
+import parseErrorCode from "../utils/parseErrorCode.js";
 import { useI18n } from 'vue-i18n';
 import SpeedMeter from '../components/SpeedMeter.vue';
 import MotorPosGuage from "../components/MotorPosGuage.vue";

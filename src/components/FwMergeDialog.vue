@@ -1,6 +1,6 @@
 <script setup>
 import { ref, watch } from 'vue'
-import cmds from '../api/cmds';
+import cmds from '../utils/cmds';
 import { open, save } from "@tauri-apps/api/dialog"
 
 const visable = defineModel();

@@ -1,6 +1,6 @@
 <script setup>
 import { ref } from 'vue'
-import cmds from '../api/cmds';
+import cmds from '../utils/cmds';
 import { MotorParams } from '../stores/motorState';
 import UploadDialog from '../components/UploadDialog.vue'
 import DownloadDialog from '../components/DownloadDialog.vue'

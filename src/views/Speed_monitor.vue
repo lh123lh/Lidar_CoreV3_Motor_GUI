@@ -14,7 +14,7 @@ import { CanvasRenderer } from 'echarts/renderers';
 import { open, save } from "@tauri-apps/api/dialog"
 import cardBase from '../components/cardBase.vue';
 import PageBase from '../components/PageBase.vue';
-import cmds from '../api/cmds';
+import cmds from '../utils/cmds';
 import { updater } from '@tauri-apps/api';
 import { useMotorStore } from '../stores/motorState'
 
