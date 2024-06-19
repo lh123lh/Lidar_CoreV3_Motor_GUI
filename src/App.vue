@@ -21,8 +21,9 @@ const navs = ref([
     <el-aside width="180px" class="mt-n3">
       <el-scrollbar>
         <el-menu default-active="1" router style="height: 98vh">
-          <img style="width: 30px" class="ms-1 mb-n1 mt-2" src="../src-tauri/icons/icon.ico" size="small" />
+          <img style="width: 30px;" class="ms-3 mb-n1 mt-2" src="../src-tauri/icons/icon.ico" size="small">
           <span style="" class="ms-3 fs-3 fw-bolder">FAST FOC</span>
+          </img>
 
           <el-menu-item v-for="nav in navs" :index=nav.idx :route=nav.to v-wave>
             <el-row :gutter="20">
@@ -52,5 +53,4 @@ const navs = ref([
 
 </template>
 
-<style scoped>
-</style>
+<style scoped></style>
