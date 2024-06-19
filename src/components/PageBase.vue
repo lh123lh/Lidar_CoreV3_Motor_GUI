@@ -6,8 +6,8 @@ defineProps(['title',])
 
 <template>
   <el-container>
-    <el-header style="background-color: white; height: 30px;">
-      <el-row :gutter="20">
+    <el-header style="background-color: white; height: 30px;" data-tauri-drag-region>
+      <el-row :gutter="20" data-tauri-drag-region>
         <span class="fs-2 fw-bolder">
           {{ title }}
         </span>

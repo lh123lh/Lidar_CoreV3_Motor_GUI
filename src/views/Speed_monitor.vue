@@ -272,12 +272,12 @@ function onResize() {
 <style scoped>
 .monitor {
   width: 100%; 
-  height: 79vh;
+  height: 81vh;
 }
 
 @media (min-width: 1200px) {
   .monitor {
-      height: 84.5vh;
+      height: 86vh;
   }
 }
 </style>

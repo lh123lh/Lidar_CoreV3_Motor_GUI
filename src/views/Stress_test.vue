@@ -208,12 +208,12 @@ const tableRowClassName = ({ row }) => {
 
 .logs {
   width: 100%; 
-  height: 78.5vh;
+  height: 80.5vh;
 }
 
 @media (min-width: 1200px) {
   .logs {
-      height: 84.5vh;
+      height: 85.5vh;
   }
 }
 

@@ -27,35 +27,29 @@ async function window_close() {
 </script>
 
 <template>
-  <!-- <div data-tauri-drag-region class="titlebar"> -->
-
-  <!-- TODO: 此处需要完善 -->
   <el-row class="titlebar">
-    <el-col :span="22" data-tauri-drag-region>
-      <!-- <img style="width: 30px" class="" src="../../src-tauri/icons/icon.ico" size="small" />
-      <span style="" class="ms-3 fs-3 fw-bolder">FAST FOC</span> -->
+    <el-col :span="20" data-tauri-drag-region>
     </el-col>
-    <el-col :span="2" class="ms-auto">
+    <el-col :span="4" class="ms-auto">
       <div id="stage-button">
         <div class="min" viewBox="0 0 1024 1024" name="window-minimize" @click.left="window_minimize">
-          <el-icon style="margin-left: 0.4rem; margin-top: 0.35rem;">
+          <el-icon style="margin-left: 1rem; margin-top: 0.35rem;">
             <SvgIcon iconName="icon-zuixiaohua" />
           </el-icon>
         </div>
         <div class="max" viewBox="0 0 1024 1024" @click.left="window_maximize" :name=max_state_name>
-          <el-icon style="margin-left: 0.4rem; margin-top: 0.35rem;">
+          <el-icon style="margin-left: 1rem; margin-top: 0.35rem;">
             <SvgIcon iconName="icon-zuidahua" />
           </el-icon>
         </div>
         <div class="close" name="multiply" @click.left="window_close" icon-style="monochrome">
-          <el-icon style="margin-left: 0.4rem; margin-top: 0.35rem;">
+          <el-icon style="margin-left: 1rem; margin-top: 0.35rem;">
             <SvgIcon iconName="icon-guanbichuangkou" />
           </el-icon>
         </div>
       </div>
     </el-col>
   </el-row>
-  <!-- </div> -->
 
 </template>
 
@@ -102,7 +96,7 @@ async function window_close() {
 .max,
 .close {
   /*font-size: 30px;用这个无法设置大小*/
-  width: 30px;
+  width: 50px;
   height: 30px;
 }
 

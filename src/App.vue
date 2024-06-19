@@ -1,11 +1,8 @@
 <script setup>
 // This starter template is using Vue 3 <script setup> SFCs
 // Check out https://vuejs.org/api/sfc-script-setup.html#script-setup
-import { ref, watch } from "vue";
-import { useRouter } from 'vue-router'
-import { useI18n } from 'vue-i18n'
+import { ref } from "vue";
 import TitleBar from "./components/TitleBar.vue";
-import Motor_main from "./views/Motor_main.vue";
 
 const navs = ref([
   { idx: "1", title: '电机控制', icon: 'icon-control', to: '/' },
@@ -16,23 +13,23 @@ const navs = ref([
 </script>
 
 <template>
-  <TitleBar />
-  <el-container class="mt-0" style="height: 98vh">
-    <el-aside width="180px" class="mt-n3">
+  <el-container>
+    <el-aside width="200px">
       <el-scrollbar>
-        <el-menu default-active="1" router style="height: 98vh">
-          <img style="width: 30px;" class="ms-3 mb-n1 mt-2" src="../src-tauri/icons/icon.ico" size="small">
-          <span style="" class="ms-3 fs-3 fw-bolder">FAST FOC</span>
-          </img>
+        <el-menu default-active="1" router style="height: 100vh;">
+          <div style=" padding-top: 1.8rem;" class="logo-title" data-tauri-drag-region>
+            <img style="width: 2rem;" src="./assets/motor.png" />
+            <span class="ms-3 fs-1 fw-bolder">FAST FOC</span>
+          </div>
 
           <el-menu-item v-for="nav in navs" :index=nav.idx :route=nav.to v-wave>
-            <el-row :gutter="20">
-              <el-col :span="8">
+            <el-row :gutter="5">
+              <el-col :span="10">
                 <el-icon>
                   <SvgIcon :iconName=nav.icon />
                 </el-icon>
               </el-col>
-              <el-col :span="16" style="text-align: end;">
+              <el-col :span="14">
                 <span style="font-weight: 1000; font-size: 1rem;">{{ nav.title }}</span>
               </el-col>
             </el-row>
@@ -41,16 +38,41 @@ const navs = ref([
       </el-scrollbar>
     </el-aside>
 
-    <router-view v-slot="{ Component }">
-      <keep-alive>
-        <component :is="Component" />
-      </keep-alive>
-    </router-view>
+    <el-container>
+      <el-header>
+        <TitleBar />
+      </el-header>
 
+      <el-main>
+        <router-view v-slot="{ Component }">
+          <keep-alive>
+            <component :is="Component" />
+          </keep-alive>
+        </router-view>
+      </el-main>
+
+    </el-container>
   </el-container>
-
-  <!-- <Motor_main /> -->
 
 </template>
 
-<style scoped></style>
+<style scoped>
+.logo-title {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.el-header {
+  --el-header-padding: 0px;
+  --el-header-height: 30px;
+}
+
+.el-main {
+  --el-main-padding: 0px;
+}
+
+.el-menu-item {
+  display: block;
+}
+</style>
