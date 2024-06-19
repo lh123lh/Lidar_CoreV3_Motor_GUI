@@ -14,17 +14,17 @@ jobs:
         with:
           node-version: 20
 
-      - uses: pnpm/action-setup@v4
-        name: Install pnpm
-        with:
-          run_install: false
+      # - uses: pnpm/action-setup@v4
+      #   name: Install pnpm
+      #   with:
+      #     run_install: false
 
-      - name: Pnpm install
-        run: | 
-          npm install -g pnpm
-          pnpm install # change this to npm or pnpm depending on which one you use
+      # - name: Pnpm install
+      #   run: | 
+      #     npm install -g pnpm
+      #     pnpm install # change this to npm or pnpm depending on which one you use
 
       - name: Release updater file
-        run: pnpm updater
+        run: yarn updater
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
