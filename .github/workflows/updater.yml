@@ -20,7 +20,9 @@ jobs:
           run_install: false
 
       - name: Pnpm install
-        run: pnpm i
+        run: | 
+          npm install -g pnpm
+          pnpm install # change this to npm or pnpm depending on which one you use
 
       - name: Release updater file
         run: pnpm updater
