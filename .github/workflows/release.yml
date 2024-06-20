@@ -46,11 +46,12 @@ jobs:
       - name: Install Node
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: 20
 
       - uses: pnpm/action-setup@v4
         name: Install pnpm
         with:
+          version: 9
           run_install: false
 
       - name: Pnpm install and check
@@ -161,11 +162,12 @@ jobs:
       - name: Install Node
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: 20
 
       - uses: pnpm/action-setup@v4
         name: Install pnpm
         with:
+          version: 9
           run_install: false
 
       - name: Pnpm install and check
@@ -222,7 +224,7 @@ jobs:
       - name: Install Node
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: 20
 
       - name: install dependencies (ubuntu only)
         run: |
@@ -233,6 +235,7 @@ jobs:
       - uses: pnpm/action-setup@v4
         name: Install pnpm
         with:
+          version: 9
           run_install: false
 
       - name: Pnpm install
@@ -253,11 +256,12 @@ jobs:
       - name: Install Node
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: 20
 
       - uses: pnpm/action-setup@v4
         name: Install pnpm
         with:
+          version: 9
           run_install: false
 
       - name: Pnpm install
