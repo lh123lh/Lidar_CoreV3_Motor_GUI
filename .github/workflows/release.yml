@@ -54,10 +54,9 @@ jobs:
           version: 9
           run_install: false
 
-      - name: Pnpm install and check
+      - name: Pnpm install
         run: |
           pnpm i
-          pnpm check ${{ matrix.target }}
 
       - name: Tauri build
         uses: tauri-apps/tauri-action@v0
@@ -85,138 +84,9 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  release-for-linux:
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - os: ubuntu-latest
-            target: x86_64-unknown-linux-gnu
-          - os: ubuntu-latest
-            target: i686-unknown-linux-gnu
-          - os: ubuntu-latest
-            target: aarch64-unknown-linux-gnu
-          - os: ubuntu-latest
-            target: armv7-unknown-linux-gnueabihf
-    runs-on: ${{ matrix.os }}
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-
-      - name: Build for Linux
-        uses: ./.github/build-for-linux
-        env:
-          NODE_OPTIONS: "--max_old_space_size=4096"
-          TAURI_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
-          TAURI_KEY_PASSWORD: ${{ secrets.TAURI_KEY_PASSWORD }}
-        with:
-          target: ${{ matrix.target }}
-
-      - name: Get Version
-        run: |
-          sudo apt-get update
-          sudo apt-get install jq
-          echo "VERSION=$(cat package.json | jq '.version' | tr -d '"')" >> $GITHUB_ENV
-
-      - name: Upload Release
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: v${{env.VERSION}}
-          name: "CHCNAV CoreV3 Motor GUI v${{env.VERSION}}"
-          body: "More new features are now supported."
-          token: ${{ secrets.GITHUB_TOKEN }}
-          files: |
-            src-tauri/target/${{ matrix.target }}/release/bundle/deb/*.deb
-            src-tauri/target/${{ matrix.target }}/release/bundle/rpm/*.rpm
-
-  release-for-fixed-webview2:
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - os: windows-latest
-            target: x86_64-pc-windows-msvc
-            arch: x64
-          - os: windows-latest
-            target: i686-pc-windows-msvc
-            arch: x86
-          - os: windows-latest
-            target: aarch64-pc-windows-msvc
-            arch: arm64
-    runs-on: ${{ matrix.os }}
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-
-      - name: Add Rust Target
-        run: rustup target add ${{ matrix.target }}
-
-      - name: Rust Cache
-        uses: Swatinem/rust-cache@v2
-        with:
-          workspaces: src-tauri
-
-      - name: Install Tauri CLI
-        run: cargo install --git https://github.com/tauri-apps/tauri --branch 1.x tauri-cli
-
-      - name: Install Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-
-      - uses: pnpm/action-setup@v4
-        name: Install pnpm
-        with:
-          version: 9
-          run_install: false
-
-      - name: Pnpm install and check
-        run: |
-          pnpm i
-          pnpm check ${{ matrix.target }}
-
-      - name: Download WebView2 Runtime
-        run: |
-          invoke-webrequest -uri https://github.com/westinyang/WebView2RuntimeArchive/releases/download/109.0.1518.78/Microsoft.WebView2.FixedVersionRuntime.109.0.1518.78.${{ matrix.arch }}.cab -outfile Microsoft.WebView2.FixedVersionRuntime.109.0.1518.78.${{ matrix.arch }}.cab
-          Expand .\Microsoft.WebView2.FixedVersionRuntime.109.0.1518.78.${{ matrix.arch }}.cab -F:* ./src-tauri
-          Remove-Item .\src-tauri\tauri.windows.conf.json
-          Rename-Item .\src-tauri\webview2.${{ matrix.arch }}.json tauri.windows.conf.json
-
-      - name: Tauri build
-        id: build
-        uses: tauri-apps/tauri-action@v0
-        env:
-          NODE_OPTIONS: "--max_old_space_size=4096"
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          TAURI_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
-          TAURI_KEY_PASSWORD: ${{ secrets.TAURI_KEY_PASSWORD }}
-        with:
-          tauriScript: cargo tauri
-          args: --target ${{ matrix.target }}
-
-      - name: Rename
-        run: |
-          Rename-Item '.\src-tauri\target\${{ matrix.target }}\release\bundle\nsis\FAST FOC_${{steps.build.outputs.appVersion}}_${{ matrix.arch }}-setup.exe' 'FAST FOC_${{steps.build.outputs.appVersion}}_${{ matrix.arch }}_fixed_webview2-setup.exe'
-          Rename-Item '.\src-tauri\target\${{ matrix.target }}\release\bundle\nsis\FAST FOC_${{steps.build.outputs.appVersion}}_${{ matrix.arch }}-setup.nsis.zip' 'FAST FOC_${{steps.build.outputs.appVersion}}_${{ matrix.arch }}_fixed_webview2-setup.nsis.zip'
-          Rename-Item '.\src-tauri\target\${{ matrix.target }}\release\bundle\nsis\FAST FOC_${{steps.build.outputs.appVersion}}_${{ matrix.arch }}-setup.nsis.zip.sig' 'FAST FOC_${{steps.build.outputs.appVersion}}_${{ matrix.arch }}_fixed_webview2-setup.nsis.zip.sig'
-
-      - name: Upload Release
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: v${{steps.build.outputs.appVersion}}
-          name: "FAST FOC v${{steps.build.outputs.appVersion}}"
-          body: "More new features are now supported."
-          token: ${{ secrets.GITHUB_TOKEN }}
-          files: src-tauri/target/${{ matrix.target }}/release/bundle/nsis/*setup*
-
-      - name: Portable Bundle
-        run: pnpm portable-fixed-webview2 ${{ matrix.target }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
   release-update:
     runs-on: ubuntu-latest
-    needs: [release, release-for-linux]
+    needs: [release]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -225,12 +95,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-
-      - name: install dependencies (ubuntu only)
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y libudev-dev
-          sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.0-dev libappindicator3-dev librsvg2-dev patchelf
 
       - uses: pnpm/action-setup@v4
         name: Install pnpm
@@ -243,31 +107,5 @@ jobs:
 
       - name: Release updater file
         run: pnpm updater
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-  release-update-for-fixed-webview2:
-    runs-on: ubuntu-latest
-    needs: [release-for-fixed-webview2]
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Install Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-
-      - uses: pnpm/action-setup@v4
-        name: Install pnpm
-        with:
-          version: 9
-          run_install: false
-
-      - name: Pnpm install
-        run: pnpm i
-
-      - name: Release updater file
-        run: pnpm updater-fixed-webview2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
