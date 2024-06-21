@@ -54,7 +54,7 @@ async function hanleMergeFile() {
 </script>
 
 <template>
-  <el-dialog v-model="visable" title="固件合并" width="500">
+  <el-dialog v-model="visable" title="固件合并" width="500" :lock-scroll="false">
     <span>
       <el-row :gutter="10">
         <el-col :span="4">

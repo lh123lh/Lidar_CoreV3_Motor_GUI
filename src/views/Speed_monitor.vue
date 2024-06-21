@@ -253,7 +253,7 @@ function onResize() {
     </el-row>
   </PageBase>
 
-  <el-dialog v-model="dialogVisable" title="提示" width="500">
+  <el-dialog v-model="dialogVisable" title="提示" width="500" :lock-scroll="false">
     <span>
       注意: 文件默认保存为CSV格式!
     </span>

@@ -154,7 +154,7 @@ async function import_motor_special_params(path) {
 </script>
 
 <template>
-  <el-dialog v-model="visable" title="电机特性参数设置" width="650">
+  <el-dialog v-model="visable" title="电机特性参数设置" width="650" :lock-scroll="false">
     <el-form :model="params" ref="form" label-width="auto" label-position="right" :inline="false">
 
       <el-scrollbar max-height="15.0rem" view-style="overflow-x: hidden;">

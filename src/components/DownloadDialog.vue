@@ -40,7 +40,7 @@ const props = defineProps({
 </script>
 
 <template>
-  <el-dialog v-model="visable" :title="title" width="500">
+  <el-dialog v-model="visable" :title="title" width="500" :lock-scroll="false">
     <span>
       <el-row :gutter="10">
         <el-col :span="19">
