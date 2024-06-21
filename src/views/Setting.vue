@@ -63,48 +63,52 @@ async function getAppVersion() {
       <el-col :xs="12" :sm="12" :md="12" :lg="12" :xl="12">
         <cardBase title="电机设置">
           <template #content>
-            <el-row :gutter="5">
-              <el-col :span="18" class="setting-item">
-                电机特性参数设置
-              </el-col>
-              <el-col :span="6" style="text-align: end;">
-                <el-link :underline="false" :disabled=!status.isConnected class="mb-1" @click="motorParamDialog = true">
-                  <el-icon :size="16">
-                    <SvgIcon iconName=icon-arrow-right />
-                  </el-icon>
-                </el-link>
-              </el-col>
-            </el-row>
+            <ul>
+              <li @click="motorParamDialog = true" :class="{ disabled: !status.isConnected }">
+                <div class="setting-item setting-item-clickable" v-wave>
+                  <div>
+                    电机特性参数设置
+                  </div>
+                  <el-link :underline="false" class="ms-auto">
+                    <el-icon :size="16">
+                      <SvgIcon iconName=icon-arrow-right />
+                    </el-icon>
+                  </el-link>
+                </div>
+              </li>
 
-            <el-row :gutter="5">
-              <el-col :span="18" class="setting-item">
-                编码器设置
-              </el-col>
-              <el-col :span="6" style="text-align: end;">
-                <el-link :underline="false" :disabled=!status.isConnected class="mb-1">
-                  <el-icon :size="16">
-                    <SvgIcon iconName=icon-arrow-right />
-                  </el-icon>
-                </el-link>
-              </el-col>
-            </el-row>
+              <li class="disabled">
+                <div class="setting-item setting-item-clickable" v-wave>
+                  <div>
+                    编码器设置
+                  </div>
+                  <el-link :underline="false" :disabled=!status.isConnected class="ms-auto">
+                    <el-icon :size="16">
+                      <SvgIcon iconName=icon-arrow-right />
+                    </el-icon>
+                  </el-link>
+                </div>
+              </li>
+            </ul>
           </template>
         </cardBase>
 
         <cardBase title="辅助工具" class="mt-1">
           <template #content>
-            <el-row :gutter="5" class="setting-item setting-item-clickable" @click="fwMergeDialog = true" v-wave>
-              <el-col :span="18">
-                合并Hex
-              </el-col>
-              <el-col :span="6" style="text-align: end;">
-                <el-link :underline="false" class="mb-1" @click="fwMergeDialog = true">
-                  <el-icon :size="16">
-                    <SvgIcon iconName=icon-arrow-right />
-                  </el-icon>
-                </el-link>
-              </el-col>
-            </el-row>
+            <ul>
+              <li @click="fwMergeDialog = true">
+                <div class="setting-item setting-item-clickable" v-wave>
+                  <div>
+                    合并Hex
+                  </div>
+                  <el-link :underline="false" class="ms-auto" @click="fwMergeDialog = true">
+                    <el-icon :size="16">
+                      <SvgIcon iconName=icon-arrow-right />
+                    </el-icon>
+                  </el-link>
+                </div>
+              </li>
+            </ul>
 
           </template>
         </cardBase>
@@ -112,39 +116,44 @@ async function getAppVersion() {
       <el-col :xs="12" :sm="12" :md="12" :lg="12" :xl="12">
         <cardBase title="系统设置">
           <template #content>
-            <el-row :gutter="5">
-              <el-col :span="18" class="setting-item">
-                语言设置
-              </el-col>
-              <el-col :span="6" style="text-align: end;">
-                <el-select v-model="language" style="width: 100px" @change="changeLanguage(language.lang)">
-                  <el-option v-for="item in supportLangs" :key="item.lang" :label="item.value" :value="item"
-                    class="fw-bolder" />
-                </el-select>
-              </el-col>
-            </el-row>
+            <ul>
+              <li>
+                <div class="setting-item">
+                  <div>
+                    语言设置
+                  </div>
+                  <el-select v-model="language" style="width: 100px" @change="changeLanguage(language.lang)"
+                    class="ms-auto">
+                    <el-option v-for="item in supportLangs" :key="item.lang" :label="item.value" :value="item"
+                      class="fw-bolder" />
+                  </el-select>
+                </div>
+              </li>
 
-            <el-row :gutter="5" class="setting-item setting-item-clickable mt-1" @click="handleCheckUpdate()" v-wave>
-              <el-col :span="18">
-                检查更新
-              </el-col>
-              <el-col :span="6" style="text-align: end;">
-                <el-link :underline="false" class="mb-1">
-                  <el-icon :size="16">
-                    <SvgIcon iconName=icon-arrow-right />
-                  </el-icon>
-                </el-link>
-              </el-col>
-            </el-row>
+              <li @click="handleCheckUpdate()">
+                <div class="setting-item setting-item-clickable" v-wave>
+                  <div>
+                    检查更新
+                  </div>
+                  <el-link :underline="false" class="ms-auto">
+                    <el-icon :size="16">
+                      <SvgIcon iconName=icon-arrow-right />
+                    </el-icon>
+                  </el-link>
+                </div>
+              </li>
 
-            <el-row :gutter="5" class="setting-item mt-1">
-              <el-col :span="18">
-                应用版本
-              </el-col>
-              <el-col :span="6" style="text-align: end;">
-                v{{ appVersion }}
-              </el-col>
-            </el-row>
+              <li>
+                <div class="setting-item">
+                  <div>
+                    应用版本
+                  </div>
+                  <div class="ms-auto">
+                    v{{ appVersion }}
+                  </div>
+                </div>
+              </li>
+            </ul>
 
           </template>
         </cardBase>
@@ -160,8 +169,38 @@ async function getAppVersion() {
 </template>
 
 <style scoped>
+.disabled {
+  pointer-events: none;
+  opacity: 0.6;
+}
+
 .setting-item {
-  font-size: 0.9rem;
+  -webkit-tap-highlight-color: transparent;
+  background-color: transparent;
+  outline: 0px;
+  border: 0px;
+  margin: 0px;
+  margin-left: -10px;
+  margin-right: -10px;
+  border-radius: 0px;
+  user-select: none;
+  vertical-align: middle;
+  appearance: none;
+  color: inherit;
+  display: flex;
+  -webkit-box-flex: 1;
+  flex-grow: 1;
+  -webkit-box-pack: start;
+  justify-content: flex-start;
+  -webkit-box-align: center;
+  align-items: center;
+  position: relative;
+  text-decoration: none;
+  min-width: 0px;
+  box-sizing: border-box;
+  text-align: left;
+  padding: 8px 8px;
+  transition: background-color 150ms;
 }
 
 .setting-item-clickable {

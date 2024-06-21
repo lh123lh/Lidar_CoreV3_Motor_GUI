@@ -61,11 +61,10 @@ async function hanleMergeFile() {
           Boot Hex
         </el-col>
         <el-col :span="15">
-          <el-input v-model="bootPath" placeholder="选择Boot Hex" size="normal" @click="selectBootHexFile" :readonly=true
-            :disabled="status"></el-input>
+          <el-input v-model="bootPath" placeholder="选择Boot Hex" @click="selectBootHexFile" :readonly=true></el-input>
         </el-col>
         <el-col :span="4">
-          <el-button @click="selectBootHexFile" type="success" plain :disabled="status">浏览</el-button>
+          <el-button @click="selectBootHexFile" type="success" plain>浏览</el-button>
         </el-col>
       </el-row>
 
@@ -74,11 +73,10 @@ async function hanleMergeFile() {
           App Hex
         </el-col>
         <el-col :span="15">
-          <el-input v-model="appPath" placeholder="选择App Hex" size="normal" @click="selectAppHexFile" :readonly=true
-            :disabled="status"></el-input>
+          <el-input v-model="appPath" placeholder="选择App Hex" @click="selectAppHexFile" :readonly=true></el-input>
         </el-col>
         <el-col :span="4">
-          <el-button @click="selectAppHexFile" type="success" plain :disabled="status">浏览</el-button>
+          <el-button @click="selectAppHexFile" type="success" plain>浏览</el-button>
         </el-col>
       </el-row>
 
@@ -87,18 +85,17 @@ async function hanleMergeFile() {
           目标 Hex
         </el-col>
         <el-col :span="15">
-          <el-input v-model="mergedPath" placeholder="选择目标 Hex" size="normal" @click="selectMergedFile" :readonly=true
-            :disabled="status"></el-input>
+          <el-input v-model="mergedPath" placeholder="选择目标 Hex" @click="selectMergedFile" :readonly=true></el-input>
         </el-col>
         <el-col :span="4">
-          <el-button @click="selectMergedFile" type="success" plain :disabled="status">浏览</el-button>
+          <el-button @click="selectMergedFile" type="success" plain>浏览</el-button>
         </el-col>
       </el-row>
 
     </span>
     <template #footer>
       <div class="dialog-footer">
-        <el-button @click="visable = false" :disabled="status">Cancel</el-button>
+        <el-button @click="visable = false">Cancel</el-button>
         <el-button type="primary" @click="hanleMergeFile()">
           合并
         </el-button>
