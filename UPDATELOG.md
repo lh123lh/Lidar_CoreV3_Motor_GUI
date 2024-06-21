@@ -1,3 +1,13 @@
+## v0.2.1
+
+### Features
+
+- 修复element-plus Dialog弹出时页面抖动问题
+- 添加marked组件; 添加markdown内容显示组件
+- 自定义tauri app应用更新功能
+
+---
+
 ## v0.2.0
 
 ### Features
