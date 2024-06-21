@@ -47,10 +47,11 @@ async function checkAppUpdate() {
 
           <div style=" padding-top: 1.8rem;" class="logo-title" data-tauri-drag-region>
             <img style="width: 2rem;" src="./assets/motor.png" />
-            <el-badge value="new" class="updateBtn" :offset="[-15, -10]" :hidden="!updateInfo.updateAvailable"
+            <el-badge v-if="updateInfo.updateAvailable" value="new" class="updateBtn" :offset="[-15, -10]"
               @click="updateDialogVisible = true">
               <span class="ms-3 fs-1 fw-bolder">FAST FOC</span>
             </el-badge>
+            <span v-else class="ms-3 fs-1 fw-bolder">FAST FOC</span>
 
           </div>
 
