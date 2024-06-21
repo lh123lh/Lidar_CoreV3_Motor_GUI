@@ -1,11 +1,13 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { useDark, useToggle } from '@vueuse/core';
 import PageBase from '../components/PageBase.vue';
 import cardBase from '../components/cardBase.vue';
 import { useMotorStore } from '../stores/motorState';
 import MotorSpecialParamsDialog from '../components/MotorSpecialParamsDialog.vue';
 import FwMergeDialog from '../components/FwMergeDialog.vue';
+import cmds from '../utils/cmds';
 
 import { appUpdateInfoStore } from '../stores/appUpdateInfo.js'
 import { checkUpdate } from '@tauri-apps/api/updater';
@@ -20,6 +22,9 @@ const status = useMotorStore();
 const motorParamDialog = ref(false);
 const fwMergeDialog = ref(false);
 const appVersion = ref("");
+
+const isDark = useDark({disableTransition: false});
+const toggleDark = useToggle(isDark);
 
 const { locale } = useI18n()
 
@@ -45,6 +50,9 @@ async function handleCheckUpdate() {
       updateInfo.updateAvailable = true;
       updateInfo.manifest = manifest.body;
       updateDialogVisible.value = true;
+    }
+    else {
+      cmds.notify_success("已是最新版本");
     }
   } catch (error) {
     console.error(error)
@@ -130,6 +138,15 @@ async function getAppVersion() {
                 </div>
               </li>
 
+              <li>
+                <div class="setting-item">
+                  <div @click.stop="toggleDark()">
+                    暗黑模式
+                  </div>
+                  <el-switch class="ms-auto" v-model="isDark" />
+                </div>
+              </li>
+
               <li @click="handleCheckUpdate()">
                 <div class="setting-item setting-item-clickable" v-wave>
                   <div>
@@ -209,5 +226,6 @@ async function getAppVersion() {
 
 .setting-item-clickable:hover {
   background-color: rgb(237, 237, 237);
+  color: black;
 }
 </style>

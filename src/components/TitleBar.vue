@@ -59,7 +59,7 @@ async function window_close() {
   flex-direction: row;
   height: 30px;
   user-select: none;
-  background-color: white;
+  /* background-color: white; */
   top: 0px;
   left: 0;
   right: 0;

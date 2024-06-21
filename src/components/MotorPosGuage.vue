@@ -57,6 +57,7 @@ const option = {
         }
       },
       axisTick: {
+        show: false,
         distance: -20,
         length: 8,
         lineStyle: {
@@ -65,8 +66,8 @@ const option = {
         }
       },
       splitLine: {
-        distance: -30,
-        length: 30,
+        distance: -10,
+        length: 10,
         lineStyle: {
           color: '#fff',
           width: 2

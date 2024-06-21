@@ -3,7 +3,7 @@ import "./styles.css";
 import App from "./App.vue";
 import ElementPlus from 'element-plus'
 import 'element-plus/dist/index.css'
-// import { useDark, useToggle } from '@vueuse/core'
+import 'element-plus/theme-chalk/dark/css-vars.css'
 import SvgIcon from './components/iconfont/SvgIcon.vue'
 import './assets/iconfont/iconfont.js'
 import router from './router'
