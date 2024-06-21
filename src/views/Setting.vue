@@ -7,6 +7,16 @@ import { useMotorStore } from '../stores/motorState';
 import MotorSpecialParamsDialog from '../components/MotorSpecialParamsDialog.vue';
 import FwMergeDialog from '../components/FwMergeDialog.vue';
 
+import { appUpdateInfoStore } from '../stores/appUpdateInfo.js'
+import {
+  checkUpdate,
+} from '@tauri-apps/api/updater'
+
+import appUpdateDialog from '../components/appUpdateDialog.vue';
+
+const updateInfo = appUpdateInfoStore();
+const updateDialogVisible = ref(false);
+
 const status = useMotorStore();
 const motorParamDialog = ref(false);
 const fwMergeDialog = ref(false);
@@ -21,6 +31,20 @@ const supportLangs = [
 
 function changeLanguage(val) {
   locale.value = val;
+}
+
+async function handleCheckUpdate() {
+  try {
+    const { shouldUpdate, manifest } = await checkUpdate()
+
+    if (shouldUpdate) {
+      updateInfo.updateAvailable = true;
+      updateInfo.manifest = manifest.body;
+      updateDialogVisible.value = true;
+    }
+  } catch (error) {
+    console.error(error)
+  }
 }
 
 </script>
@@ -92,6 +116,19 @@ function changeLanguage(val) {
               </el-col>
             </el-row>
 
+            <el-row :gutter="5" class="setting-item setting-item-clickable mt-1" @click="handleCheckUpdate()" v-wave>
+              <el-col :span="18">
+                检查更新
+              </el-col>
+              <el-col :span="6" style="text-align: end;">
+                <el-link :underline="false" class="mb-1">
+                  <el-icon :size="16">
+                    <SvgIcon iconName=icon-arrow-right />
+                  </el-icon>
+                </el-link>
+              </el-col>
+            </el-row>
+
           </template>
         </cardBase>
       </el-col>
@@ -102,6 +139,7 @@ function changeLanguage(val) {
 
   <MotorSpecialParamsDialog v-model="motorParamDialog" />
   <FwMergeDialog v-model="fwMergeDialog" />
+  <appUpdateDialog v-model="updateDialogVisible" />
 </template>
 
 <style scoped>

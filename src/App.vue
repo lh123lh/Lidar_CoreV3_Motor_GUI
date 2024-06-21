@@ -1,8 +1,18 @@
 <script setup>
 // This starter template is using Vue 3 <script setup> SFCs
 // Check out https://vuejs.org/api/sfc-script-setup.html#script-setup
-import { ref } from "vue";
+import { ref, onMounted } from "vue";
 import TitleBar from "./components/TitleBar.vue";
+// import appUpdater from './utils/appUpdater.js';
+import { appUpdateInfoStore } from './stores/appUpdateInfo.js'
+import {
+  checkUpdate,
+} from '@tauri-apps/api/updater'
+
+import appUpdateDialog from './components/appUpdateDialog.vue';
+
+const updateInfo = appUpdateInfoStore();
+const updateDialogVisible = ref(false);
 
 const navs = ref([
   { idx: "1", title: '电机控制', icon: 'icon-control', to: '/' },
@@ -10,6 +20,29 @@ const navs = ref([
   { idx: "3", title: '启停测试', icon: 'icon-stressTest', to: '/stressTest' },
   { idx: "4", title: '设置', icon: 'icon-setting', to: '/setting' },
 ])
+
+onMounted(() => {
+  checkAppUpdate();
+})
+
+// const unlisten = await onUpdaterEvent(({ error, status }) => {
+//   // This will log all updater events, including status updates and errors.
+//   console.log('Updater event', error, status)
+// })
+
+async function checkAppUpdate() {
+  try {
+    const { shouldUpdate, manifest } = await checkUpdate()
+
+    if (shouldUpdate) {
+      updateInfo.updateAvailable = true;
+      updateInfo.manifest = manifest.body;
+    }
+  } catch (error) {
+    console.error(error)
+  }
+}
+
 </script>
 
 <template>
@@ -17,9 +50,14 @@ const navs = ref([
     <el-aside width="200px">
       <el-scrollbar>
         <el-menu default-active="1" router style="height: 100vh;">
+
           <div style=" padding-top: 1.8rem;" class="logo-title" data-tauri-drag-region>
             <img style="width: 2rem;" src="./assets/motor.png" />
-            <span class="ms-3 fs-1 fw-bolder">FAST FOC</span>
+            <el-badge value="new" class="updateBtn" :offset="[-15, -10]" :hidden="!updateInfo.updateAvailable"
+              @click="updateDialogVisible = true">
+              <span class="ms-3 fs-1 fw-bolder">FAST FOC</span>
+            </el-badge>
+
           </div>
 
           <el-menu-item v-for="nav in navs" :index=nav.idx :route=nav.to v-wave>
@@ -54,6 +92,8 @@ const navs = ref([
     </el-container>
   </el-container>
 
+  <appUpdateDialog v-model="updateDialogVisible" />
+
 </template>
 
 <style scoped>
@@ -74,5 +114,9 @@ const navs = ref([
 
 .el-menu-item {
   display: block;
+}
+
+.updateBtn {
+  cursor: pointer;
 }
 </style>
