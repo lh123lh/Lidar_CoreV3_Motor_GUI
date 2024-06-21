@@ -1,12 +1,8 @@
 <script setup>
-import { ref, watch, onMounted } from 'vue'
+import { ref, onMounted } from 'vue'
 import { listen } from '@tauri-apps/api/event';
 import { appUpdateInfoStore } from '../stores/appUpdateInfo.js'
-import {
-  checkUpdate,
-  installUpdate,
-  onUpdaterEvent,
-} from '@tauri-apps/api/updater'
+import { installUpdate } from '@tauri-apps/api/updater'
 import MarkdownDisplay from '../components/MarkdownDisplay.vue';
 
 const visable = defineModel();
@@ -38,7 +34,8 @@ async function handleUpdate() {
     <div class="ms-5">
       <MarkdownDisplay :markdown="updateInfo.manifest" />
     </div>
-    <el-progress :percentage="progress" :stroke-width="5" striped striped-flow :duration="50" :show-text="false" class="mt-2" />
+    <el-progress :percentage="progress" :stroke-width="5" striped striped-flow :duration="50" :show-text="false"
+      class="mt-2" />
 
     <template #footer>
       <div class="dialog-footer">

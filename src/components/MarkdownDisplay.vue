@@ -6,7 +6,6 @@
 import { computed } from 'vue';
 import { marked } from 'marked';
 // import DOMPurify from 'dompurify';
-import { defineProps } from 'vue';
 
 const props = defineProps({
   markdown: {

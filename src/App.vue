@@ -3,7 +3,6 @@
 // Check out https://vuejs.org/api/sfc-script-setup.html#script-setup
 import { ref, onMounted } from "vue";
 import TitleBar from "./components/TitleBar.vue";
-// import appUpdater from './utils/appUpdater.js';
 import { appUpdateInfoStore } from './stores/appUpdateInfo.js'
 import {
   checkUpdate,
@@ -24,11 +23,6 @@ const navs = ref([
 onMounted(() => {
   checkAppUpdate();
 })
-
-// const unlisten = await onUpdaterEvent(({ error, status }) => {
-//   // This will log all updater events, including status updates and errors.
-//   console.log('Updater event', error, status)
-// })
 
 async function checkAppUpdate() {
   try {
