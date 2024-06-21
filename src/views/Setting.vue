@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import PageBase from '../components/PageBase.vue';
 import cardBase from '../components/cardBase.vue';
@@ -8,9 +8,8 @@ import MotorSpecialParamsDialog from '../components/MotorSpecialParamsDialog.vue
 import FwMergeDialog from '../components/FwMergeDialog.vue';
 
 import { appUpdateInfoStore } from '../stores/appUpdateInfo.js'
-import {
-  checkUpdate,
-} from '@tauri-apps/api/updater'
+import { checkUpdate } from '@tauri-apps/api/updater';
+import { getVersion } from '@tauri-apps/api/app';
 
 import appUpdateDialog from '../components/appUpdateDialog.vue';
 
@@ -20,6 +19,7 @@ const updateDialogVisible = ref(false);
 const status = useMotorStore();
 const motorParamDialog = ref(false);
 const fwMergeDialog = ref(false);
+const appVersion = ref("");
 
 const { locale } = useI18n()
 
@@ -28,6 +28,10 @@ const supportLangs = [
   { value: 'English', lang: 'en' },
   { value: '中文', lang: 'zh' },
 ]
+
+onMounted(() => {
+  getAppVersion();
+})
 
 function changeLanguage(val) {
   locale.value = val;
@@ -45,6 +49,10 @@ async function handleCheckUpdate() {
   } catch (error) {
     console.error(error)
   }
+}
+
+async function getAppVersion() {
+  appVersion.value = await getVersion();
 }
 
 </script>
@@ -126,6 +134,15 @@ async function handleCheckUpdate() {
                     <SvgIcon iconName=icon-arrow-right />
                   </el-icon>
                 </el-link>
+              </el-col>
+            </el-row>
+
+            <el-row :gutter="5" class="setting-item mt-1">
+              <el-col :span="18">
+                应用版本
+              </el-col>
+              <el-col :span="6" style="text-align: end;">
+                v{{ appVersion }}
               </el-col>
             </el-row>
 
