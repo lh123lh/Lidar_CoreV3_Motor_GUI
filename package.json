@@ -1,20 +1,30 @@
 {
   "name": "lidar_corev3_motor_gui",
   "private": true,
-  "version": "0.0.0",
+  "version": "0.2.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "tauri": "tauri"
+    "tauri": "tauri",
+    "web:dev": "vite",
+    "web:build": "tsc && vite build",
+    "web:serve": "vite preview",
+    "updater": "node scripts/updater.mjs",
+    "portable": "node scripts/portable.mjs"
   },
   "dependencies": {
+    "@actions/github": "^6.0.0",
     "@element-plus/icons-vue": "^2.3.1",
     "@tauri-apps/api": "^1.5.6",
+    "@types/fs-extra": "^11.0.4",
+    "adm-zip": "^0.5.14",
     "big.js": "^6.2.1",
     "echarts": "^5.5.0",
     "element-plus": "^2.7.4",
+    "fs-extra": "^11.2.0",
+    "node-fetch": "^3.3.2",
     "pinia": "^2.1.7",
     "v-wave": "^2.0.0",
     "vue": "^3.4.27",
