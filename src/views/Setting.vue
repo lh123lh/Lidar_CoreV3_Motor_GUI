@@ -38,6 +38,8 @@ const supportLangs = [
   { value: '中文', lang: 'zh' },
 ]
 
+const darkMode = ref(false);
+
 onMounted(() => {
   getAppVersion();
 })
@@ -68,6 +70,30 @@ async function handleCheckUpdate() {
 
 async function getAppVersion() {
   appVersion.value = await getVersion();
+}
+
+const changeTheme = ($eve) => {
+  const x = $eve.clientX
+  const y = $eve.clientY
+  // 计算鼠标点击位置距离视窗的最大圆半径
+  const endRadius = Math.hypot(
+    Math.max(x, innerWidth - x),
+    Math.max(y, innerHeight - y),
+  )
+  document.documentElement.style.setProperty('--x', x + 'px')
+  document.documentElement.style.setProperty('--y', y + 'px')
+  document.documentElement.style.setProperty('--r', endRadius + 'px')
+  // 判断浏览器是否支持document.startViewTransition
+  if (document.startViewTransition) {
+    // 如果支持就使用document.startViewTransition方法
+    document.startViewTransition(() => {
+      toggleDark()
+    })
+  } else {
+    toggleDark()
+  }
+
+  darkMode.value = !isDark.value;
 }
 
 </script>
@@ -147,11 +173,11 @@ async function getAppVersion() {
 
               <li>
                 <div class="setting-item">
-                  <div @click.stop="toggleDark()">
+                  <div>
                     {{ $t('settings.darkMode') }}
                   </div>
-                  <el-switch class="ms-auto" v-model="isDark" :active-action-icon="Moon"
-                    :inactive-action-icon="Sunny" />
+                  <el-switch class="ms-auto" v-model="darkMode" :active-action-icon="Moon"
+                    :inactive-action-icon="Sunny" @click="changeTheme" />
                 </div>
               </li>
 
@@ -238,5 +264,49 @@ async function getAppVersion() {
 .setting-item-clickable:hover {
   background-color: rgb(237, 237, 237);
   color: black;
+}
+</style>
+
+<style>
+::view-transition-old(*) {
+  animation: none;
+}
+
+::view-transition-new(*) {
+  animation: clip .5s ease-in;
+}
+
+::view-transition-old(root) {
+  z-index: 1;
+}
+
+::view-transition-new(root) {
+  z-index: 9999;
+}
+
+html.dark::view-transition-old(*) {
+  animation: clip .5s ease-in reverse;
+}
+
+html.dark::view-transition-new(*) {
+  animation: none;
+}
+
+html.dark::view-transition-old(root) {
+  z-index: 9999;
+}
+
+html.dark::view-transition-new(root) {
+  z-index: 1;
+}
+
+@keyframes clip {
+  from {
+    clip-path: circle(0% at var(--x) var(--y));
+  }
+
+  to {
+    clip-path: circle(var(--r) at var(--x) var(--y));
+  }
 }
 </style>
