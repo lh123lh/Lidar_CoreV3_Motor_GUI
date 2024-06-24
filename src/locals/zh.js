@@ -1,22 +1,97 @@
 export default {
+  menu: {
+    motorCtrl: '电机控制',
+    spdMonitor: '转速监控',
+    startupTest: '启停测试',
+    setting: '设置',
+  },
   main: {
     title: '电机控制',
 
-    cfg: {
-      title: '电机配置',
-      serialPort: '串口',
-      baudRate: '波特率',
-      ctrlMode: '控制模式',
-      rsOnline: 'Rs在线估算',
-      rsReCalc: 'Rs重校准',
-      targetRps: '目标转速',
-      targetPos: '目标位置',
-      connect: '连接',
-      disconnect: '断开',
-      start: '启动',
-      update: '更新',
-      stop: '停止',
-    }
-    
+    motorCfg: '电机配置',
+    serialPort: '串口',
+    baudRate: '波特率',
+    ctrlMode: '控制模式',
+    rsOnline: 'Rs在线估算',
+    rsReCalc: 'Rs重校准',
+    targetRps: '目标转速',
+    targetPos: '目标位置',
+    connect: '连接',
+    disconnect: '断开',
+    start: '启动',
+    update: '更新',
+    stop: '停止',
+    speedMode: '速度模式',
+    posMode: '位置模式',
+
+    realTimeSpd: '实时转速',
+    realTimePos: '实时位置',
+
+    status: '状态及参数',
+    identifiedStatus: '电机识别状态',
+    motorStatus: '电机状态',
+    mcStatus: 'MC状态',
+    errorCode: '故障码',
+    clearFaults: '清除错误',
+    magPoles: '磁极对数',
+    busVol: '母线电压',
+    maxAcc: '最大加速度',
+    startAcc: '启动加速度',
+    fwVersion: '固件版本',
+    upgrade: '升级固件',
   },
+  spdMonitor: {
+    title: '转速监控',
+    trend: '转速趋势',
+    trendSetting: '趋势表设置',
+    ovservePoints: '观测点数',
+    startObserve: '开始观测',
+    spdRecord: '转速记录',
+    recordLocation: '记录位置',
+    recordDuration: '记录时长',
+    startRecord: '开始记录',
+  },
+  startStop: {
+    title: '启停测试',
+    logs: '日志',
+    timeStamp: '时间戳',
+    message: '日志消息',
+
+    settings: '设置',
+    testCnt: '测试次数',
+    targetRps: '目标转速',
+    coldDuration: '冷却时长',
+
+    status: '状态',
+    SuccessCnt: '成功次数',
+    FailedCnt: '失败次数',
+    testDuration: '测试时长',
+  },
+  settings: {
+    title: '设置',
+    motorSetting: '电机设置',
+    motorSpecialParamsSetting: '电机特性参数设置',
+    encoderSetting: '编码器设置',
+
+    tools: '辅助工具',
+    mergeHex: '合并Hex',
+
+    systemSetting: '系统设置',
+    language: '语言设置',
+    darkMode: '暗黑模式',
+    checkUpdate: '检查更新',
+    appVersion: '应用版本',
+
+    alreadyUpdated: '当前已是最新版本',
+  },
+
+  stop: '停止',
+  start: '开始',
+  update: '升级',
+  fwUpgrade: '固件升级',
+  download: '下载',
+  downloading: '下载中',
+  selectFile: '选择文件',
+
+
 }

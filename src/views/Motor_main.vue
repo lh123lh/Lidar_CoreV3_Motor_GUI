@@ -19,8 +19,8 @@ const Ls_d = ref(0.00);
 const Ls_q = ref(0.00);
 const flux = ref(0.00);
 const poles = ref(0); //  磁极对数
-const connectBtn = ref(t('main.cfg.connect'));
-const startBtn = ref(t('main.cfg.start'));
+const connectBtn = ref(t('main.connect'));
+const startBtn = ref(t('main.start'));
 const targetRps = ref(0.00);
 const currentRps = ref(0.00);
 const currentPos = ref(0.0);
@@ -75,11 +75,11 @@ const errorCodeForm = ref([])
 const ctrlModes = [
   {
     value: 0,
-    label: '速度模式',
+    label: t('main.speedMode'),
   },
   {
     value: 1,
-    label: '位置模式',
+    label: t('main.posMode'),
   }
 ]
 const ctrlMode = ref(0);
@@ -130,12 +130,12 @@ async function connect_motor() {
   if (store.isConnected) {
     store.isConnected = false;
     motorStarted.value = false;
-    startBtn.value = t('main.cfg.start');
-    connectBtn.value = t('main.cfg.connect');
+    startBtn.value = t('main.start');
+    connectBtn.value = t('main.connect');
     await cmds.cmd_disconnect_motor(serialPort.value, baudRate.value);
   } else {
     store.isConnected = true;
-    connectBtn.value = t('main.cfg.disconnect');
+    connectBtn.value = t('main.disconnect');
     await cmds.cmd_connect_motor(serialPort.value, baudRate.value);
 
     get_motor_static_params();
@@ -242,7 +242,7 @@ async function update_motor_rps() {
     }
 
     motorStarted.value = true;
-    startBtn.value = t('main.cfg.update');
+    startBtn.value = t('main.update');
     await cmds.cmd_start_motor(parseFloat(targetRps.value))
   }
 }
@@ -262,7 +262,7 @@ async function stop_motor() {
   await cmds.cmd_stop_motor()
     .then((data) => {
       motorStarted.value = false;
-      startBtn.value = t('main.cfg.start');
+      startBtn.value = t('main.start');
     })
 
   await cmds.cmd_enable_motor_pos_ctrl(false);
@@ -346,16 +346,16 @@ async function upgrade_motor_fw(path) {
 </script>
 
 <template>
-  <PageBase :title="$t('main.title')">
+  <PageBase :title="$t('main.motorCfg')">
     <el-row :gutter="5">
       <el-col :span="12">
-        <cardBase :title="$t('main.cfg.title')">
+        <cardBase :title="$t('main.motorCfg')">
           <template #content>
             <el-row :gutter="5" class="mt-1">
               <el-col>
                 <el-row>
                   <el-col :span="5">
-                    <label>{{ $t('main.cfg.serialPort') }}</label>
+                    <label>{{ $t('main.serialPort') }}</label>
                   </el-col>
                   <el-col :span="10">
                     <el-select v-model="serialPort" placeholder="Serial Port" :disabled=store.isConnected>
@@ -370,7 +370,7 @@ async function upgrade_motor_fw(path) {
               <el-col>
                 <el-row :gutter="5">
                   <el-col :span="5">
-                    <label>{{ $t('main.cfg.baudRate') }}</label>
+                    <label>{{ $t('main.baudRate') }}</label>
                   </el-col>
                   <el-col :span="10">
                     <el-select v-model="baudRate" placeholder="Baud Rate" :disabled=store.isConnected>
@@ -388,7 +388,7 @@ async function upgrade_motor_fw(path) {
               <el-col>
                 <el-row :gutter="5">
                   <el-col :span="5">
-                    <label>{{ $t('main.cfg.ctrlMode') }}</label>
+                    <label>{{ $t('main.ctrlMode') }}</label>
                   </el-col>
                   <el-col :span="10">
                     <el-select v-model="ctrlMode" placeholder="Ctrl Mode" :disabled=store.isConnected>
@@ -403,7 +403,7 @@ async function upgrade_motor_fw(path) {
               <el-col>
                 <el-row :gutter="5">
                   <el-col :span="15">
-                    <label>{{ $t('main.cfg.rsOnline') }}</label>
+                    <label>{{ $t('main.rsOnline') }}</label>
                   </el-col>
                   <el-col :span="4">
                     <el-switch v-model="enableRsOnline" :disabled=!store.isConnected />
@@ -416,7 +416,7 @@ async function upgrade_motor_fw(path) {
               <el-col>
                 <el-row :gutter="5">
                   <el-col :span="15">
-                    <label>{{ $t('main.cfg.rsReCalc') }}</label>
+                    <label>{{ $t('main.rsReCalc') }}</label>
                   </el-col>
                   <el-col :span="4">
                     <el-switch v-model="enableRsReCalc" :disabled=!store.isConnected />
@@ -429,7 +429,7 @@ async function upgrade_motor_fw(path) {
               <el-col>
                 <el-row :gutter="5" v-if="ctrlMode == 0">
                   <el-col :span="5">
-                    <label>{{ $t('main.cfg.targetRps') }}</label>
+                    <label>{{ $t('main.targetRps') }}</label>
                   </el-col>
                   <el-col :span="10">
                     <el-input v-model="targetRps" :disabled=!store.isConnected>
@@ -441,13 +441,13 @@ async function upgrade_motor_fw(path) {
                     <el-row :gutter="5">
                       <el-col :span="12">
                         <el-button @click="update_motor_rps" :disabled=!store.isConnected type="primary" plain>{{
-    startBtn
-  }}</el-button>
+                          startBtn
+                          }}</el-button>
                       </el-col>
                       <el-col :span="12">
                         <el-button @click="stop_motor" :disabled=!motorStarted type="warning" plain>{{
-    $t('main.cfg.stop')
-  }}</el-button>
+                          $t('main.stop')
+                          }}</el-button>
                       </el-col>
                     </el-row>
 
@@ -456,7 +456,7 @@ async function upgrade_motor_fw(path) {
                 </el-row>
                 <el-row :gutter="5" v-else>
                   <el-col :span="5">
-                    <label>{{ $t('main.cfg.targetPos') }}</label>
+                    <label>{{ $t('main.targetPos') }}</label>
                   </el-col>
                   <el-col :span="10">
                     <el-input v-model="targetPosition" :disabled=!store.isConnected>
@@ -467,14 +467,14 @@ async function upgrade_motor_fw(path) {
                     <el-row :gutter="5">
                       <el-col :span="12">
                         <el-button @click="update_motor_positon" :disabled=!store.isConnected type="primary" plain>{{
-    startBtn
-  }}</el-button>
+                          startBtn
+                          }}</el-button>
                       </el-col>
 
                       <el-col :span="12">
                         <el-button @click="stop_motor" :disabled=!motorStarted type="warning" plain>{{
-    $t('main.cfg.stop')
-  }}</el-button>
+                          $t('main.stop')
+                          }}</el-button>
                       </el-col>
                     </el-row>
 
@@ -485,14 +485,14 @@ async function upgrade_motor_fw(path) {
           </template>
         </cardBase>
 
-        <cardBase v-if="ctrlMode == 0" title="实时转速" class="mt-1">
+        <cardBase v-if="ctrlMode == 0" :title="$t('main.realTimeSpd')" class="mt-1">
           <template #content>
             <div>
               <SpeedMeter :value="currentRps" height="38vh" />
             </div>
           </template>
         </cardBase>
-        <cardBase v-else title="实时位置" class="mt-1">
+        <cardBase v-else :title="$t('main.realTimePos')" class="mt-1">
           <template #content>
             <div>
               <MotorPosGuage :value="currentPos" height="38vh" />
@@ -503,14 +503,14 @@ async function upgrade_motor_fw(path) {
       </el-col>
 
       <el-col :span="12">
-        <cardBase title="状态及参数">
+        <cardBase :title="$t('main.status')">
           <template #content>
             <el-scrollbar height="80.5vh" class="mt-1">
               <el-row :gutter="20">
                 <el-col>
                   <el-row :gutter="1">
                     <el-col :span="10">
-                      <label>电机识别状态</label>
+                      <label>{{ $t('main.identifiedStatus') }}</label>
                     </el-col>
                     <el-col :span="14">
                       <div
@@ -525,7 +525,7 @@ async function upgrade_motor_fw(path) {
                 <el-col>
                   <el-row :gutter="1">
                     <el-col :span="10">
-                      <label>电机状态</label>
+                      <label>{{ $t('main.motorStatus') }}</label>
                     </el-col>
                     <el-col :span="14">
                       <el-input v-model="motorState" :readonly=true />
@@ -538,7 +538,7 @@ async function upgrade_motor_fw(path) {
                 <el-col>
                   <el-row :gutter="1">
                     <el-col :span="10">
-                      <label>MC状态</label>
+                      <label>{{ $t('main.mcStatus') }}</label>
                     </el-col>
                     <el-col :span="14">
                       <el-input v-model="mctrlState" :readonly=true />
@@ -551,7 +551,7 @@ async function upgrade_motor_fw(path) {
                 <el-col>
                   <el-row :gutter="1">
                     <el-col :span="10">
-                      <label>故障码</label>
+                      <label>{{ $t('main.errorCode') }}</label>
                     </el-col>
 
                     <el-col :span="8">
@@ -567,7 +567,7 @@ async function upgrade_motor_fw(path) {
                     </el-col>
                     <el-col :span="6" style="text-align: end;">
                       <el-button @click="clear_motor_faults" :disabled=!store.isConnected type="danger"
-                        plain>清除错误</el-button>
+                        plain>{{ $t('main.clearFaults') }}</el-button>
                     </el-col>
                   </el-row>
                 </el-col>
@@ -627,7 +627,7 @@ async function upgrade_motor_fw(path) {
                 <el-col>
                   <el-row :gutter="1">
                     <el-col :span="10">
-                      <label>磁极对数</label>
+                      <label>{{ $t('main.magPoles') }}</label>
                     </el-col>
                     <el-col :span="14">
                       <el-input v-model="poles" :readonly=true />
@@ -640,7 +640,7 @@ async function upgrade_motor_fw(path) {
                 <el-col>
                   <el-row :gutter="1">
                     <el-col :span="10">
-                      <label>母线电压 (V)</label>
+                      <label>{{ $t('main.busVol') }} (V)</label>
                     </el-col>
                     <el-col :span="14">
                       <el-input v-model="vdcBus" :readonly=true />
@@ -653,7 +653,7 @@ async function upgrade_motor_fw(path) {
                 <el-col>
                   <el-row :gutter="1">
                     <el-col :span="10">
-                      <label>最大加速度 (rps)</label>
+                      <label>{{ $t('main.maxAcc') }} (rps)</label>
                     </el-col>
                     <el-col :span="14">
                       <el-input v-model="accMaxHz" @input="update_acc_max" :readonly=!store.isConnected />
@@ -666,7 +666,7 @@ async function upgrade_motor_fw(path) {
                 <el-col>
                   <el-row :gutter="1">
                     <el-col :span="10">
-                      <label>启动加速度 (rps)</label>
+                      <label>{{ $t('main.startAcc') }} (rps)</label>
                     </el-col>
                     <el-col :span="14">
                       <el-input v-model="accStartHz" @input="update_acc_start" :readonly=!store.isConnected />
@@ -731,14 +731,14 @@ async function upgrade_motor_fw(path) {
                 <el-col>
                   <el-row :gutter="1">
                     <el-col :span="10">
-                      <label>固件版本</label>
+                      <label>{{ $t('main.fwVersion') }}</label>
                     </el-col>
                     <el-col :span="8">
                       {{ motor_version }}
                     </el-col>
                     <el-col :span="6" style="text-align: end;">
                       <el-button @click="updateDialogVisible = true" :disabled=store.isConnected type="primary"
-                        plain>升级固件</el-button>
+                        plain>{{ $t('main.upgrade') }}</el-button>
                     </el-col>
                   </el-row>
                 </el-col>
@@ -751,7 +751,7 @@ async function upgrade_motor_fw(path) {
     </el-row>
   </PageBase>
 
-  <UploadDialog v-model="updateDialogVisible" :handleUpload="upgrade_motor_fw" title="固件升级" uploadBtnName="升级"
+  <UploadDialog v-model="updateDialogVisible" :handleUpload="upgrade_motor_fw" :title="$t('fwUpgrade')" :uploadBtnName="$t('update')"
     :status="updateStatus" />
 
 </template>
@@ -774,7 +774,7 @@ async function upgrade_motor_fw(path) {
 
 @media (min-width: 1200px) {
   .el-scrollbar {
-      height: 85.5vh;
+    height: 85.5vh;
   }
 }
 </style>
@@ -789,5 +789,4 @@ async function upgrade_motor_fw(path) {
 ::v-deep(.el-scrollbar__wrap) {
   overflow-x: hidden;
 }
-
 </style>

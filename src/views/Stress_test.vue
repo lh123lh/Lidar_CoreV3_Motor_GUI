@@ -87,16 +87,16 @@ const tableRowClassName = ({ row }) => {
 </script>
 
 <template>
-  <PageBase title="启停测试">
+  <PageBase :title="$t('startStop.title')">
     <el-row :gutter="5">
       <el-col :span="16">
-        <cardBase title="日志">
+        <cardBase :title="$t('startStop.logs')">
           <template #content>
             <div class="logs">
               <el-scrollbar max-height="100%" class="mt-1">
                 <el-table :data="logs" :row-class-name="tableRowClassName" class="mt-n2">
-                  <el-table-column width="250" prop="timestamp" label="时间戳"></el-table-column>
-                  <el-table-column prop="message" label="日志消息"></el-table-column>
+                  <el-table-column width="250" prop="timestamp" :label="$t('startStop.timeStamp')"></el-table-column>
+                  <el-table-column prop="message" :label="$t('startStop.message')"></el-table-column>
                 </el-table>
               </el-scrollbar>
             </div>
@@ -104,11 +104,11 @@ const tableRowClassName = ({ row }) => {
         </cardBase>
       </el-col>
       <el-col :span="8">
-        <cardBase title="设置">
+        <cardBase :title="$t('startStop.settings')">
           <template #content>
             <el-row :gutter="5" class="mt-1">
               <el-col :span="12">
-                <label>测试次数:</label>
+                <label>{{ $t('startStop.testCnt') }}:</label>
               </el-col>
               <el-col :span="12">
                 <el-input v-model="totalCnt" :disabled="store.isTesting">
@@ -118,7 +118,7 @@ const tableRowClassName = ({ row }) => {
 
             <el-row :gutter="5" class="mt-1">
               <el-col :span="12">
-                <label>目标转速:</label>
+                <label>{{ $t('startStop.targetRps') }}:</label>
               </el-col>
               <el-col :span="12">
                 <el-input v-model="targetRps" :disabled="store.isTesting">
@@ -128,7 +128,7 @@ const tableRowClassName = ({ row }) => {
 
             <el-row :gutter="5" class="mt-1">
               <el-col :span="12">
-                <label>冷却时长:</label>
+                <label>{{ $t('startStop.coldDuration') }}:</label>
               </el-col>
               <el-col :span="12">
                 <el-input v-model="coldDuration" :disabled="store.isTesting">
@@ -149,18 +149,18 @@ const tableRowClassName = ({ row }) => {
             <el-row :gutter="5" class="mt-1">
               <el-col :span="24" style="text-align: end;">
                 <el-button type="primary" @click="handleStartTest" v-if="!store.isTesting" plain class="ms-auto"
-                  :disabled=!store.isConnected>开始测试</el-button>
-                <el-button type="danger" @click="handleStartTest" v-else plain class="ms-auto">停止测试</el-button>
+                  :disabled=!store.isConnected>{{ $t('start') }}</el-button>
+                <el-button type="danger" @click="handleStartTest" v-else plain class="ms-auto">{{ $t('stop') }}</el-button>
               </el-col>
             </el-row>
           </template>
         </cardBase>
 
-        <cardBase title="状态" class="mt-1">
+        <cardBase :title="$t('startStop.status')" class="mt-1">
           <template #content>
             <el-row :gutter="5" class="mt-1">
               <el-col :span="8">
-                <label>成功次数:</label>
+                <label>{{ $t('startStop.SuccessCnt') }}:</label>
               </el-col>
               <el-col :span="16">
                 {{ successCnt }}
@@ -169,7 +169,7 @@ const tableRowClassName = ({ row }) => {
 
             <el-row :gutter="5" class="mt-1">
               <el-col :span="8">
-                <label>失败次数:</label>
+                <label>{{ $t('startStop.FailedCnt') }}:</label>
               </el-col>
               <el-col :span="16">
                 {{ failedCnt }}
@@ -178,7 +178,7 @@ const tableRowClassName = ({ row }) => {
 
             <el-row :gutter="5" class="mt-1">
               <el-col :span="8">
-                <label>测试时长:</label>
+                <label>{{ $t('startStop.testDuration') }}:</label>
               </el-col>
               <el-col :span="16">
                 {{ testDurationFormated }}

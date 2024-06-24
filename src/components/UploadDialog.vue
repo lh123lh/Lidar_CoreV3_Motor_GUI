@@ -39,11 +39,11 @@ const props = defineProps({
     <span>
       <el-row :gutter="10">
         <el-col :span="19">
-          <el-input v-model="filePath" placeholder="选择文件" size="normal" @click="selectUploadFile" :readonly=true
+          <el-input v-model="filePath" :placeholder="$t('selectFile')" @click="selectUploadFile" :readonly=true
             :disabled="status"></el-input>
         </el-col>
         <el-col :span="4">
-          <el-button @click="selectUploadFile" type="success" plain :disabled="status">选择文件</el-button>
+          <el-button @click="selectUploadFile" type="success" plain :disabled="status">{{ $t('selectFile') }}</el-button>
         </el-col>
       </el-row>
 
@@ -55,7 +55,7 @@ const props = defineProps({
           {{ uploadBtnName }}
         </el-button>
         <el-button v-else type="primary" loading>
-          {{ uploadBtnName }}中
+          {{ uploadBtnName }}
         </el-button>
       </div>
     </template>

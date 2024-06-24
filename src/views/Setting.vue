@@ -30,6 +30,7 @@ const isDark = useDark({ disableTransition: false });
 const toggleDark = useToggle(isDark);
 
 const { locale } = useI18n()
+const { t } = useI18n()
 
 const language = ref({ value: '中文', lang: 'zh' })
 const supportLangs = [
@@ -56,7 +57,7 @@ async function handleCheckUpdate() {
       updateDialogVisible.value = true;
     }
     else {
-      cmds.notify_success("已是最新版本");
+      cmds.notify_success(t('settings.alreadyUpdated'));
     }
   } catch (error) {
     console.error(error);
@@ -72,16 +73,16 @@ async function getAppVersion() {
 </script>
 
 <template>
-  <PageBase title="设置">
+  <PageBase :title="$t('settings.title')">
     <el-row :gutter="5">
       <el-col :xs="12" :sm="12" :md="12" :lg="12" :xl="12">
-        <cardBase title="电机设置">
+        <cardBase :title="$t('settings.motorSetting')">
           <template #content>
             <ul>
               <li @click="motorParamDialog = true" :class="{ disabled: !status.isConnected }">
                 <div class="setting-item setting-item-clickable" v-wave>
                   <div>
-                    电机特性参数设置
+                    {{ $t('settings.motorSpecialParamsSetting') }}
                   </div>
                   <el-link :underline="false" class="ms-auto">
                     <el-icon :size="20">
@@ -94,7 +95,7 @@ async function getAppVersion() {
               <li class="disabled">
                 <div class="setting-item setting-item-clickable" v-wave>
                   <div>
-                    编码器设置
+                    {{ $t('settings.encoderSetting') }}
                   </div>
                   <el-link :underline="false" :disabled=!status.isConnected class="ms-auto">
                     <el-icon :size="20">
@@ -107,13 +108,13 @@ async function getAppVersion() {
           </template>
         </cardBase>
 
-        <cardBase title="辅助工具" class="mt-1">
+        <cardBase :title="$t('settings.tools')" class="mt-1">
           <template #content>
             <ul>
               <li @click="fwMergeDialog = true">
                 <div class="setting-item setting-item-clickable" v-wave>
                   <div>
-                    合并Hex
+                    {{ $t('settings.mergeHex') }}
                   </div>
                   <el-link :underline="false" class="ms-auto" @click="fwMergeDialog = true">
                     <el-icon :size="20">
@@ -128,13 +129,13 @@ async function getAppVersion() {
         </cardBase>
       </el-col>
       <el-col :xs="12" :sm="12" :md="12" :lg="12" :xl="12">
-        <cardBase title="系统设置">
+        <cardBase :title="$t('settings.systemSetting')">
           <template #content>
             <ul>
               <li>
                 <div class="setting-item">
                   <div>
-                    语言设置
+                    {{ $t('settings.language') }}
                   </div>
                   <el-select v-model="language" style="width: 100px" @change="changeLanguage(language.lang)"
                     class="ms-auto">
@@ -147,7 +148,7 @@ async function getAppVersion() {
               <li>
                 <div class="setting-item">
                   <div @click.stop="toggleDark()">
-                    暗黑模式
+                    {{ $t('settings.darkMode') }}
                   </div>
                   <el-switch class="ms-auto" v-model="isDark" :active-action-icon="Moon"
                     :inactive-action-icon="Sunny" />
@@ -157,7 +158,7 @@ async function getAppVersion() {
               <li @click="handleCheckUpdate()">
                 <div class="setting-item setting-item-clickable" v-wave>
                   <div>
-                    检查更新
+                    {{ $t('settings.checkUpdate') }}
                   </div>
                   <el-link :underline="false" class="ms-auto">
                     <el-icon v-if="!checkingUpdate" :size="20">
@@ -173,7 +174,7 @@ async function getAppVersion() {
               <li>
                 <div class="setting-item">
                   <div>
-                    应用版本
+                    {{ $t('settings.appVersion') }}
                   </div>
                   <div class="ms-auto">
                     v{{ appVersion }}

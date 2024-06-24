@@ -30,7 +30,7 @@ async function handleUpdate() {
 </script>
 
 <template>
-  <el-dialog v-model="visable" title="版本更新" width="500" :lock-scroll="false">
+  <el-dialog v-model="visable" :title="$t('fwUpgrade')" width="500" :lock-scroll="false">
     <div class="ms-5">
       <MarkdownDisplay :markdown="updateInfo.manifest" />
     </div>
@@ -41,10 +41,10 @@ async function handleUpdate() {
       <div class="dialog-footer">
         <el-button @click="visable = false" :disabled="status">Cancel</el-button>
         <el-button v-if="!status" type="primary" @click="handleUpdate()">
-          下载
+          {{ $t('download') }}
         </el-button>
         <el-button v-else type="primary" loading>
-          下载中
+          {{ $t('downloading') }}
         </el-button>
       </div>
     </template>

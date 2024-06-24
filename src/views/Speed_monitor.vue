@@ -185,21 +185,21 @@ function onResize() {
 </script>
 
 <template>
-  <PageBase title="转速监控">
+  <PageBase :title="$t('spdMonitor.title')">
     <el-row :gutter="5">
       <el-col :span="16">
-        <cardBase title="转速趋势">
+        <cardBase :title="$t('spdMonitor.title')">
           <template #content>
             <div ref="chartContainer" class="monitor"></div>
           </template>
         </cardBase>
       </el-col>
       <el-col :span="8">
-        <cardBase title="趋势表设置">
+        <cardBase :title="$t('spdMonitor.trendSetting')">
           <template #content>
             <el-row :gutter="5" class="mt-1">
               <el-col :span="8">
-                <label>观测点数:</label>
+                <label>{{ $t('spdMonitor.ovservePoints') }}:</label>
               </el-col>
               <el-col :span="16">
                 <el-input v-model="trendPoints" :disabled="startObserv">
@@ -209,20 +209,20 @@ function onResize() {
 
             <el-row :gutter="5" class="mt-1">
               <el-col :span="24" style="text-align: end;">
-                <el-button type="primary" @click="handleStartObserv" v-if="!startObserv" plain
-                  class="ms-auto">开始观测</el-button>
+                <el-button type="primary" @click="handleStartObserv" v-if="!startObserv" plain class="ms-auto">{{
+                  $t('spdMonitor.startObserve') }}</el-button>
                 <el-button type="danger" @click="handleStartObserv" v-else plain class="ms-auto"
-                  :disabled="recording">停止观测</el-button>
+                  :disabled="recording">{{ $t('stop') }}</el-button>
               </el-col>
             </el-row>
           </template>
         </cardBase>
 
-        <cardBase title="转速记录" class="mt-1">
+        <cardBase :title="$t('spdMonitor.spdRecord')" class="mt-1">
           <template #content>
             <el-row :gutter="5" class="mt-1">
               <el-col :span="8">
-                <label>记录位置:</label>
+                <label>{{ $t('spdMonitor.recordLocation') }}:</label>
               </el-col>
               <el-col :span="16">
                 <el-input v-model="recodePath" @click="handleRecodeRps" :disabled="!startObserv || recording">
@@ -232,7 +232,7 @@ function onResize() {
 
             <el-row :gutter="5" class="mt-1">
               <el-col :span="8">
-                <label>记录时长:</label>
+                <label>{{ $t('spdMonitor.recordDuration') }}:</label>
               </el-col>
               <el-col :span="16">
                 {{ recordTimerFormated }}
@@ -242,8 +242,8 @@ function onResize() {
             <el-row :gutter="5" class="mt-1">
               <el-col :span="24" style="text-align: end;">
                 <el-button type="primary" v-if="!recording" @click="dialogVisable = true" plain class="ms-auto"
-                  :disabled="!startObserv">开始记录</el-button>
-                <el-button type="danger" v-else @click="startRecodeRps" plain class="ms-auto">停止记录</el-button>
+                  :disabled="!startObserv">{{ $t('spdMonitor.startRecord') }}</el-button>
+                <el-button type="danger" v-else @click="startRecodeRps" plain class="ms-auto">{{ $t('stop') }}</el-button>
               </el-col>
             </el-row>
 
@@ -271,13 +271,13 @@ function onResize() {
 
 <style scoped>
 .monitor {
-  width: 100%; 
+  width: 100%;
   height: 81vh;
 }
 
 @media (min-width: 1200px) {
   .monitor {
-      height: 86vh;
+    height: 86vh;
   }
 }
 </style>

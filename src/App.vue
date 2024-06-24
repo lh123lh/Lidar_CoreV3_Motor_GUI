@@ -8,16 +8,20 @@ import {
   checkUpdate,
 } from '@tauri-apps/api/updater'
 
+import { useI18n } from 'vue-i18n';
+
 import appUpdateDialog from './components/appUpdateDialog.vue';
+
+const { t } = useI18n();
 
 const updateInfo = appUpdateInfoStore();
 const updateDialogVisible = ref(false);
 
 const navs = ref([
-  { idx: "1", title: '电机控制', icon: 'icon-control', to: '/' },
-  { idx: "2", title: '转速监控', icon: 'icon-monitoring', to: '/speedMonitor' },
-  { idx: "3", title: '启停测试', icon: 'icon-stressTest', to: '/stressTest' },
-  { idx: "4", title: '设置', icon: 'icon-setting', to: '/setting' },
+  { idx: "1", title: t('menu.motorCtrl'), icon: 'icon-control', to: '/' },
+  { idx: "2", title: t('menu.spdMonitor'), icon: 'icon-monitoring', to: '/speedMonitor' },
+  { idx: "3", title: t('menu.startupTest'), icon: 'icon-stressTest', to: '/stressTest' },
+  { idx: "4", title: t('menu.setting'), icon: 'icon-setting', to: '/setting' },
 ])
 
 onMounted(() => {
