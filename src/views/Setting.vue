@@ -9,6 +9,8 @@ import MotorSpecialParamsDialog from '../components/MotorSpecialParamsDialog.vue
 import FwMergeDialog from '../components/FwMergeDialog.vue';
 import cmds from '../utils/cmds';
 
+import { ArrowRight, Sunny, Moon, Loading } from '@element-plus/icons-vue'
+
 import { appUpdateInfoStore } from '../stores/appUpdateInfo.js'
 import { checkUpdate } from '@tauri-apps/api/updater';
 import { getVersion } from '@tauri-apps/api/app';
@@ -17,13 +19,14 @@ import appUpdateDialog from '../components/appUpdateDialog.vue';
 
 const updateInfo = appUpdateInfoStore();
 const updateDialogVisible = ref(false);
+const checkingUpdate = ref(false);
 
 const status = useMotorStore();
 const motorParamDialog = ref(false);
 const fwMergeDialog = ref(false);
 const appVersion = ref("");
 
-const isDark = useDark({disableTransition: false});
+const isDark = useDark({ disableTransition: false });
 const toggleDark = useToggle(isDark);
 
 const { locale } = useI18n()
@@ -43,6 +46,7 @@ function changeLanguage(val) {
 }
 
 async function handleCheckUpdate() {
+  checkingUpdate.value = true;
   try {
     const { shouldUpdate, manifest } = await checkUpdate()
 
@@ -55,8 +59,10 @@ async function handleCheckUpdate() {
       cmds.notify_success("已是最新版本");
     }
   } catch (error) {
-    console.error(error)
+    console.error(error);
+    cmds.notify_failed(error);
   }
+  checkingUpdate.value = false;
 }
 
 async function getAppVersion() {
@@ -78,8 +84,8 @@ async function getAppVersion() {
                     电机特性参数设置
                   </div>
                   <el-link :underline="false" class="ms-auto">
-                    <el-icon :size="16">
-                      <SvgIcon iconName=icon-arrow-right />
+                    <el-icon :size="20">
+                      <ArrowRight />
                     </el-icon>
                   </el-link>
                 </div>
@@ -91,8 +97,8 @@ async function getAppVersion() {
                     编码器设置
                   </div>
                   <el-link :underline="false" :disabled=!status.isConnected class="ms-auto">
-                    <el-icon :size="16">
-                      <SvgIcon iconName=icon-arrow-right />
+                    <el-icon :size="20">
+                      <ArrowRight />
                     </el-icon>
                   </el-link>
                 </div>
@@ -110,8 +116,8 @@ async function getAppVersion() {
                     合并Hex
                   </div>
                   <el-link :underline="false" class="ms-auto" @click="fwMergeDialog = true">
-                    <el-icon :size="16">
-                      <SvgIcon iconName=icon-arrow-right />
+                    <el-icon :size="20">
+                      <ArrowRight />
                     </el-icon>
                   </el-link>
                 </div>
@@ -143,7 +149,8 @@ async function getAppVersion() {
                   <div @click.stop="toggleDark()">
                     暗黑模式
                   </div>
-                  <el-switch class="ms-auto" v-model="isDark" />
+                  <el-switch class="ms-auto" v-model="isDark" :active-action-icon="Moon"
+                    :inactive-action-icon="Sunny" />
                 </div>
               </li>
 
@@ -153,8 +160,11 @@ async function getAppVersion() {
                     检查更新
                   </div>
                   <el-link :underline="false" class="ms-auto">
-                    <el-icon :size="16">
-                      <SvgIcon iconName=icon-arrow-right />
+                    <el-icon v-if="!checkingUpdate" :size="20">
+                      <ArrowRight />
+                    </el-icon>
+                    <el-icon v-else :size="20" class="is-loading">
+                      <Loading />
                     </el-icon>
                   </el-link>
                 </div>
