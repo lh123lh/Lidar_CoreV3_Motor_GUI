@@ -111,7 +111,6 @@ enum SetCmdTypes {
     SetMotorStart,
     SetMotorStop,
     SetMotorReset,
-    SetMotorSpeedStartHz,
     SetEnableIndentify,
     SetEnableRsOnline,
     SetEnableRsRecalc,
