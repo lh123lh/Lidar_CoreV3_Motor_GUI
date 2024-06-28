@@ -72,6 +72,8 @@ enum GetCmdTypes {
     GetAccMax,
     GetPidSpd,
     GetPidIQ,
+    GetPosCtrlState,
+    GetSyncCtrlState,
     GetResEstCurrent,
     GetIndEstCurrent,
     GetMaxCurrent,
