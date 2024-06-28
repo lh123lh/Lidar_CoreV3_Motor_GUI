@@ -1,6 +1,6 @@
 [package]
 name = "lidar_corev3_motor_gui"
-version = "0.0.1"
+version = "0.2.2"
 description = "A Motor Control App"
 authors = ["calvin.liu"]
 edition = "2021"

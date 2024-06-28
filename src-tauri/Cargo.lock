@@ -1587,7 +1587,7 @@ dependencies = [
 
 [[package]]
 name = "lidar_corev3_motor_gui"
-version = "0.0.1"
+version = "0.2.2"
 dependencies = [
  "anyhow",
  "chrono",
