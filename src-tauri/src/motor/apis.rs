@@ -123,6 +123,8 @@ enum SetCmdTypes {
     SetKiIq,
     SetEnablePosCtrl,
     SetMotorPosition,
+    SetEnableSyncCtrl,
+    SetMotorSyncPhase,
     SetParamRs,
     SetParamLsD,
     SetParamLsQ,
