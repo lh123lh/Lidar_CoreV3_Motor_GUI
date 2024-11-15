@@ -272,7 +272,7 @@ impl Motor {
 
         if let Some(buf) = self.request(GetCmdTypes::GetMotorRps as u8, 0) {
             if buf.len() >= 4 {
-                rps = vec_to_int(&buf[0..4]) as f32 / 1000.0;
+                rps = vec_to_int(&buf[0..4]) as f32 / 100000.0;
             }
         }
 

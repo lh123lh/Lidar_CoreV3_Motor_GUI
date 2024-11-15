@@ -173,9 +173,9 @@ async function get_motor_runtime_params() {
 async function get_motor_current_rps() {
   await cmds.cmd_get_motor_current_rps()
     .then((data) => {
-      store.currRps = parseFloat(data.toFixed(3));
+      store.currRps = parseFloat(data.toFixed(5));
       // store.update(parseFloat(data.toFixed(3)));
-      if (store.currRps <= -1000.0) {
+      if (store.currRps <= -1000.0 && store.isConnected) {
         cmds.notify_failed("电机已断开连接");
         connect_motor();
       } else {
@@ -228,7 +228,7 @@ async function get_avaliable_ports() {
       serialPorts.value = data;
 
       // 在setInterval中定时查询可用端口时需要去掉下面的代码
-      serialPort.value = serialPorts.value[0];
+      // serialPort.value = serialPorts.value[0];
     })
 }
 
