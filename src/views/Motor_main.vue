@@ -80,6 +80,10 @@ const ctrlModes = [
   {
     value: 1,
     label: t('main.posMode'),
+  },
+  {
+    value: 2,
+    label: t('main.lineCurve'),
   }
 ]
 const ctrlMode = ref(0);
@@ -98,7 +102,7 @@ onMounted(() => { //组件挂载时的生命周期执行的方法
 
   window.setInterval(function timer() {
     if (store.isConnected && !store.isTesting) {
-      if (ctrlMode.value == 0)
+      if (ctrlMode.value == 0 || ctrlMode.value == 2)
         get_motor_current_rps()
       else
         get_motor_current_pos()
@@ -243,6 +247,7 @@ async function update_motor_rps() {
 
     motorStarted.value = true;
     startBtn.value = t('main.update');
+    await cmds.cmd_enable_motor_pos_ctrl(false, 0);
     await cmds.cmd_start_motor(parseFloat(targetRps.value))
   }
 }
@@ -253,8 +258,19 @@ async function update_motor_positon() {
   } else {
     motorStarted.value = true;
     startBtn.value = "更新";
-    await cmds.cmd_enable_motor_pos_ctrl(true);
-    await cmds.cmd_start_motor(parseFloat(10.0));
+    await cmds.cmd_enable_motor_pos_ctrl(true, 1);
+    await cmds.cmd_start_motor(parseFloat(0.0));
+  }
+}
+
+async function update_motor_lcurve_rps() {
+  if (motorStarted.value) {
+    await cmds.cmd_update_motor_rps(parseFloat(targetRps.value))
+  } else {
+    motorStarted.value = true;
+    startBtn.value = t('main.update');
+    await cmds.cmd_enable_motor_pos_ctrl(true, 2);
+    await cmds.cmd_start_motor(parseFloat(targetRps.value))
   }
 }
 
@@ -265,7 +281,7 @@ async function stop_motor() {
       startBtn.value = t('main.start');
     })
 
-  await cmds.cmd_enable_motor_pos_ctrl(false);
+  await cmds.cmd_enable_motor_pos_ctrl(false, 0);
 }
 
 async function enable_motor_identify(enable) {
@@ -454,7 +470,7 @@ async function upgrade_motor_fw(path) {
                   </el-col>
 
                 </el-row>
-                <el-row :gutter="5" v-else>
+                <el-row :gutter="5" v-else-if="ctrlMode == 1" >
                   <el-col :span="5">
                     <label>{{ $t('main.targetPos') }}</label>
                   </el-col>
@@ -480,6 +496,33 @@ async function upgrade_motor_fw(path) {
 
                   </el-col>
                 </el-row>
+                <el-row :gutter="5" v-else>
+                  <el-col :span="5">
+                    <label>{{ $t('main.targetRps') }}</label>
+                  </el-col>
+                  <el-col :span="10">
+                    <el-input v-model="targetRps" :disabled=!store.isConnected>
+                      <template #append>rps</template>
+                    </el-input>
+                  </el-col>
+
+                  <el-col :span="9">
+                    <el-row :gutter="5">
+                      <el-col :span="12">
+                        <el-button @click="update_motor_lcurve_rps" :disabled=!store.isConnected type="primary" plain>{{
+                          startBtn
+                          }}</el-button>
+                      </el-col>
+                      <el-col :span="12">
+                        <el-button @click="stop_motor" :disabled=!motorStarted type="warning" plain>{{
+                          $t('main.stop')
+                          }}</el-button>
+                      </el-col>
+                    </el-row>
+
+                  </el-col>
+
+                </el-row>
               </el-col>
             </el-row>
           </template>
@@ -492,10 +535,17 @@ async function upgrade_motor_fw(path) {
             </div>
           </template>
         </cardBase>
-        <cardBase v-else :title="$t('main.realTimePos')" class="mt-1">
+        <cardBase v-else-if="ctrlMode == 1" :title="$t('main.realTimePos')" class="mt-1">
           <template #content>
             <div>
               <MotorPosGuage :value="currentPos" height="38vh" />
+            </div>
+          </template>
+        </cardBase>
+        <cardBase v-else :title="$t('main.realTimeSpd')" class="mt-1">
+          <template #content>
+            <div>
+              <SpeedMeter :value="currentRps" height="38vh" />
             </div>
           </template>
         </cardBase>

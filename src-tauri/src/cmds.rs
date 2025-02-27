@@ -89,7 +89,7 @@ pub async fn update_motor_rps(rps: f32) -> CmdResult {
     MOTOR
         .lock()
         .unwrap()
-        .update_motor_speed_rps((rps * 1000.0) as u32)
+        .update_motor_speed_rps((rps * 100000.0) as u32)
         .unwrap();
 
     Ok(())
@@ -202,7 +202,7 @@ pub async fn start_motor(rps: f32) -> CmdResult {
     MOTOR
         .lock()
         .unwrap()
-        .update_motor_speed_rps((rps * 1000.0) as u32)
+        .update_motor_speed_rps((rps * 100000.0) as u32)
         .unwrap();
 
     std::thread::sleep(std::time::Duration::from_millis(100));
@@ -221,8 +221,8 @@ pub async fn stop_motor() -> CmdResult {
 }
 
 #[tauri::command]
-pub async fn enable_motor_pos_ctrl(en: bool) -> CmdResult {
-    MOTOR.lock().unwrap().set_motor_pos_ctrl_enable(en).unwrap();
+pub async fn enable_motor_pos_ctrl(en: bool, mode: u8) -> CmdResult {
+    MOTOR.lock().unwrap().set_motor_pos_ctrl_enable(en, mode).unwrap();
 
     Ok(())
 }

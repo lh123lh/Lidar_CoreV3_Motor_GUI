@@ -343,9 +343,9 @@ function cmd_update_ki_iq(ki) {
   })
 }
 
-function cmd_enable_motor_pos_ctrl(enable) {
+function cmd_enable_motor_pos_ctrl(enable, mode) {
   return new Promise(function (resolve, reject) {
-    invoke('enable_motor_pos_ctrl', { en: enable })
+    invoke('enable_motor_pos_ctrl', { en: enable, mode: mode })
       .then((data) => {
         resolve(data);
       })

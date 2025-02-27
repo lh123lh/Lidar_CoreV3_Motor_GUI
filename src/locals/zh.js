@@ -23,6 +23,7 @@ export default {
     stop: '停止',
     speedMode: '速度模式',
     posMode: '位置模式',
+    lineCurve: '线性轨迹规划',
 
     realTimeSpd: '实时转速',
     realTimePos: '实时位置',

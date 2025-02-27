@@ -74,7 +74,7 @@ enum GetCmdTypes {
     GetPidIQ,
     GetPosCtrlState,
     GetSyncCtrlState,
-    GetResEstCurrent,
+    GetResEstCurrent = 0x50,
     GetIndEstCurrent,
     GetMaxCurrent,
     GetFluxExecFreq,
@@ -127,7 +127,7 @@ enum SetCmdTypes {
     SetMotorPosition,
     SetEnableSyncCtrl,
     SetMotorSyncPhase,
-    SetParamRs,
+    SetParamRs = 0xC0,
     SetParamLsD,
     SetParamLsQ,
     SetParamFlux,
@@ -855,8 +855,8 @@ impl Motor {
         Ok(())
     }
 
-    pub fn set_motor_pos_ctrl_enable(&mut self, en: bool) -> Result<()> {
-        if let Some(_) = self.request(SetCmdTypes::SetEnablePosCtrl as u8, en as i32) {}
+    pub fn set_motor_pos_ctrl_enable(&mut self, en: bool, mode: u8) -> Result<()> {
+        if let Some(_) = self.request(SetCmdTypes::SetEnablePosCtrl as u8, (en as i32) << 16 | (mode as i32)) {}
         Ok(())
     }
 

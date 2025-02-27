@@ -23,6 +23,7 @@ export default {
     stop: 'Stop',
     speedMode: 'speedMode',
     posMode: 'positionMode',
+    lineCurve: 'lineCurve',
 
     realTimeSpd: 'RealTime Speed',
     realTimePos: 'RealTime Position',
