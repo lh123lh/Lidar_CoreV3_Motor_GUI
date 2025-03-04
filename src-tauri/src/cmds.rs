@@ -1,4 +1,7 @@
-use crate::{motor::*, tools};
+use crate::{
+    motor::*,
+    tools::{self, RELAY},
+};
 use anyhow::Result;
 use serde_json::Value;
 use serialport;
@@ -222,7 +225,11 @@ pub async fn stop_motor() -> CmdResult {
 
 #[tauri::command]
 pub async fn enable_motor_pos_ctrl(en: bool, mode: u8) -> CmdResult {
-    MOTOR.lock().unwrap().set_motor_pos_ctrl_enable(en, mode).unwrap();
+    MOTOR
+        .lock()
+        .unwrap()
+        .set_motor_pos_ctrl_enable(en, mode)
+        .unwrap();
 
     Ok(())
 }
@@ -307,8 +314,8 @@ pub async fn stop_record_rps() -> CmdResult {
 }
 
 #[tauri::command]
-pub async fn start_startup_task(rps: f32, count: u32, cold: u32) -> CmdResult {
-    STARTUPTEST.lock().unwrap().start(rps, count, cold);
+pub async fn start_startup_task(test_param: StartUpTestParam) -> CmdResult {
+    STARTUPTEST.lock().unwrap().start(test_param);
 
     Ok(())
 }
@@ -324,6 +331,47 @@ pub async fn get_startup_test_result() -> CmdResult<TestResult> {
     let result = STARTUPTEST.lock().unwrap().get_test_result().unwrap();
 
     Ok(result)
+}
+
+#[tauri::command]
+pub async fn init_relay_port(sp: &str, baud: u32) -> CmdResult {
+    // 初始化 SerialPort 实例
+    let result = serialport::new(sp, baud)
+        .timeout(Duration::from_millis(50))
+        .open();
+
+    match result {
+        Ok(port_new) => {
+            RELAY.lock().unwrap().port = Some(port_new);
+            RELAY.lock().unwrap().turn_on().unwrap();
+            std::thread::sleep(Duration::from_millis(500));
+            RELAY.lock().unwrap().turn_off().unwrap();
+            return Ok(());
+        }
+        Err(e) => {
+            println!("{}", e);
+            return Err("Failed To connect relay port".to_string());
+        }
+    }
+}
+
+#[tauri::command]
+pub async fn deinit_relay_port() -> CmdResult {
+    RELAY.lock().unwrap().turn_off().unwrap();
+    RELAY.lock().unwrap().port = None;
+    println!("deinit relay port");
+    Ok(())
+}
+
+#[tauri::command]
+pub async fn set_relay_power(on: bool) -> CmdResult {
+    if on {
+        RELAY.lock().unwrap().turn_on().unwrap();
+    } else {
+        RELAY.lock().unwrap().turn_off().unwrap();
+    }
+
+    Ok(())
 }
 
 #[tauri::command]

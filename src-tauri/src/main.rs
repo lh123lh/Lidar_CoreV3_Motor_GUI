@@ -53,6 +53,9 @@ async fn main() {
             cmds::start_startup_task,
             cmds::stop_startup_task,
             cmds::get_startup_test_result,
+            cmds::init_relay_port,
+            cmds::deinit_relay_port,
+            cmds::set_relay_power,
             cmds::upgrade_motor_fw,
             cmds::merge_firmware,
         ])

@@ -1,5 +1,6 @@
 use crate::logger::LOGGER;
 use crate::motor::*;
+use crate::tools::RELAY;
 use anyhow::{Ok, Result};
 use libm;
 use once_cell::sync::Lazy;
@@ -15,6 +16,15 @@ enum TestStatus {
     Rotating,     // 转动中
     RotatFailed,  // 启动失败
     RotatSuccess, // 达到目标转速
+}
+
+#[derive(Debug, PartialEq, Serialize, Deserialize, Clone)]
+pub struct StartUpTestParam {
+    target_rps: f32,
+    total_count: u32,
+    rotate_duration: u32,
+    cold_duration: u32,
+    has_relay: bool,
 }
 
 #[derive(Debug, PartialEq, Serialize, Deserialize, Clone)]
@@ -46,7 +56,7 @@ impl StartupTestHandle {
         }
     }
 
-    pub fn start(&self, target_rps: f32, total_count: u32, cold_duration: u32) {
+    pub fn start(&self, test_param: StartUpTestParam) {
         let running = Arc::clone(&self.running);
         let mut handle_guard = self.handle.lock().unwrap();
         let total_cnt = Arc::clone(&self.total_cnt);
@@ -54,7 +64,7 @@ impl StartupTestHandle {
         let success_cnt = Arc::clone(&self.success_cnt);
 
         // 重置计数
-        *total_cnt.lock().unwrap() = total_count;
+        *total_cnt.lock().unwrap() = test_param.total_count;
         *failed_cnt.lock().unwrap() = 0;
         *success_cnt.lock().unwrap() = 0;
 
@@ -69,11 +79,19 @@ impl StartupTestHandle {
                 let mut reached_cnt = 0; // 达到目标转速计数
                 while running.load(Ordering::SeqCst) {
                     {
-                        // 1. 启动电机
+                        // 电机上电
+                        if test_param.has_relay {
+                            RELAY.lock().unwrap().turn_on().unwrap();
+                        }
+
+                        // 等待电机上电完成
+                        std::thread::sleep(std::time::Duration::from_millis(2000));
+
+                        // 启动电机
                         MOTOR
                             .lock()
                             .unwrap()
-                            .update_motor_speed_rps((target_rps * 1000.0) as u32)
+                            .update_motor_speed_rps((test_param.target_rps * 100000.0) as u32)
                             .unwrap();
                         std::thread::sleep(std::time::Duration::from_millis(100));
                         MOTOR.lock().unwrap().start_motor().unwrap();
@@ -87,7 +105,7 @@ impl StartupTestHandle {
                             .info(format!("开始第{}次测试", test_cnt).as_str());
 
                         loop {
-                            let status = Self::get_test_status(&target_rps).unwrap();
+                            let status = Self::get_test_status(&test_param.target_rps).unwrap();
                             match status {
                                 TestStatus::Rotating => {}
                                 TestStatus::RotatSuccess => {
@@ -104,8 +122,8 @@ impl StartupTestHandle {
                                 } // 启动失败
                             }
 
-                            // 需要连续3秒钟都达到目标转速才判定为测试通过
-                            if reached_cnt >= 3 {
+                            // 需要连续n秒钟都达到目标转速才判定为测试通过
+                            if reached_cnt >= test_param.rotate_duration {
                                 reached_cnt = 0;
                                 *success_cnt.lock().unwrap() += 1;
                                 LOGGER
@@ -123,7 +141,7 @@ impl StartupTestHandle {
                             std::thread::sleep(std::time::Duration::from_millis(1000));
 
                             // 启动超时则判定为启动失败
-                            if start.elapsed().as_millis() > 20000 {
+                            if start.elapsed().as_millis() > (test_param.rotate_duration * 1000 * 2) as u128 {
                                 reached_cnt = 0;
                                 *failed_cnt.lock().unwrap() += 1;
                                 LOGGER
@@ -136,16 +154,21 @@ impl StartupTestHandle {
 
                         MOTOR.lock().unwrap().stop_motor().unwrap();
 
+                        // 电机断电
+                        if test_param.has_relay {
+                            RELAY.lock().unwrap().turn_off().unwrap();
+                        }
+
                         // 等待电机停止转动并冷却
                         let start = Instant::now();
                         while running.load(Ordering::SeqCst) {
                             thread::sleep(std::time::Duration::from_millis(100));
-                            if start.elapsed().as_millis() > (1000 * cold_duration) as u128 {
+                            if start.elapsed().as_millis() > (1000 * test_param.cold_duration) as u128 {
                                 break;
                             }
                         }
 
-                        if test_cnt >= total_count {
+                        if test_cnt >= test_param.total_count {
                             LOGGER.lock().unwrap().warning(format!("测试完成").as_str());
                             break;
                         }

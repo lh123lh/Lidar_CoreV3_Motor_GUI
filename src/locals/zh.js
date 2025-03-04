@@ -61,7 +61,16 @@ export default {
     settings: '设置',
     testCnt: '测试次数',
     targetRps: '目标转速',
+    rotateDuration: '转动时长',
     coldDuration: '冷却时长',
+
+    relay: '继电器',
+    relayPort: '串口',
+    relayBaud: '波特率',
+    relayConnect: '连接',
+    relayDisconnect: '断开',
+    relayStart: '上电',
+    relayStop: '断电',
 
     status: '状态',
     SuccessCnt: '成功次数',

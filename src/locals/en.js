@@ -61,7 +61,16 @@ export default {
     settings: 'Setting',
     testCnt: 'Test Count',
     targetRps: 'Target Rps',
+    rotateDuration: 'Rotate Duration',
     coldDuration: 'Cold Duration',
+
+    relay: 'Relay',
+    relayPort: 'Port',
+    relayBaud: 'Baudrate',
+    relayConnect: 'Connect',
+    relayDisconnect: 'Disconnect',
+    relayStart: 'Start',
+    relayStop: 'Stop',
 
     status: 'Status',
     SuccessCnt: 'Success Cnt',

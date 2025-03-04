@@ -405,9 +405,9 @@ function cmd_stop_record_rps() {
   })
 }
 
-function cmd_start_startup_test(rps, count, cold_duration) {
+function cmd_start_startup_test(test_param) {
   return new Promise(function (resolve, reject) {
-    invoke('start_startup_task', { rps: rps, count: count, cold: cold_duration })
+    invoke('start_startup_task', { testParam: test_param })
       .then((data) => {
         resolve(data);
       })
@@ -515,6 +515,45 @@ function cmd_merge_motor_fw(boot, app, output) {
   })
 }
 
+function cmd_connect_relay(sp, baud) {
+  return new Promise(function (resolve, reject) {
+    invoke('init_relay_port', { sp: sp, baud: baud })
+      .then((data) => {
+        resolve(data)
+      })
+      .catch((error) => {
+        console.log(error)
+        notify_failed(error)
+      })
+  })
+}
+
+function cmd_disconnect_relay() {
+  return new Promise(function (resolve, reject) {
+    invoke('deinit_relay_port', {})
+      .then((data) => {
+        resolve(data)
+      })
+      .catch((error) => {
+        console.log(error)
+        notify_failed(error)
+      })
+  })
+}
+
+function cmd_set_relay_power(on) {
+  return new Promise(function (resolve, reject) {
+    invoke('set_relay_power', { on: on })
+      .then((data) => {
+        resolve(data)
+      })
+      .catch((error) => {
+        console.log(error)
+        notify_failed(error)
+      })
+  })
+}
+
 export default {
   notify_success,
   notify_failed,
@@ -553,4 +592,7 @@ export default {
   cmd_import_motor_special_params,
   cmd_upgrade_motor_fw,
   cmd_merge_motor_fw,
+  cmd_connect_relay,
+  cmd_disconnect_relay,
+  cmd_set_relay_power,
 }

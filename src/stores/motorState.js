@@ -64,6 +64,13 @@ export const MotorParams = defineStore('params', () => {
   return { feature_param, startup_param, fault_check_param, encoder_param, adc_param };
 })
 
+export const useRelayStore = defineStore('relay', () => {
+  const isConnected = ref(false);
+  const isPowerOn = ref(false);
+
+  return { isConnected, isPowerOn };
+})
+
 // export const useMotorStore = defineStore('motor', {
 //   state: () => ({ currRps: 0.0 }),
 //   getters: {
