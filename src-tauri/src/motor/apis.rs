@@ -39,6 +39,7 @@ pub struct MotorStatus {
     pub mctrl_state: Option<String>,
     pub rsonline_en: Option<bool>,
     pub rsrecalc_en: Option<bool>,
+    pub identify_en: Option<bool>,
 }
 
 #[derive(Debug, Serialize)]
@@ -74,6 +75,7 @@ enum GetCmdTypes {
     GetPidIQ,
     GetPosCtrlState,
     GetSyncCtrlState,
+    GetIdentifyState,
     GetResEstCurrent = 0x50,
     GetIndEstCurrent,
     GetMaxCurrent,
@@ -84,7 +86,7 @@ enum GetCmdTypes {
     GetAlignCurrent,
     GetStartupCurrent,
     GetTorqueCurrent,
-    GetSpeedStart,
+    GetSpeedStart = 0x5B,
     GetSpeedForce,
     GetOverCurrentFault,
     GetOverVoltageFault,
@@ -430,11 +432,18 @@ impl Motor {
         let mut mctrl_state = String::from("IDEL");
         let mut rsonline_en = false;
         let mut rsrecalc_en = false;
+        let mut identify_en = false;
 
         if let Some(buf) = self.request(GetCmdTypes::GetMotorStatus as u8, 0) {
             if buf.len() >= 4 {
                 error_code = vec_to_short(&buf[1..3]) as u16;
                 motor_state = self.motor_state_to_string(&buf[3]);
+            }
+        }
+
+        if let Some(buf) = self.request(GetCmdTypes::GetIdentifyState as u8, 0) {
+            if buf.len() >= 4 {
+                identify_en = vec_to_int(&buf) != 0;
             }
         }
 
@@ -454,6 +463,7 @@ impl Motor {
             mctrl_state: Some(mctrl_state),
             rsonline_en: Some(rsonline_en),
             rsrecalc_en: Some(rsrecalc_en),
+            identify_en: Some(identify_en),
         })
     }
 
@@ -856,7 +866,10 @@ impl Motor {
     }
 
     pub fn set_motor_pos_ctrl_enable(&mut self, en: bool, mode: u8) -> Result<()> {
-        if let Some(_) = self.request(SetCmdTypes::SetEnablePosCtrl as u8, (en as i32) << 16 | (mode as i32)) {}
+        if let Some(_) = self.request(
+            SetCmdTypes::SetEnablePosCtrl as u8,
+            (en as i32) << 16 | (mode as i32),
+        ) {}
         Ok(())
     }
 
@@ -882,7 +895,13 @@ impl Motor {
         let crc = crc_engine.checksum(&cmd[2..8]);
         cmd.insert(cmd.len() - 2, crc);
 
+        if msg_type == 90 {
+          println!("{:?}", cmd);
+        }
+
         if let Some(ref mut port) = self.port {
+            port.flush().unwrap();
+
             match port.write(&cmd) {
                 core::result::Result::Ok(_) => {
                     // read msg
@@ -912,13 +931,13 @@ impl Motor {
                             return Some(buf[4..len + 4].to_vec());
                         }
                         Err(e) => {
-                            eprintln!("{:?}", e);
+                            eprintln!("sp read failed, msg type [{}]: {:?}", msg_type, e);
                             return None;
                         }
                     }
                 }
                 Err(e) => {
-                    eprintln!("{:?}", e);
+                    eprintln!("sp write failed: {:?}", e);
                     return None;
                 }
             }

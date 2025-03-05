@@ -22,6 +22,16 @@ function notify_failed(msg) {
   })
 }
 
+function notify_warning(msg) {
+  ElNotification({
+    title: 'Warning',
+    message: msg,
+    type: 'warning',
+    showClose: true,
+    duration: 1500,
+  })
+}
+
 function formatSeconds(sec) {
   const date = new Date(sec * 1000);
   const hours = date.getUTCHours();
@@ -557,6 +567,7 @@ function cmd_set_relay_power(on) {
 export default {
   notify_success,
   notify_failed,
+  notify_warning,
   formatSeconds,
   cmd_connect_motor,
   cmd_disconnect_motor,

@@ -12,6 +12,7 @@ export default {
     serialPort: '串口',
     baudRate: '波特率',
     ctrlMode: '控制模式',
+    identify: '电机参数识别',
     rsOnline: 'Rs在线估算',
     rsReCalc: 'Rs重校准',
     targetRps: '目标转速',

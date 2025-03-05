@@ -12,6 +12,7 @@ export default {
     serialPort: 'SerialPort',
     baudRate: 'BaudRate',
     ctrlMode: 'Ctrl Mode',
+    identify: 'Motor Identify',
     rsOnline: 'Rs Online',
     rsReCalc: 'Rs Recalc',
     targetRps: 'Target Rps',

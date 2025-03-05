@@ -25,8 +25,7 @@ const targetRps = ref(0.00);
 const currentRps = ref(0.00);
 const currentPos = ref(0.0);
 const vdcBus = ref(0.0);
-const enableRsOnline = ref(false);
-const enableRsReCalc = ref(false);
+const enableIdentify = ref(false);
 const motorIdentified = ref(false);
 const motorStarted = ref(false);
 const updateDialogVisible = ref(false);
@@ -97,6 +96,10 @@ onMounted(() => { //组件挂载时的生命周期执行的方法
     if (store.isConnected && !store.isTesting) {
       get_motor_runtime_params();
       get_motor_status();
+
+      if (enableIdentify.value) {
+        get_motor_static_params();
+      }
     }
   }, 1000);
 
@@ -122,12 +125,11 @@ onDeactivated(() => {
   isActived.value = false;
 })
 
-watch(enableRsOnline, (newVal, oldVal) => {
-  enable_motor_rs_online(enableRsOnline.value);
-})
-
-watch(enableRsReCalc, (newVal, oldVal) => {
-  enable_motor_rs_recalc(enableRsReCalc.value);
+watch(enableIdentify, (newVal, oldVal) => {
+  if (enableIdentify.value) {
+    cmds.notify_warning("请确保固件中仅启用了FAST估算器!");
+  }
+  enable_motor_identify(enableIdentify.value);
 })
 
 async function connect_motor() {
@@ -219,8 +221,12 @@ async function get_motor_status() {
       errorCode.value = data.error_code;
       motorState.value = data.motor_state;
       mctrlState.value = data.mctrl_state;
-      enableRsOnline.value = data.rsonline_en;
-      enableRsReCalc.value = data.rsrecalc_en;
+
+      if (enableIdentify.value == true && motorIdentified.value == true) {
+        cmds.notify_success("电机参数识别完成!");
+      }
+
+      enableIdentify.value = data.identify_en;
 
       errorCodeForm.value = parseErrorCode.getFaultStates(errorCode.value);
     })
@@ -243,6 +249,10 @@ async function update_motor_rps() {
     if (targetRps.value == 0) {
       cmds.notify_failed("请先设置目标转速");
       return;
+    }
+
+    if (enableIdentify.value) {
+      cmds.notify_warning("开始识别电机参数,请勿进行任何操作!在识别过程中可能会发出异常响声,不必担心😉!");
     }
 
     motorStarted.value = true;
@@ -367,7 +377,7 @@ async function upgrade_motor_fw(path) {
       <el-col :span="12">
         <cardBase :title="$t('main.motorCfg')">
           <template #content>
-            <el-row :gutter="5" class="mt-1">
+            <el-row :gutter="5" class="mt-2">
               <el-col>
                 <el-row>
                   <el-col :span="5">
@@ -382,7 +392,7 @@ async function upgrade_motor_fw(path) {
               </el-col>
             </el-row>
 
-            <el-row :gutter="5" class="mt-1">
+            <el-row :gutter="5" class="mt-2">
               <el-col>
                 <el-row :gutter="5">
                   <el-col :span="5">
@@ -400,7 +410,7 @@ async function upgrade_motor_fw(path) {
               </el-col>
             </el-row>
 
-            <el-row :gutter="5" class="mt-1">
+            <el-row :gutter="5" class="mt-2">
               <el-col>
                 <el-row :gutter="5">
                   <el-col :span="5">
@@ -415,33 +425,20 @@ async function upgrade_motor_fw(path) {
               </el-col>
             </el-row>
 
-            <el-row :gutter="5" class="mt-0">
+            <el-row :gutter="5" class="mt-2">
               <el-col>
                 <el-row :gutter="5">
                   <el-col :span="15">
-                    <label>{{ $t('main.rsOnline') }}</label>
+                    <label>{{ $t('main.identify') }}</label>
                   </el-col>
                   <el-col :span="4">
-                    <el-switch v-model="enableRsOnline" :disabled=!store.isConnected />
+                    <el-switch v-model="enableIdentify" :disabled=!store.isConnected />
                   </el-col>
                 </el-row>
               </el-col>
             </el-row>
 
-            <el-row :gutter="5" class="mt-0">
-              <el-col>
-                <el-row :gutter="5">
-                  <el-col :span="15">
-                    <label>{{ $t('main.rsReCalc') }}</label>
-                  </el-col>
-                  <el-col :span="4">
-                    <el-switch v-model="enableRsReCalc" :disabled=!store.isConnected />
-                  </el-col>
-                </el-row>
-              </el-col>
-            </el-row>
-
-            <el-row :gutter="5" class="mt-1">
+            <el-row :gutter="5" class="mt-2">
               <el-col>
                 <el-row :gutter="5" v-if="ctrlMode == 0">
                   <el-col :span="5">
@@ -470,7 +467,7 @@ async function upgrade_motor_fw(path) {
                   </el-col>
 
                 </el-row>
-                <el-row :gutter="5" v-else-if="ctrlMode == 1" >
+                <el-row :gutter="5" v-else-if="ctrlMode == 1">
                   <el-col :span="5">
                     <label>{{ $t('main.targetPos') }}</label>
                   </el-col>
@@ -555,7 +552,7 @@ async function upgrade_motor_fw(path) {
       <el-col :span="12">
         <cardBase :title="$t('main.status')">
           <template #content>
-            <el-scrollbar height="80.5vh" class="mt-1">
+            <el-scrollbar height="79vh" class="mt-1">
               <el-row :gutter="20">
                 <el-col>
                   <el-row :gutter="1">
@@ -616,8 +613,9 @@ async function upgrade_motor_fw(path) {
 
                     </el-col>
                     <el-col :span="6" style="text-align: end;">
-                      <el-button @click="clear_motor_faults" :disabled=!store.isConnected type="danger"
-                        plain>{{ $t('main.clearFaults') }}</el-button>
+                      <el-button @click="clear_motor_faults" :disabled=!store.isConnected type="danger" plain>{{
+                        $t('main.clearFaults')
+                      }}</el-button>
                     </el-col>
                   </el-row>
                 </el-col>
@@ -787,8 +785,8 @@ async function upgrade_motor_fw(path) {
                       {{ motor_version }}
                     </el-col>
                     <el-col :span="6" style="text-align: end;">
-                      <el-button @click="updateDialogVisible = true" :disabled=store.isConnected type="primary"
-                        plain>{{ $t('main.upgrade') }}</el-button>
+                      <el-button @click="updateDialogVisible = true" :disabled=store.isConnected type="primary" plain>{{
+                        $t('main.upgrade') }}</el-button>
                     </el-col>
                   </el-row>
                 </el-col>
@@ -801,8 +799,8 @@ async function upgrade_motor_fw(path) {
     </el-row>
   </PageBase>
 
-  <UploadDialog v-model="updateDialogVisible" :handleUpload="upgrade_motor_fw" :title="$t('fwUpgrade')" :uploadBtnName="$t('update')"
-    :status="updateStatus" />
+  <UploadDialog v-model="updateDialogVisible" :handleUpload="upgrade_motor_fw" :title="$t('fwUpgrade')"
+    :uploadBtnName="$t('update')" :status="updateStatus" />
 
 </template>
 
