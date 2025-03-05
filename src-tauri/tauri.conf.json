@@ -7,7 +7,7 @@
   },
   "package": {
     "productName": "lidar_corev3_motor_gui",
-    "version": "0.2.2"
+    "version": "0.3.0"
   },
   "tauri": {
     "allowlist": {
